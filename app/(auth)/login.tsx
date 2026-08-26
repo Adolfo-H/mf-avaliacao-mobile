@@ -15,10 +15,9 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   function handleLogin() {
-    Alert.alert(
-      'Tela funcionando',
-      'Na próxima fase conectaremos este formulário à autenticação real do sistema MF.'
-    );
+    // TEMPORÁRIO:
+    // Será substituído pela autenticação real via API Laravel.
+    router.replace('/(app)/(tabs)/dashboard');
   }
 
   return (
@@ -89,7 +88,9 @@ export default function LoginScreen() {
             style={styles.loginButton}
             onPress={handleLogin}
           >
-            <Text style={styles.loginButtonText}>Entrar</Text>
+            <Text style={styles.loginButtonText}>
+              Entrar
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
