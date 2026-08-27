@@ -10,9 +10,11 @@ import {
   View,
 } from 'react-native';
 
-import { logout } from '@/services/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfileScreen() {
+  const { user, signOut } = useAuth();
+
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
@@ -23,14 +25,8 @@ export default function ProfileScreen() {
     try {
       setLoggingOut(true);
 
-      await logout();
+      await signOut();
 
-      router.replace('/');
-    } catch (error) {
-      console.error('Erro ao encerrar sessão:', error);
-
-      // Mesmo que o backend esteja temporariamente indisponível,
-      // o services/auth.ts remove o token local no finally.
       router.replace('/');
     } finally {
       setLoggingOut(false);
@@ -59,11 +55,11 @@ export default function ProfileScreen() {
 
           <View style={styles.profileContent}>
             <Text style={styles.name}>
-              Administrador MF
+              {user?.name ?? 'Usuário'}
             </Text>
 
             <Text style={styles.email}>
-              admin@mf.local
+              {user?.email ?? ''}
             </Text>
           </View>
         </View>
@@ -89,7 +85,7 @@ export default function ProfileScreen() {
                 </Text>
 
                 <Text style={styles.infoDescription}>
-                  Sua autenticação é armazenada com segurança no dispositivo.
+                  Sua autenticação está protegida no dispositivo.
                 </Text>
               </View>
             </View>
