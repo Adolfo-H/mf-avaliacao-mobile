@@ -1,5 +1,7 @@
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -7,7 +9,48 @@ import {
   View,
 } from 'react-native';
 
+import { restoreSession } from '@/services/auth';
+
 export default function WelcomeScreen() {
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const user = await restoreSession();
+
+        if (user) {
+          router.replace('/(app)/(tabs)/dashboard');
+          return;
+        }
+      } finally {
+        setCheckingSession(false);
+      }
+    }
+
+    checkSession();
+  }, []);
+
+  if (checkingSession) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <View style={styles.loadingLogo}>
+          <Text style={styles.loadingLogoText}>MF</Text>
+        </View>
+
+        <ActivityIndicator
+          size="large"
+          color="#123C47"
+          style={styles.loadingIndicator}
+        />
+
+        <Text style={styles.loadingText}>
+          Carregando...
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -15,11 +58,15 @@ export default function WelcomeScreen() {
           <Text style={styles.logoText}>MF</Text>
         </View>
 
-        <Text style={styles.brand}>Saúde e Movimento</Text>
+        <Text style={styles.brand}>
+          Saúde e Movimento
+        </Text>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.label}>AVALIAÇÃO FÍSICA</Text>
+        <Text style={styles.label}>
+          AVALIAÇÃO FÍSICA
+        </Text>
 
         <Text style={styles.title}>
           Acompanhe cada evolução de forma simples e completa.
@@ -61,7 +108,9 @@ export default function WelcomeScreen() {
           activeOpacity={0.85}
           onPress={() => router.push('/(auth)/login')}
         >
-          <Text style={styles.buttonText}>Entrar</Text>
+          <Text style={styles.buttonText}>
+            Entrar
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.footerText}>
@@ -179,5 +228,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#96A1A4',
     fontSize: 12,
+  },
+
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#F7F8F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  loadingLogo: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    backgroundColor: '#123C47',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 28,
+  },
+
+  loadingLogoText: {
+    color: '#FFFFFF',
+    fontSize: 23,
+    fontWeight: '800',
+  },
+
+  loadingIndicator: {
+    marginBottom: 14,
+  },
+
+  loadingText: {
+    color: '#66757A',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
