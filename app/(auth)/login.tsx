@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   SafeAreaView,
   StyleSheet,
@@ -10,14 +11,38 @@ import {
   View,
 } from 'react-native';
 
+import { login } from '@/services/auth';
+
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  function handleLogin() {
-    // TEMPORÁRIO:
-    // Será substituído pela autenticação real via API Laravel.
-    router.replace('/(app)/(tabs)/dashboard');
+  async function handleLogin() {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
+      setError('Informe o e-mail e a senha.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      await login(normalizedEmail, password);
+
+      router.replace('/(app)/(tabs)/dashboard');
+    } catch (exception) {
+      setError(
+        exception instanceof Error
+          ? exception.message
+          : 'Não foi possível realizar o login.'
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -26,6 +51,7 @@ export default function LoginScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
+          disabled={loading}
         >
           <Text style={styles.backText}>‹</Text>
         </TouchableOpacity>
@@ -47,12 +73,16 @@ export default function LoginScreen() {
 
           <TextInput
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(value) => {
+              setEmail(value);
+              setError('');
+            }}
             placeholder="seuemail@exemplo.com"
             placeholderTextColor="#A1ACAF"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+            editable={!loading}
             style={styles.input}
           />
 
@@ -62,19 +92,30 @@ export default function LoginScreen() {
 
           <TextInput
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(value) => {
+              setPassword(value);
+              setError('');
+            }}
             placeholder="Digite sua senha"
             placeholderTextColor="#A1ACAF"
             secureTextEntry
+            editable={!loading}
             style={styles.input}
           />
 
+          {error ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
           <TouchableOpacity
             style={styles.forgotButton}
+            disabled={loading}
             onPress={() =>
               Alert.alert(
                 'Em breve',
-                'A recuperação de senha será conectada ao backend.'
+                'A recuperação de senha será implementada posteriormente.'
               )
             }
           >
@@ -85,12 +126,20 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             activeOpacity={0.85}
-            style={styles.loginButton}
+            style={[
+              styles.loginButton,
+              loading && styles.loginButtonDisabled,
+            ]}
+            disabled={loading}
             onPress={handleLogin}
           >
-            <Text style={styles.loginButtonText}>
-              Entrar
-            </Text>
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.loginButtonText}>
+                Entrar
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -188,6 +237,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  errorBox: {
+    marginTop: 14,
+    backgroundColor: '#FFF1F1',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+  },
+
+  errorText: {
+    color: '#B44747',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '600',
+  },
+
   forgotButton: {
     alignSelf: 'flex-end',
     paddingVertical: 16,
@@ -206,6 +270,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
+  },
+
+  loginButtonDisabled: {
+    opacity: 0.7,
   },
 
   loginButtonText: {

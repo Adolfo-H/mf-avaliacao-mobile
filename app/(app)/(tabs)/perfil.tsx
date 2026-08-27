@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   SafeAreaView,
   StyleSheet,
@@ -8,12 +10,43 @@ import {
   View,
 } from 'react-native';
 
+import { logout } from '@/services/auth';
+
 export default function ProfileScreen() {
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    if (loggingOut) {
+      return;
+    }
+
+    try {
+      setLoggingOut(true);
+
+      await logout();
+
+      router.replace('/');
+    } catch (error) {
+      console.error('Erro ao encerrar sessão:', error);
+
+      // Mesmo que o backend esteja temporariamente indisponível,
+      // o services/auth.ts remove o token local no finally.
+      router.replace('/');
+    } finally {
+      setLoggingOut(false);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.label}>CONTA</Text>
-        <Text style={styles.title}>Perfil</Text>
+        <Text style={styles.label}>
+          CONTA
+        </Text>
+
+        <Text style={styles.title}>
+          Perfil
+        </Text>
 
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
@@ -24,28 +57,100 @@ export default function ProfileScreen() {
             />
           </View>
 
-          <View>
+          <View style={styles.profileContent}>
             <Text style={styles.name}>
-              Usuário de desenvolvimento
+              Administrador MF
             </Text>
 
             <Text style={styles.email}>
-              Autenticação ainda não conectada
+              admin@mf.local
             </Text>
           </View>
         </View>
 
-        <Pressable
-          style={styles.logout}
-          onPress={() => router.replace('/')}
-        >
-          <Ionicons
-            name="log-out-outline"
-            size={21}
-            color="#B44747"
-          />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Aplicativo
+          </Text>
 
-          <Text style={styles.logoutText}>Sair</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoIcon}>
+                <Ionicons
+                  name="shield-checkmark-outline"
+                  size={21}
+                  color="#40856C"
+                />
+              </View>
+
+              <View style={styles.infoContent}>
+                <Text style={styles.infoTitle}>
+                  Sessão protegida
+                </Text>
+
+                <Text style={styles.infoDescription}>
+                  Sua autenticação é armazenada com segurança no dispositivo.
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoIcon}>
+                <Ionicons
+                  name="phone-portrait-outline"
+                  size={21}
+                  color="#40856C"
+                />
+              </View>
+
+              <View style={styles.infoContent}>
+                <Text style={styles.infoTitle}>
+                  MF Avaliação Física
+                </Text>
+
+                <Text style={styles.infoDescription}>
+                  Ambiente de desenvolvimento
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.logout,
+            pressed && !loggingOut && styles.logoutPressed,
+            loggingOut && styles.logoutDisabled,
+          ]}
+          onPress={handleLogout}
+          disabled={loggingOut}
+        >
+          {loggingOut ? (
+            <>
+              <ActivityIndicator
+                size="small"
+                color="#B44747"
+              />
+
+              <Text style={styles.logoutText}>
+                Saindo...
+              </Text>
+            </>
+          ) : (
+            <>
+              <Ionicons
+                name="log-out-outline"
+                size={21}
+                color="#B44747"
+              />
+
+              <Text style={styles.logoutText}>
+                Sair
+              </Text>
+            </>
+          )}
         </Pressable>
       </View>
     </SafeAreaView>
@@ -60,7 +165,7 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
     paddingTop: 28,
   },
 
@@ -99,9 +204,13 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
 
+  profileContent: {
+    flex: 1,
+  },
+
   name: {
     color: '#172D34',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
     marginBottom: 4,
   },
@@ -109,6 +218,58 @@ const styles = StyleSheet.create({
   email: {
     color: '#718084',
     fontSize: 13,
+  },
+
+  section: {
+    marginTop: 30,
+  },
+
+  sectionTitle: {
+    color: '#172D34',
+    fontSize: 17,
+    fontWeight: '800',
+    marginBottom: 14,
+  },
+
+  infoCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E4E9E7',
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 10,
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  infoIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: '#EAF3EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 13,
+  },
+
+  infoContent: {
+    flex: 1,
+  },
+
+  infoTitle: {
+    color: '#172D34',
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 3,
+  },
+
+  infoDescription: {
+    color: '#718084',
+    fontSize: 12,
+    lineHeight: 17,
   },
 
   logout: {
@@ -121,7 +282,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 10,
+  },
+
+  logoutPressed: {
+    opacity: 0.7,
+  },
+
+  logoutDisabled: {
+    opacity: 0.7,
   },
 
   logoutText: {
