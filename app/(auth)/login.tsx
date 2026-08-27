@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -11,9 +12,9 @@ import {
   View,
 } from 'react-native';
 
-import { login } from '@/services/auth';
 
 export default function LoginScreen() {
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ export default function LoginScreen() {
       setLoading(true);
       setError('');
 
-      await login(normalizedEmail, password);
+      await signIn(normalizedEmail, password);
 
       router.replace('/(app)/(tabs)/dashboard');
     } catch (exception) {

@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -9,29 +8,12 @@ import {
   View,
 } from 'react-native';
 
-import { restoreSession } from '@/services/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function WelcomeScreen() {
-  const [checkingSession, setCheckingSession] = useState(true);
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    async function checkSession() {
-      try {
-        const user = await restoreSession();
-
-        if (user) {
-          router.replace('/(app)/(tabs)/dashboard');
-          return;
-        }
-      } finally {
-        setCheckingSession(false);
-      }
-    }
-
-    checkSession();
-  }, []);
-
-  if (checkingSession) {
+  if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <View style={styles.loadingLogo}>
@@ -47,6 +29,19 @@ export default function WelcomeScreen() {
         <Text style={styles.loadingText}>
           Carregando...
         </Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (user) {
+    router.replace('/(app)/(tabs)/dashboard');
+
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator
+          size="large"
+          color="#123C47"
+        />
       </SafeAreaView>
     );
   }
