@@ -112,13 +112,52 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
+
+          {/* GERENCIAMENTO DE AVALIADORES */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.managementCard,
+              pressed && styles.managementCardPressed,
+            ]}
+            onPress={() =>
+              router.push('/(app)/evaluators')
+            }
+          >
+            <View style={styles.managementIcon}>
+              <Ionicons
+                name="people-outline"
+                size={22}
+                color="#40856C"
+              />
+            </View>
+
+            <View style={styles.managementContent}>
+              <Text style={styles.managementTitle}>
+                Gerenciar avaliadores
+              </Text>
+
+              <Text style={styles.managementDescription}>
+                Cadastre e gerencie os profissionais da equipe.
+              </Text>
+            </View>
+
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color="#9BA5A8"
+            />
+          </Pressable>
         </View>
 
+        {/* LOGOUT SEPARADO */}
         <Pressable
           style={({ pressed }) => [
             styles.logout,
-            pressed && !loggingOut && styles.logoutPressed,
-            loggingOut && styles.logoutDisabled,
+            pressed &&
+              !loggingOut &&
+              styles.logoutPressed,
+            loggingOut &&
+              styles.logoutDisabled,
           ]}
           onPress={handleLogout}
           disabled={loggingOut}
@@ -263,6 +302,51 @@ const styles = StyleSheet.create({
   },
 
   infoDescription: {
+    color: '#718084',
+    fontSize: 12,
+    lineHeight: 17,
+  },
+
+  managementCard: {
+    minHeight: 78,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E4E9E7',
+    borderRadius: 18,
+    paddingHorizontal: 15,
+    paddingVertical: 13,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  managementCardPressed: {
+    opacity: 0.7,
+  },
+
+  managementIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#EAF3EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 13,
+  },
+
+  managementContent: {
+    flex: 1,
+    paddingRight: 10,
+  },
+
+  managementTitle: {
+    color: '#172D34',
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 3,
+  },
+
+  managementDescription: {
     color: '#718084',
     fontSize: 12,
     lineHeight: 17,
