@@ -34,7 +34,8 @@ export default function EvaluatorDetailsScreen() {
 
   const [loading, setLoading] = useState(true);
 
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] =
+    useState(false);
 
   const [error, setError] = useState('');
 
@@ -47,46 +48,46 @@ export default function EvaluatorDetailsScreen() {
   ] = useState(false);
 
   const loadEvaluator = useCallback(
-  async (showLoading = true) => {
-    if (!evaluatorId) {
-      setError('Avaliador inválido.');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      if (showLoading) {
-        setLoading(true);
-      }
-
-      setError('');
-
-      const response =
-        await getEvaluator(evaluatorId);
-
-      setEvaluator(response);
-    } catch (exception) {
-      setError(
-        exception instanceof Error
-          ? exception.message
-          : 'Não foi possível carregar o avaliador.'
-      );
-    } finally {
-      if (showLoading) {
+    async (showLoading = true) => {
+      if (!evaluatorId) {
+        setError('Avaliador inválido.');
         setLoading(false);
+        return;
       }
 
-      setRefreshing(false);
-    }
-  },
-  [evaluatorId]
-);
+      try {
+        if (showLoading) {
+          setLoading(true);
+        }
 
-useFocusEffect(
-  useCallback(() => {
-    void loadEvaluator();
-  }, [loadEvaluator])
-);
+        setError('');
+
+        const response =
+          await getEvaluator(evaluatorId);
+
+        setEvaluator(response);
+      } catch (exception) {
+        setError(
+          exception instanceof Error
+            ? exception.message
+            : 'Não foi possível carregar o avaliador.'
+        );
+      } finally {
+        if (showLoading) {
+          setLoading(false);
+        }
+
+        setRefreshing(false);
+      }
+    },
+    [evaluatorId]
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadEvaluator();
+    }, [loadEvaluator])
+  );
 
   async function handleRefresh() {
     setRefreshing(true);
@@ -275,6 +276,30 @@ useFocusEffect(
             </View>
           </View>
         </View>
+
+        {/* BOTÃO DE EDIÇÃO */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.editButton,
+            pressed &&
+              styles.editButtonPressed,
+          ]}
+          onPress={() =>
+            router.push(
+              `/(app)/evaluators/${evaluator.id}/edit`
+            )
+          }
+        >
+          <Ionicons
+            name="create-outline"
+            size={20}
+            color="#123C47"
+          />
+
+          <Text style={styles.editButtonText}>
+            Editar dados
+          </Text>
+        </Pressable>
 
         <Text style={styles.sectionTitle}>
           Informações profissionais
@@ -514,7 +539,9 @@ useFocusEffect(
 
         <Text style={styles.footerInfo}>
           Cadastro criado em{' '}
-          {formatDate(evaluator.created_at)}
+          {formatDate(
+            evaluator.created_at
+          )}
         </Text>
       </ScrollView>
     </SafeAreaView>
@@ -572,14 +599,19 @@ function getEvaluatorId(
 
   const id = Number(rawValue);
 
-  if (!Number.isInteger(id) || id <= 0) {
+  if (
+    !Number.isInteger(id) ||
+    id <= 0
+  ) {
     return null;
   }
 
   return id;
 }
 
-function getInitials(name: string): string {
+function getInitials(
+  name: string
+): string {
   const parts = name
     .trim()
     .split(/\s+/)
@@ -704,7 +736,7 @@ const styles = StyleSheet.create({
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 14,
   },
 
   avatar: {
@@ -783,6 +815,29 @@ const styles = StyleSheet.create({
 
   statusTextInactive: {
     color: '#B44747',
+  },
+
+  editButton: {
+    height: 54,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#DCE4E1',
+    borderRadius: 17,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 28,
+  },
+
+  editButtonPressed: {
+    opacity: 0.7,
+  },
+
+  editButtonText: {
+    color: '#123C47',
+    fontSize: 14,
+    fontWeight: '800',
   },
 
   sectionTitle: {
