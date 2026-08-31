@@ -38,10 +38,9 @@ function getApiBaseUrl(): string {
 }
 
 function buildApiUrl(path: string): string {
-  const normalizedPath =
-    path.startsWith('/')
-      ? path
-      : `/${path}`;
+  const normalizedPath = path.startsWith('/')
+    ? path
+    : `/${path}`;
 
   return `${getApiBaseUrl()}${normalizedPath}`;
 }
@@ -51,18 +50,15 @@ async function getResponseError(
   fallbackMessage: string
 ): Promise<string> {
   const contentType =
-    response.headers.get(
-      'content-type'
-    ) ?? '';
+    response.headers.get('content-type') ?? '';
 
   if (
-    contentType.includes(
-      'application/json'
-    )
+    contentType.includes('application/json')
   ) {
     try {
       const body = (await response.json()) as {
         message?: string;
+
         errors?: Record<
           string,
           string[]
@@ -89,8 +85,7 @@ async function getResponseError(
   }
 
   try {
-    const text =
-      await response.text();
+    const text = await response.text();
 
     if (text.trim()) {
       return text.trim();
@@ -130,8 +125,7 @@ function getImageMimeType(
     return asset.mimeType;
   }
 
-  const uri =
-    asset.uri.toLowerCase();
+  const uri = asset.uri.toLowerCase();
 
   if (uri.endsWith('.png')) {
     return 'image/png';
@@ -149,13 +143,11 @@ function blobToDataUrl(
 ): Promise<string> {
   return new Promise(
     (resolve, reject) => {
-      const reader =
-        new FileReader();
+      const reader = new FileReader();
 
       reader.onloadend = () => {
         if (
-          typeof reader.result ===
-          'string'
+          typeof reader.result === 'string'
         ) {
           resolve(reader.result);
           return;
@@ -190,11 +182,9 @@ type ListStudentsOptions = {
 export async function listStudents(
   options: ListStudentsOptions = {}
 ): Promise<StudentListResponse> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
-  const params =
-    new URLSearchParams();
+  const params = new URLSearchParams();
 
   if (options.search?.trim()) {
     params.set(
@@ -227,8 +217,7 @@ export async function listStudents(
 export async function getStudent(
   uuid: string
 ): Promise<Student> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
   const response =
     await apiRequest<StudentResponse>(
@@ -245,8 +234,7 @@ export async function getStudent(
 export async function createStudent(
   payload: CreateStudentPayload
 ): Promise<Student> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
   const response =
     await apiRequest<StudentResponse>(
@@ -254,9 +242,7 @@ export async function createStudent(
       {
         method: 'POST',
         token,
-        body: JSON.stringify(
-          payload
-        ),
+        body: JSON.stringify(payload),
       }
     );
 
@@ -267,8 +253,7 @@ export async function updateStudent(
   uuid: string,
   payload: UpdateStudentPayload
 ): Promise<Student> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
   const response =
     await apiRequest<StudentResponse>(
@@ -276,9 +261,7 @@ export async function updateStudent(
       {
         method: 'PUT',
         token,
-        body: JSON.stringify(
-          payload
-        ),
+        body: JSON.stringify(payload),
       }
     );
 
@@ -289,8 +272,7 @@ export async function updateStudentStatus(
   uuid: string,
   active: boolean
 ): Promise<Student> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
   const response =
     await apiRequest<StudentResponse>(
@@ -309,7 +291,7 @@ export async function updateStudentStatus(
 
 /*
 |--------------------------------------------------------------------------
-| Fotografia do aluno
+| Foto do aluno
 |--------------------------------------------------------------------------
 */
 
@@ -317,15 +299,13 @@ export async function uploadStudentPhoto(
   uuid: string,
   asset: ImagePickerAsset
 ): Promise<Student> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
-  const formData =
-    new FormData();
+  const formData = new FormData();
 
   /*
-   * No navegador o ImagePicker fornece
-   * um objeto File.
+   * No navegador, o ImagePicker pode
+   * fornecer um File diretamente.
    */
   if (asset.file) {
     formData.append(
@@ -335,20 +315,20 @@ export async function uploadStudentPhoto(
     );
   } else {
     /*
-     * Android e iOS utilizam URI local.
+     * Android/iOS trabalham com a URI
+     * local retornada pelo ImagePicker.
      *
-     * Não definir manualmente o header
-     * Content-Type do multipart/form-data.
-     * O fetch adicionará o boundary correto.
+     * Não configure manualmente o
+     * Content-Type multipart/form-data,
+     * pois o fetch precisa adicionar
+     * o boundary automaticamente.
      */
     formData.append(
       'photo',
       {
         uri: asset.uri,
-        name:
-          getImageFileName(asset),
-        type:
-          getImageMimeType(asset),
+        name: getImageFileName(asset),
+        type: getImageMimeType(asset),
       } as unknown as Blob
     );
   }
@@ -361,9 +341,7 @@ export async function uploadStudentPhoto(
       method: 'POST',
 
       headers: {
-        Accept:
-          'application/json',
-
+        Accept: 'application/json',
         Authorization:
           `Bearer ${token}`,
       },
@@ -391,8 +369,7 @@ export async function uploadStudentPhoto(
 export async function removeStudentPhoto(
   uuid: string
 ): Promise<Student> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
   const response =
     await apiRequest<StudentResponse>(
@@ -409,8 +386,7 @@ export async function removeStudentPhoto(
 export async function getStudentPhotoDataUrl(
   uuid: string
 ): Promise<string | null> {
-  const token =
-    await requireToken();
+  const token = await requireToken();
 
   const response = await fetch(
     buildApiUrl(
@@ -421,7 +397,6 @@ export async function getStudentPhotoDataUrl(
 
       headers: {
         Accept: 'image/*',
-
         Authorization:
           `Bearer ${token}`,
       },
@@ -429,8 +404,8 @@ export async function getStudentPhotoDataUrl(
   );
 
   /*
-   * 404 é esperado quando o aluno
-   * não possui fotografia.
+   * 404 é normal quando o aluno
+   * ainda não possui fotografia.
    */
   if (response.status === 404) {
     return null;
@@ -446,8 +421,7 @@ export async function getStudentPhotoDataUrl(
     throw new Error(message);
   }
 
-  const blob =
-    await response.blob();
+  const blob = await response.blob();
 
   return blobToDataUrl(blob);
 }
