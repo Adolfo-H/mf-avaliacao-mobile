@@ -21,17 +21,29 @@ export type StudentContact = {
 
 export type Student = {
   uuid: string;
+
   has_photo: boolean;
+
   name: string;
+
   birth_date: string | null;
+
   age: number | null;
+
   sex: StudentSex | null;
+
   address: StudentAddress | null;
+
   contact: StudentContact | null;
+
   active: boolean;
+
   archived: boolean;
+
   administrative_notes: string | null;
+
   created_at: string | null;
+
   updated_at: string | null;
 };
 

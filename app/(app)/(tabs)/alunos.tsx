@@ -5,21 +5,29 @@ import {
 } from 'expo-router';
 import {
   useCallback,
+  useEffect,
   useState,
 } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 
-import { listStudents } from '@/services/students';
+import {
+  getStudentPhotoDataUrl,
+  listStudents,
+} from '@/services/students';
+
 import {
   Student,
   StudentStatus,
@@ -63,7 +71,9 @@ export default function StudentsScreen() {
             status: statusValue,
           });
 
-        setStudents(response.data ?? []);
+        setStudents(
+          response.data ?? []
+        );
       } catch (exception) {
         setError(
           exception instanceof Error
@@ -116,14 +126,18 @@ export default function StudentsScreen() {
   if (loading) {
     return (
       <SafeAreaView
-        style={styles.loadingContainer}
+        style={
+          styles.loadingContainer
+        }
       >
         <ActivityIndicator
           size="large"
           color="#123C47"
         />
 
-        <Text style={styles.loadingText}>
+        <Text
+          style={styles.loadingText}
+        >
           Carregando alunos...
         </Text>
       </SafeAreaView>
@@ -131,7 +145,9 @@ export default function StudentsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+    >
       <ScrollView
         contentContainerStyle={
           styles.content
@@ -142,17 +158,25 @@ export default function StudentsScreen() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={handleRefresh}
+            onRefresh={
+              handleRefresh
+            }
           />
         }
       >
-        <View style={styles.header}>
+        <View
+          style={styles.header}
+        >
           <View>
-            <Text style={styles.label}>
+            <Text
+              style={styles.label}
+            >
               CADASTROS
             </Text>
 
-            <Text style={styles.title}>
+            <Text
+              style={styles.title}
+            >
               Alunos
             </Text>
           </View>
@@ -173,7 +197,11 @@ export default function StudentsScreen() {
           </Pressable>
         </View>
 
-        <View style={styles.searchContainer}>
+        <View
+          style={
+            styles.searchContainer
+          }
+        >
           <Ionicons
             name="search-outline"
             size={20}
@@ -182,12 +210,16 @@ export default function StudentsScreen() {
 
           <TextInput
             value={search}
-            onChangeText={setSearch}
+            onChangeText={
+              setSearch
+            }
             placeholder="Pesquisar aluno"
             placeholderTextColor="#A1ACAF"
             returnKeyType="search"
             autoCorrect={false}
-            style={styles.searchInput}
+            style={
+              styles.searchInput
+            }
             onSubmitEditing={
               handleSearch
             }
@@ -214,55 +246,77 @@ export default function StudentsScreen() {
           ) : null}
         </View>
 
-        <View style={styles.filters}>
+        <View
+          style={styles.filters}
+        >
           <FilterButton
             label="Ativos"
             selected={
               status === 'active'
             }
             onPress={() =>
-              handleStatus('active')
+              handleStatus(
+                'active'
+              )
             }
           />
 
           <FilterButton
             label="Inativos"
             selected={
-              status === 'inactive'
+              status ===
+              'inactive'
             }
             onPress={() =>
-              handleStatus('inactive')
+              handleStatus(
+                'inactive'
+              )
             }
           />
 
           <FilterButton
             label="Arquivados"
             selected={
-              status === 'archived'
+              status ===
+              'archived'
             }
             onPress={() =>
-              handleStatus('archived')
+              handleStatus(
+                'archived'
+              )
             }
           />
         </View>
 
         {error ? (
-          <View style={styles.errorBox}>
+          <View
+            style={styles.errorBox}
+          >
             <Ionicons
               name="alert-circle-outline"
               size={20}
               color="#B44747"
             />
 
-            <Text style={styles.errorText}>
+            <Text
+              style={
+                styles.errorText
+              }
+            >
               {error}
             </Text>
           </View>
         ) : null}
 
         {students.length === 0 ? (
-          <View style={styles.empty}>
-            <View style={styles.emptyIcon}>
+          <View
+            style={styles.empty}
+          >
+            <View
+              style={
+                styles.emptyIcon
+              }
+            >
               <Ionicons
                 name="people-outline"
                 size={34}
@@ -271,19 +325,25 @@ export default function StudentsScreen() {
             </View>
 
             <Text
-              style={styles.emptyTitle}
+              style={
+                styles.emptyTitle
+              }
             >
               Nenhum aluno encontrado
             </Text>
 
             <Text
-              style={styles.emptyText}
+              style={
+                styles.emptyText
+              }
             >
               {search
                 ? 'Não encontramos alunos para essa pesquisa.'
-                : status === 'inactive'
+                : status ===
+                    'inactive'
                   ? 'Não há alunos inativos.'
-                  : status === 'archived'
+                  : status ===
+                      'archived'
                     ? 'Não há alunos arquivados.'
                     : 'Cadastre o primeiro aluno para começar as avaliações.'}
             </Text>
@@ -291,7 +351,9 @@ export default function StudentsScreen() {
             {!search &&
             status === 'active' ? (
               <Pressable
-                style={styles.emptyButton}
+                style={
+                  styles.emptyButton
+                }
                 onPress={() =>
                   router.push(
                     '/(app)/students/new'
@@ -315,7 +377,9 @@ export default function StudentsScreen() {
             ) : null}
           </View>
         ) : (
-          <View style={styles.list}>
+          <View
+            style={styles.list}
+          >
             {students.map(
               (student) => {
                 const studentStatus =
@@ -325,11 +389,14 @@ export default function StudentsScreen() {
 
                 return (
                   <Pressable
-                    key={student.uuid}
+                    key={
+                      student.uuid
+                    }
                     style={({
                       pressed,
                     }) => [
                       styles.studentCard,
+
                       pressed &&
                         styles.studentCardPressed,
                     ]}
@@ -339,19 +406,11 @@ export default function StudentsScreen() {
                       )
                     }
                   >
-                    <View
-                      style={styles.avatar}
-                    >
-                      <Text
-                        style={
-                          styles.avatarText
-                        }
-                      >
-                        {getInitials(
-                          student.name
-                        )}
-                      </Text>
-                    </View>
+                    <StudentAvatar
+                      student={
+                        student
+                      }
+                    />
 
                     <View
                       style={
@@ -367,14 +426,19 @@ export default function StudentsScreen() {
                           style={
                             styles.studentName
                           }
-                          numberOfLines={1}
+                          numberOfLines={
+                            1
+                          }
                         >
-                          {student.name}
+                          {
+                            student.name
+                          }
                         </Text>
 
                         <View
                           style={[
                             styles.statusBadge,
+
                             studentStatus ===
                             'active'
                               ? styles.statusActive
@@ -387,6 +451,7 @@ export default function StudentsScreen() {
                           <View
                             style={[
                               styles.statusDot,
+
                               studentStatus ===
                               'active'
                                 ? styles.statusDotActive
@@ -400,6 +465,7 @@ export default function StudentsScreen() {
                           <Text
                             style={[
                               styles.statusText,
+
                               studentStatus ===
                               'active'
                                 ? styles.statusTextActive
@@ -421,7 +487,9 @@ export default function StudentsScreen() {
                       </View>
 
                       <Text
-                        style={styles.age}
+                        style={
+                          styles.age
+                        }
                       >
                         {student.age !==
                         null
@@ -444,7 +512,9 @@ export default function StudentsScreen() {
                           style={
                             styles.infoText
                           }
-                          numberOfLines={1}
+                          numberOfLines={
+                            1
+                          }
                         >
                           {student
                             .contact
@@ -468,7 +538,9 @@ export default function StudentsScreen() {
                           style={
                             styles.infoText
                           }
-                          numberOfLines={1}
+                          numberOfLines={
+                            1
+                          }
                         >
                           {formatLocation(
                             student
@@ -493,6 +565,116 @@ export default function StudentsScreen() {
   );
 }
 
+type StudentAvatarProps = {
+  student: Student;
+};
+
+function StudentAvatar({
+  student,
+}: StudentAvatarProps) {
+  const [
+    photoDataUrl,
+    setPhotoDataUrl,
+  ] = useState<string | null>(
+    null
+  );
+
+  const [
+    loadingPhoto,
+    setLoadingPhoto,
+  ] = useState(
+    student.has_photo
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadPhoto() {
+      if (
+        !student.has_photo
+      ) {
+        setPhotoDataUrl(null);
+        setLoadingPhoto(false);
+        return;
+      }
+
+      try {
+        setLoadingPhoto(true);
+
+        const photo =
+          await getStudentPhotoDataUrl(
+            student.uuid
+          );
+
+        if (active) {
+          setPhotoDataUrl(
+            photo
+          );
+        }
+      } catch {
+        if (active) {
+          setPhotoDataUrl(
+            null
+          );
+        }
+      } finally {
+        if (active) {
+          setLoadingPhoto(
+            false
+          );
+        }
+      }
+    }
+
+    void loadPhoto();
+
+    return () => {
+      active = false;
+    };
+  }, [
+    student.uuid,
+    student.has_photo,
+  ]);
+
+  if (loadingPhoto) {
+    return (
+      <View
+        style={styles.avatar}
+      >
+        <ActivityIndicator
+          size="small"
+          color="#40856C"
+        />
+      </View>
+    );
+  }
+
+  if (photoDataUrl) {
+    return (
+      <Image
+        source={{
+          uri: photoDataUrl,
+        }}
+        style={
+          styles.avatarImage
+        }
+      />
+    );
+  }
+
+  return (
+    <View style={styles.avatar}>
+      <Text
+        style={styles.avatarText}
+      >
+        {getInitials(
+          student.name
+        )}
+      </Text>
+    </View>
+  );
+}
+
 type FilterButtonProps = {
   label: string;
   selected: boolean;
@@ -508,6 +690,7 @@ function FilterButton({
     <Pressable
       style={[
         styles.filterButton,
+
         selected &&
           styles.filterButtonSelected,
       ]}
@@ -516,6 +699,7 @@ function FilterButton({
       <Text
         style={[
           styles.filterText,
+
           selected &&
             styles.filterTextSelected,
         ]}
@@ -530,7 +714,7 @@ function getInitials(
   name: string
 ): string {
   const parts = name
-    .trim() 
+    .trim()
     .split(/\s+/)
     .filter(Boolean);
 
@@ -587,308 +771,342 @@ function getStudentStatus(
   return 'active';
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F7F8F6',
-  },
+const styles =
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor:
+        '#F7F8F6',
+    },
 
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
+    content: {
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 40,
+    },
 
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: '#F7F8F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    loadingContainer: {
+      flex: 1,
+      backgroundColor:
+        '#F7F8F6',
+      alignItems: 'center',
+      justifyContent:
+        'center',
+    },
 
-  loadingText: {
-    marginTop: 14,
-    color: '#66757A',
-    fontSize: 14,
-    fontWeight: '600',
-  },
+    loadingText: {
+      marginTop: 14,
+      color: '#66757A',
+      fontSize: 14,
+      fontWeight: '600',
+    },
 
-  header: {
-    flexDirection: 'row',
-    justifyContent:
-      'space-between',
-    alignItems: 'center',
-    marginBottom: 22,
-  },
+    header: {
+      flexDirection: 'row',
+      justifyContent:
+        'space-between',
+      alignItems: 'center',
+      marginBottom: 22,
+    },
 
-  label: {
-    color: '#40856C',
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1.3,
-    marginBottom: 4,
-  },
+    label: {
+      color: '#40856C',
+      fontSize: 10,
+      fontWeight: '800',
+      letterSpacing: 1.3,
+      marginBottom: 4,
+    },
 
-  title: {
-    color: '#172D34',
-    fontSize: 28,
-    fontWeight: '800',
-  },
+    title: {
+      color: '#172D34',
+      fontSize: 28,
+      fontWeight: '800',
+    },
 
-  addButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: '#123C47',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    addButton: {
+      width: 48,
+      height: 48,
+      borderRadius: 16,
+      backgroundColor:
+        '#123C47',
+      alignItems: 'center',
+      justifyContent:
+        'center',
+    },
 
-  searchContainer: {
-    minHeight: 54,
-    borderRadius: 17,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#DEE4E2',
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
+    searchContainer: {
+      minHeight: 54,
+      borderRadius: 17,
+      backgroundColor:
+        '#FFFFFF',
+      borderWidth: 1,
+      borderColor: '#DEE4E2',
+      paddingHorizontal: 15,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
 
-  searchInput: {
-    flex: 1,
-    color: '#172D34',
-    fontSize: 15,
-  },
+    searchInput: {
+      flex: 1,
+      color: '#172D34',
+      fontSize: 15,
+    },
 
-  filters: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 13,
-    marginBottom: 20,
-  },
+    filters: {
+      flexDirection: 'row',
+      gap: 8,
+      marginTop: 13,
+      marginBottom: 20,
+    },
 
-  filterButton: {
-    flex: 1,
-    minHeight: 40,
-    borderRadius: 13,
-    borderWidth: 1,
-    borderColor: '#DEE4E2',
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    filterButton: {
+      flex: 1,
+      minHeight: 40,
+      borderRadius: 13,
+      borderWidth: 1,
+      borderColor: '#DEE4E2',
+      backgroundColor:
+        '#FFFFFF',
+      alignItems: 'center',
+      justifyContent:
+        'center',
+    },
 
-  filterButtonSelected: {
-    backgroundColor: '#EAF3EF',
-    borderColor: '#CFE2D9',
-  },
+    filterButtonSelected: {
+      backgroundColor:
+        '#EAF3EF',
+      borderColor: '#CFE2D9',
+    },
 
-  filterText: {
-    color: '#718084',
-    fontSize: 12,
-    fontWeight: '700',
-  },
+    filterText: {
+      color: '#718084',
+      fontSize: 12,
+      fontWeight: '700',
+    },
 
-  filterTextSelected: {
-    color: '#40856C',
-  },
+    filterTextSelected: {
+      color: '#40856C',
+    },
 
-  errorBox: {
-    backgroundColor: '#FFF1F1',
-    borderRadius: 16,
-    padding: 14,
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-    marginBottom: 18,
-  },
+    errorBox: {
+      backgroundColor:
+        '#FFF1F1',
+      borderRadius: 16,
+      padding: 14,
+      flexDirection: 'row',
+      gap: 10,
+      alignItems: 'center',
+      marginBottom: 18,
+    },
 
-  errorText: {
-    flex: 1,
-    color: '#B44747',
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '600',
-  },
+    errorText: {
+      flex: 1,
+      color: '#B44747',
+      fontSize: 13,
+      lineHeight: 18,
+      fontWeight: '600',
+    },
 
-  list: {
-    gap: 11,
-  },
+    list: {
+      gap: 11,
+    },
 
-  studentCard: {
-    minHeight: 120,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E4E9E7',
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+    studentCard: {
+      minHeight: 120,
+      borderRadius: 20,
+      backgroundColor:
+        '#FFFFFF',
+      borderWidth: 1,
+      borderColor: '#E4E9E7',
+      padding: 15,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
 
-  studentCardPressed: {
-    opacity: 0.7,
-  },
+    studentCardPressed: {
+      opacity: 0.7,
+    },
 
-  avatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 18,
-    backgroundColor: '#EAF3EF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
+    avatar: {
+      width: 54,
+      height: 54,
+      borderRadius: 18,
+      backgroundColor:
+        '#EAF3EF',
+      alignItems: 'center',
+      justifyContent:
+        'center',
+      marginRight: 14,
+    },
 
-  avatarText: {
-    color: '#123C47',
-    fontSize: 17,
-    fontWeight: '800',
-  },
+    avatarImage: {
+      width: 54,
+      height: 54,
+      borderRadius: 18,
+      backgroundColor:
+        '#EAF3EF',
+      marginRight: 14,
+    },
 
-  studentContent: {
-    flex: 1,
-  },
+    avatarText: {
+      color: '#123C47',
+      fontSize: 17,
+      fontWeight: '800',
+    },
 
-  studentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 3,
-  },
+    studentContent: {
+      flex: 1,
+    },
 
-  studentName: {
-    flex: 1,
-    color: '#172D34',
-    fontSize: 15,
-    fontWeight: '800',
-    paddingRight: 7,
-  },
+    studentHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 3,
+    },
 
-  age: {
-    color: '#40856C',
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 7,
-  },
+    studentName: {
+      flex: 1,
+      color: '#172D34',
+      fontSize: 15,
+      fontWeight: '800',
+      paddingRight: 7,
+    },
 
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 3,
-  },
+    age: {
+      color: '#40856C',
+      fontSize: 13,
+      fontWeight: '600',
+      marginBottom: 7,
+    },
 
-  infoText: {
-    flex: 1,
-    color: '#839095',
-    fontSize: 12,
-  },
+    infoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginTop: 3,
+    },
 
-  statusBadge: {
-    borderRadius: 100,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
+    infoText: {
+      flex: 1,
+      color: '#839095',
+      fontSize: 12,
+    },
 
-  statusActive: {
-    backgroundColor: '#EAF6EF',
-  },
+    statusBadge: {
+      borderRadius: 100,
+      paddingHorizontal: 8,
+      paddingVertical: 5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+    },
 
-  statusInactive: {
-    backgroundColor: '#F5F0F0',
-  },
+    statusActive: {
+      backgroundColor:
+        '#EAF6EF',
+    },
 
-  statusArchived: {
-    backgroundColor: '#F1F1F1',
-  },
+    statusInactive: {
+      backgroundColor:
+        '#F5F0F0',
+    },
 
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
+    statusArchived: {
+      backgroundColor:
+        '#F1F1F1',
+    },
 
-  statusDotActive: {
-    backgroundColor: '#40856C',
-  },
+    statusDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+    },
 
-  statusDotInactive: {
-    backgroundColor: '#9B6868',
-  },
+    statusDotActive: {
+      backgroundColor:
+        '#40856C',
+    },
 
-  statusDotArchived: {
-    backgroundColor: '#7B8588',
-  },
+    statusDotInactive: {
+      backgroundColor:
+        '#9B6868',
+    },
 
-  statusText: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
+    statusDotArchived: {
+      backgroundColor:
+        '#7B8588',
+    },
 
-  statusTextActive: {
-    color: '#40856C',
-  },
+    statusText: {
+      fontSize: 10,
+      fontWeight: '700',
+    },
 
-  statusTextInactive: {
-    color: '#9B6868',
-  },
+    statusTextActive: {
+      color: '#40856C',
+    },
 
-  statusTextArchived: {
-    color: '#6F797C',
-  },
+    statusTextInactive: {
+      color: '#9B6868',
+    },
 
-  empty: {
-    minHeight: 330,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 30,
-  },
+    statusTextArchived: {
+      color: '#6F797C',
+    },
 
-  emptyIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 24,
-    backgroundColor: '#EAF3EF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
+    empty: {
+      minHeight: 330,
+      alignItems: 'center',
+      justifyContent:
+        'center',
+      paddingHorizontal: 30,
+    },
 
-  emptyTitle: {
-    color: '#172D34',
-    fontSize: 20,
-    fontWeight: '800',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
+    emptyIcon: {
+      width: 72,
+      height: 72,
+      borderRadius: 24,
+      backgroundColor:
+        '#EAF3EF',
+      alignItems: 'center',
+      justifyContent:
+        'center',
+      marginBottom: 20,
+    },
 
-  emptyText: {
-    color: '#718084',
-    fontSize: 14,
-    lineHeight: 21,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
+    emptyTitle: {
+      color: '#172D34',
+      fontSize: 20,
+      fontWeight: '800',
+      marginBottom: 8,
+      textAlign: 'center',
+    },
 
-  emptyButton: {
-    minHeight: 54,
-    paddingHorizontal: 22,
-    borderRadius: 17,
-    backgroundColor: '#123C47',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
+    emptyText: {
+      color: '#718084',
+      fontSize: 14,
+      lineHeight: 21,
+      textAlign: 'center',
+      marginBottom: 24,
+    },
 
-  emptyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-});
+    emptyButton: {
+      minHeight: 54,
+      paddingHorizontal: 22,
+      borderRadius: 17,
+      backgroundColor:
+        '#123C47',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent:
+        'center',
+      gap: 8,
+    },
+
+    emptyButtonText: {
+      color: '#FFFFFF',
+      fontSize: 15,
+      fontWeight: '700',
+    },
+  });
