@@ -2,6 +2,21 @@ export type AssessmentStatus =
   | 'draft'
   | 'completed';
 
+export type AssessmentSectionKey =
+  | 'anamnesis'
+  | 'body_composition'
+  | 'circumferences'
+  | 'vo2_max'
+  | 'neuromotor_tests'
+  | 'progress_photos'
+  | 'postural_assessment';
+
+export type AssessmentSectionStatus =
+  | 'not_started'
+  | 'in_progress'
+  | 'completed'
+  | 'pending';
+
 export type AssessmentStudent = {
   uuid: string;
   name: string;
@@ -23,6 +38,24 @@ export type AssessmentUser = {
   name: string;
 };
 
+export type AssessmentSection = {
+  key: AssessmentSectionKey;
+  label: string | null;
+  order: number | null;
+
+  status: AssessmentSectionStatus;
+  status_label: string | null;
+
+  started_at: string | null;
+  completed_at: string | null;
+};
+
+export type AssessmentProgress = {
+  completed: number;
+  total: number;
+  percentage: number;
+};
+
 export type Assessment = {
   uuid: string;
 
@@ -39,6 +72,10 @@ export type Assessment = {
   student: AssessmentStudent;
 
   evaluator: AssessmentEvaluator;
+
+  sections: AssessmentSection[];
+
+  progress: AssessmentProgress;
 
   created_by: AssessmentUser;
 
