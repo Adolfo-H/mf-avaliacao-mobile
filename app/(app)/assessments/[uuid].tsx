@@ -42,12 +42,15 @@ import {
 } from '@/types/assessment';
 
 export default function AssessmentDetailsScreen() {
-  const params = useLocalSearchParams<{
-    uuid?: string | string[];
-  }>();
+  const params =
+    useLocalSearchParams<{
+      uuid?: string | string[];
+    }>();
 
   const assessmentUuid =
-    getAssessmentUuid(params.uuid);
+    getAssessmentUuid(
+      params.uuid
+    );
 
   const [
     assessment,
@@ -192,6 +195,66 @@ export default function AssessmentDetailsScreen() {
     await loadAssessment(false);
   }
 
+  function openSection(
+    section: AssessmentSection
+  ) {
+    if (!assessment) {
+      return;
+    }
+
+    const readOnly =
+      assessment.can_edit
+        ? '0'
+        : '1';
+
+    if (
+      section.key ===
+      'anamnesis'
+    ) {
+      router.push({
+        pathname:
+          '/(app)/assessments/[uuid]/anamnesis',
+
+        params: {
+          uuid:
+            assessment.uuid,
+
+          readOnly,
+        },
+      });
+
+      return;
+    }
+
+    if (
+      section.key ===
+      'body_composition'
+    ) {
+      router.push({
+        pathname:
+          '/(app)/assessments/[uuid]/body-composition',
+
+        params: {
+          uuid:
+            assessment.uuid,
+
+          readOnly,
+        },
+      });
+    }
+  }
+
+  function canOpenSection(
+    key: AssessmentSectionKey
+  ): boolean {
+    return (
+      key ===
+        'anamnesis' ||
+      key ===
+        'body_composition'
+    );
+  }
+
   if (loading) {
     return (
       <SafeAreaView
@@ -218,7 +281,9 @@ export default function AssessmentDetailsScreen() {
   if (!assessment) {
     return (
       <SafeAreaView
-        style={styles.container}
+        style={
+          styles.container
+        }
       >
         <View
           style={
@@ -291,7 +356,9 @@ export default function AssessmentDetailsScreen() {
 
   return (
     <SafeAreaView
-      style={styles.container}
+      style={
+        styles.container
+      }
     >
       <ScrollView
         contentContainerStyle={
@@ -312,7 +379,9 @@ export default function AssessmentDetailsScreen() {
         }
       >
         <View
-          style={styles.header}
+          style={
+            styles.header
+          }
         >
           <Pressable
             style={
@@ -435,8 +504,8 @@ export default function AssessmentDetailsScreen() {
               }
             >
               {
-                assessment.student
-                  .name
+                assessment
+                  .student.name
               }
             </Text>
 
@@ -484,8 +553,8 @@ export default function AssessmentDetailsScreen() {
             icon="person-outline"
             label="Avaliador responsável"
             value={
-              assessment.evaluator
-                .name
+              assessment
+                .evaluator.name
             }
           />
         </View>
@@ -514,11 +583,15 @@ export default function AssessmentDetailsScreen() {
                   styles.progressTitle
                 }
               >
-                {assessment.progress
-                  .completed}{' '}
+                {
+                  assessment
+                    .progress
+                    .completed
+                }{' '}
                 de{' '}
                 {
-                  assessment.progress
+                  assessment
+                    .progress
                     .total
                 }{' '}
                 seções concluídas
@@ -548,6 +621,7 @@ export default function AssessmentDetailsScreen() {
             <View
               style={[
                 styles.progressFill,
+
                 {
                   width:
                     progressWidth,
@@ -556,28 +630,16 @@ export default function AssessmentDetailsScreen() {
             />
           </View>
 
-          {assessment.status ===
-          'draft' ? (
-            <Text
-              style={
-                styles.progressDescription
-              }
-            >
-              A avaliação está em
-              rascunho e pode ser
-              continuada posteriormente.
-            </Text>
-          ) : (
-            <Text
-              style={
-                styles.progressDescription
-              }
-            >
-              Esta avaliação foi
-              concluída e está
-              preservada no histórico.
-            </Text>
-          )}
+          <Text
+            style={
+              styles.progressDescription
+            }
+          >
+            {assessment.status ===
+            'draft'
+              ? 'A avaliação está em rascunho e pode ser continuada posteriormente.'
+              : 'Esta avaliação foi concluída e está preservada no histórico.'}
+          </Text>
         </View>
 
         <View
@@ -585,23 +647,21 @@ export default function AssessmentDetailsScreen() {
             styles.sectionHeader
           }
         >
-          <View>
-            <Text
-              style={
-                styles.sectionHeaderLabel
-              }
-            >
-              PREENCHIMENTO
-            </Text>
+          <Text
+            style={
+              styles.sectionHeaderLabel
+            }
+          >
+            PREENCHIMENTO
+          </Text>
 
-            <Text
-              style={
-                styles.sectionHeaderTitle
-              }
-            >
-              Seções da avaliação
-            </Text>
-          </View>
+          <Text
+            style={
+              styles.sectionHeaderTitle
+            }
+          >
+            Seções da avaliação
+          </Text>
         </View>
 
         <View
@@ -636,25 +696,13 @@ export default function AssessmentDetailsScreen() {
                   index={
                     index + 1
                   }
-                  onPress={
-                    section.key ===
-                    'anamnesis'
-                      ? () =>
-                          router.push({
-                            pathname:
-                              '/(app)/assessments/[uuid]/anamnesis',
-
-                            params: {
-                              uuid:
-                                assessment.uuid,
-
-                              readOnly:
-                                assessment.can_edit
-                                  ? '0'
-                                  : '1',
-                            },
-                          })
-                      : undefined
+                  enabled={canOpenSection(
+                    section.key
+                  )}
+                  onPress={() =>
+                    openSection(
+                      section
+                    )
                   }
                 />
               )
@@ -677,17 +725,18 @@ export default function AssessmentDetailsScreen() {
               styles.nextStepText
             }
           >
-            A Anamnese já pode ser
-            preenchida e salva
-            parcialmente. As demais
+            Anamnese e Composição
+            Corporal já estão
+            disponíveis. As demais
             seções serão habilitadas
-            conforme avançarmos no
-            desenvolvimento.
+            conforme avançarmos.
           </Text>
         </View>
 
         <Text
-          style={styles.footer}
+          style={
+            styles.footer
+          }
         >
           Criada em{' '}
           {formatDateTime(
@@ -704,6 +753,7 @@ type MetadataItemProps = {
     keyof typeof Ionicons.glyphMap;
 
   label: string;
+
   value: string;
 };
 
@@ -758,13 +808,18 @@ function MetadataItem({
 
 type SectionCardProps = {
   section: AssessmentSection;
+
   index: number;
-  onPress?: () => void;
+
+  enabled: boolean;
+
+  onPress: () => void;
 };
 
 function SectionCard({
   section,
   index,
+  enabled,
   onPress,
 }: SectionCardProps) {
   const icon =
@@ -774,14 +829,19 @@ function SectionCard({
 
   return (
     <Pressable
-      style={({ pressed }) => [
+      style={({
+        pressed,
+      }) => [
         styles.sectionCard,
 
+        !enabled &&
+          styles.sectionCardDisabled,
+
         pressed &&
-          onPress &&
+          enabled &&
           styles.sectionCardPressed,
       ]}
-      disabled={!onPress}
+      disabled={!enabled}
       onPress={onPress}
     >
       <View
@@ -806,7 +866,11 @@ function SectionCard({
         <Ionicons
           name={icon}
           size={22}
-          color="#40856C"
+          color={
+            enabled
+              ? '#40856C'
+              : '#9AA4A7'
+          }
         />
       </View>
 
@@ -816,9 +880,12 @@ function SectionCard({
         }
       >
         <Text
-          style={
-            styles.sectionName
-          }
+          style={[
+            styles.sectionName,
+
+            !enabled &&
+              styles.sectionNameDisabled,
+          ]}
         >
           {section.label ??
             getFallbackSectionLabel(
@@ -838,13 +905,15 @@ function SectionCard({
       </View>
 
       <SectionStatusBadge
-        status={section.status}
+        status={
+          section.status
+        }
         label={
           section.status_label
         }
       />
 
-      {onPress ? (
+      {enabled ? (
         <Ionicons
           name="chevron-forward"
           size={18}
@@ -853,13 +922,24 @@ function SectionCard({
             styles.sectionChevron
           }
         />
-      ) : null}
+      ) : (
+        <Ionicons
+          name="lock-closed-outline"
+          size={15}
+          color="#A7B0B2"
+          style={
+            styles.sectionChevron
+          }
+        />
+      )}
     </Pressable>
   );
 }
 
 type SectionStatusBadgeProps = {
-  status: AssessmentSectionStatus;
+  status:
+    AssessmentSectionStatus;
+
   label: string | null;
 };
 
@@ -1105,10 +1185,11 @@ function getAssessmentUuid(
 function getInitials(
   name: string
 ): string {
-  const parts = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+  const parts =
+    name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
 
   if (
     parts.length === 0
@@ -1533,6 +1614,10 @@ const styles =
       opacity: 0.7,
     },
 
+    sectionCardDisabled: {
+      opacity: 0.72,
+    },
+
     sectionChevron: {
       marginLeft: 6,
     },
@@ -1577,6 +1662,10 @@ const styles =
       fontSize: 13,
       fontWeight: '800',
       marginBottom: 4,
+    },
+
+    sectionNameDisabled: {
+      color: '#708084',
     },
 
     sectionDescription: {
