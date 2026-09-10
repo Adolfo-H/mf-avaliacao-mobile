@@ -212,14 +212,19 @@ export default function StudentDetailsScreen() {
         return;
       }
 
-      const result =
-        await ImagePicker
-          .launchCameraAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          });
+const result =
+  await ImagePicker
+    .launchCameraAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+
+      preferredAssetRepresentationMode:
+        ImagePicker
+          .UIImagePickerPreferredAssetRepresentationMode
+          .Compatible,
+    });
 
       if (
         result.canceled ||
