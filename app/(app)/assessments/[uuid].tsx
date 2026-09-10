@@ -241,6 +241,27 @@ export default function AssessmentDetailsScreen() {
           readOnly,
         },
       });
+
+      return;
+    }
+
+    if (
+      section.key ===
+      'circumferences'
+    ) {
+      router.push({
+        pathname:
+          '/(app)/assessments/[uuid]/anthropometry',
+
+        params: {
+          uuid:
+            assessment.uuid,
+
+          readOnly,
+        },
+      });
+
+      return;
     }
   }
 
@@ -248,10 +269,9 @@ export default function AssessmentDetailsScreen() {
     key: AssessmentSectionKey
   ): boolean {
     return (
-      key ===
-        'anamnesis' ||
-      key ===
-        'body_composition'
+      key === 'anamnesis' ||
+      key === 'body_composition' ||
+      key === 'circumferences'
     );
   }
 
