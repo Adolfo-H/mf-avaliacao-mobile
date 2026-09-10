@@ -263,6 +263,25 @@ export default function AssessmentDetailsScreen() {
 
       return;
     }
+    if (
+      section.key ===
+      'vo2_max'
+    ) {
+      router.push({
+        pathname:
+          '/(app)/assessments/[uuid]/vo2-max',
+
+        params: {
+          uuid:
+            assessment.uuid,
+
+          readOnly,
+        },
+      });
+
+      return;
+    }
+
   }
 
   function canOpenSection(
@@ -271,7 +290,8 @@ export default function AssessmentDetailsScreen() {
     return (
       key === 'anamnesis' ||
       key === 'body_composition' ||
-      key === 'circumferences'
+      key === 'circumferences' ||
+      key === 'vo2_max'
     );
   }
 
@@ -745,11 +765,7 @@ export default function AssessmentDetailsScreen() {
               styles.nextStepText
             }
           >
-            Anamnese e Composição
-            Corporal já estão
-            disponíveis. As demais
-            seções serão habilitadas
-            conforme avançarmos.
+            Anamnese, Composição Corporal, Perímetros e VO₂Max já estão disponíveis. As demais seções serão habilitadas conforme avançarmos.
           </Text>
         </View>
 
