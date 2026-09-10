@@ -282,6 +282,44 @@ export default function AssessmentDetailsScreen() {
       return;
     }
 
+    if (
+      section.key ===
+      'neuromotor_tests'
+    ) {
+      router.push({
+        pathname:
+          '/(app)/assessments/[uuid]/neuromotor-tests',
+
+        params: {
+          uuid:
+            assessment.uuid,
+
+          readOnly,
+        },
+      });
+
+      return;
+    }
+
+    if (
+      section.key ===
+      'progress_photos'
+    ) {
+      router.push({
+        pathname:
+          '/(app)/assessments/[uuid]/progress-photos',
+
+        params: {
+          uuid:
+            assessment.uuid,
+
+          readOnly,
+        },
+      });
+
+      return;
+    }
+
   }
 
   function canOpenSection(
@@ -291,7 +329,9 @@ export default function AssessmentDetailsScreen() {
       key === 'anamnesis' ||
       key === 'body_composition' ||
       key === 'circumferences' ||
-      key === 'vo2_max'
+      key === 'vo2_max' ||
+      key === 'neuromotor_tests' ||
+      key === 'progress_photos'
     );
   }
 
@@ -765,7 +805,7 @@ export default function AssessmentDetailsScreen() {
               styles.nextStepText
             }
           >
-            Anamnese, Composição Corporal, Perímetros e VO₂Max já estão disponíveis. As demais seções serão habilitadas conforme avançarmos.
+            Anamnese, Composição Corporal, Perímetros, VO₂Max e Testes neuromotores já estão disponíveis. As demais seções serão habilitadas conforme avançarmos.
           </Text>
         </View>
 
