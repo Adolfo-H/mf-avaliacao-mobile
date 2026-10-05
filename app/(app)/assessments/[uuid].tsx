@@ -1,18 +1,20 @@
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Ionicons } from '@expo/vector-icons';
 import {
   router,
   useFocusEffect,
   useLocalSearchParams,
-} from 'expo-router';
+  } from 'expo-router';
 
 import {
   useCallback,
   useEffect,
   useState,
-} from 'react';
+  } from 'react';
 
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   RefreshControl,
@@ -20,14 +22,17 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
+  } from 'react-native';
 
 import {
   SafeAreaView,
-} from 'react-native-safe-area-context';
+  } from 'react-native-safe-area-context';
 
 import {
+  completeAssessment,
+  completeAssessmentSection,
   getAssessment,
+  reopenAssessmentSection,
 } from '@/services/assessments';
 
 import {
@@ -85,6 +90,11 @@ export default function AssessmentDetailsScreen() {
     error,
     setError,
   ] = useState('');
+
+  const [
+    actionBusy,
+    setActionBusy,
+  ] = useState(false);
 
   const loadAssessment =
     useCallback(
@@ -195,6 +205,153 @@ export default function AssessmentDetailsScreen() {
     await loadAssessment(false);
   }
 
+
+  async function handleCompleteSection(
+    section: AssessmentSection
+  ) {
+    if (
+      !assessmentUuid ||
+      !assessment ||
+      assessment.status !== 'draft' ||
+      actionBusy
+    ) {
+      return;
+    }
+
+    try {
+      setActionBusy(true);
+      setError('');
+
+      const updated =
+        await completeAssessmentSection(
+          assessmentUuid,
+          section.key
+        );
+
+      setAssessment(updated);
+    } catch (exception) {
+      setError(
+        exception instanceof Error
+          ? exception.message
+          : 'Não foi possível concluir a seção.'
+      );
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function handleReopenSection(
+    section: AssessmentSection
+  ) {
+    if (
+      !assessmentUuid ||
+      !assessment ||
+      assessment.status !== 'draft' ||
+      actionBusy
+    ) {
+      return;
+    }
+
+    try {
+      setActionBusy(true);
+      setError('');
+
+      const updated =
+        await reopenAssessmentSection(
+          assessmentUuid,
+          section.key
+        );
+
+      setAssessment(updated);
+    } catch (exception) {
+      setError(
+        exception instanceof Error
+          ? exception.message
+          : 'Não foi possível reabrir a seção.'
+      );
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function finishAssessment() {
+    if (
+      !assessmentUuid ||
+      !assessment ||
+      assessment.status !== 'draft' ||
+      actionBusy
+    ) {
+      return;
+    }
+
+    try {
+      setActionBusy(true);
+      setError('');
+
+      const updated =
+        await completeAssessment(
+          assessmentUuid
+        );
+
+      setAssessment(updated);
+
+      Alert.alert(
+        'Avaliação concluída',
+        'A avaliação foi concluída e agora está disponível somente para consulta.'
+      );
+    } catch (exception) {
+      setError(
+        exception instanceof Error
+          ? exception.message
+          : 'Não foi possível concluir a avaliação.'
+      );
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  function handleCompleteAssessment() {
+    if (
+      !assessment ||
+      assessment.status !== 'draft' ||
+      actionBusy
+    ) {
+      return;
+    }
+
+    const pending =
+      assessment.sections.filter(
+        section =>
+          section.status !== 'completed'
+      );
+
+    if (pending.length > 0) {
+      Alert.alert(
+        'Avaliação ainda incompleta',
+        `Conclua as ${pending.length} seção(ões) pendente(s) antes de finalizar a avaliação.`
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Concluir avaliação?',
+      'Depois de concluída, a avaliação ficará disponível somente para consulta.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Concluir',
+          style: 'destructive',
+          onPress: () => {
+            void finishAssessment();
+          },
+        },
+      ]
+    );
+  }
+
   function openSection(
     section: AssessmentSection
   ) {
@@ -203,7 +360,8 @@ export default function AssessmentDetailsScreen() {
     }
 
     const readOnly =
-      assessment.can_edit
+      assessment.can_edit &&
+      section.status !== 'completed'
         ? '0'
         : '1';
 
@@ -320,6 +478,25 @@ export default function AssessmentDetailsScreen() {
       return;
     }
 
+    if (
+      section.key ===
+      'postural_assessment'
+    ) {
+      router.push({
+        pathname:
+          '/(app)/assessments/[uuid]/postural-assessment',
+
+        params: {
+          uuid:
+            assessment.uuid,
+
+          readOnly,
+        },
+      });
+
+      return;
+    }
+
   }
 
   function canOpenSection(
@@ -331,7 +508,8 @@ export default function AssessmentDetailsScreen() {
       key === 'circumferences' ||
       key === 'vo2_max' ||
       key === 'neuromotor_tests' ||
-      key === 'progress_photos'
+      key === 'progress_photos' ||
+      key === 'postural_assessment'
     );
   }
 
@@ -819,6 +997,135 @@ export default function AssessmentDetailsScreen() {
             assessment.created_at
           )}
         </Text>
+        {assessment.status === 'draft' ? (
+          <View style={styles.closingCard}>
+            <Text style={styles.closingTitle}>
+              Fechamento da avaliação
+            </Text>
+
+            <Text style={styles.closingHelp}>
+              Revise cada seção e marque como concluída quando o preenchimento estiver finalizado.
+            </Text>
+
+            {assessment.sections
+              .slice()
+              .sort(
+                (first, second) =>
+                  (first.order ?? 999) -
+                  (second.order ?? 999)
+              )
+              .map(section => (
+                <View
+                  key={`closing-${section.key}`}
+                  style={styles.closingRow}
+                >
+                  <View style={styles.closingInfo}>
+                    <Text style={styles.closingSectionName}>
+                      {section.label ??
+                        getFallbackSectionLabel(
+                          section.key
+                        )}
+                    </Text>
+
+                    <Text style={styles.closingStatus}>
+                      {section.status_label ??
+                        getSectionStatusLabel(
+                          section.status
+                        )}
+                    </Text>
+                  </View>
+
+                  {section.status === 'completed' ? (
+                    <Pressable
+                      style={styles.reopenButton}
+                      disabled={actionBusy}
+                      onPress={() =>
+                        void handleReopenSection(
+                          section
+                        )
+                      }
+                    >
+                      <Text style={styles.reopenButtonText}>
+                        Reabrir
+                      </Text>
+                    </Pressable>
+                  ) : section.status === 'not_started' ? (
+                    <Text style={styles.waitingText}>
+                      Salve primeiro
+                    </Text>
+                  ) : (
+                    <Pressable
+                      style={styles.completeSectionButton}
+                      disabled={actionBusy}
+                      onPress={() =>
+                        void handleCompleteSection(
+                          section
+                        )
+                      }
+                    >
+                      <Text style={styles.completeSectionButtonText}>
+                        Concluir
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              ))}
+
+            <Text style={styles.closingProgress}>
+              {assessment.progress.completed} de{' '}
+              {assessment.progress.total} seções concluídas
+            </Text>
+
+            <Pressable
+              style={[
+                styles.completeAssessmentButton,
+                (
+                  actionBusy ||
+                  assessment.progress.total === 0 ||
+                  assessment.progress.completed !==
+                    assessment.progress.total
+                ) &&
+                  styles.completeAssessmentButtonDisabled,
+              ]}
+              disabled={
+                actionBusy ||
+                assessment.progress.total === 0 ||
+                assessment.progress.completed !==
+                  assessment.progress.total
+              }
+              onPress={handleCompleteAssessment}
+            >
+              {actionBusy ? (
+                <ActivityIndicator
+                  size="small"
+                  color="#FFFFFF"
+                />
+              ) : (
+                <Text style={styles.completeAssessmentButtonText}>
+                  Concluir avaliação
+                </Text>
+              )}
+            </Pressable>
+
+            {assessment.progress.completed !==
+            assessment.progress.total ? (
+              <Text style={styles.closingHint}>
+                Conclua todas as seções para liberar o fechamento.
+              </Text>
+            ) : null}
+          </View>
+        ) : (
+          <View style={styles.assessmentFinishedCard}>
+            <Text style={styles.assessmentFinishedTitle}>
+              Avaliação concluída
+            </Text>
+
+            <Text style={styles.assessmentFinishedText}>
+              Este registro está preservado e disponível somente para consulta.
+            </Text>
+          </View>
+        )}
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -1905,4 +2212,139 @@ const styles =
       fontSize: 14,
       fontWeight: '700',
     },
+    closingCard: {
+      backgroundColor: '#FFFFFF',
+      borderWidth: 1,
+      borderColor: '#E4E9E7',
+      borderRadius: 22,
+      padding: 18,
+      marginTop: 22,
+    },
+
+    closingTitle: {
+      color: '#172D34',
+      fontSize: 17,
+      fontWeight: '800',
+      marginBottom: 6,
+    },
+
+    closingHelp: {
+      color: '#718084',
+      fontSize: 11,
+      lineHeight: 16,
+      marginBottom: 12,
+    },
+
+    closingRow: {
+      minHeight: 58,
+      borderTopWidth: 1,
+      borderTopColor: '#EEF2F0',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingVertical: 9,
+    },
+
+    closingInfo: {
+      flex: 1,
+    },
+
+    closingSectionName: {
+      color: '#172D34',
+      fontSize: 12,
+      fontWeight: '800',
+      marginBottom: 2,
+    },
+
+    closingStatus: {
+      color: '#839095',
+      fontSize: 10,
+    },
+
+    completeSectionButton: {
+      backgroundColor: '#40856C',
+      borderRadius: 11,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    },
+
+    completeSectionButtonText: {
+      color: '#FFFFFF',
+      fontSize: 10,
+      fontWeight: '800',
+    },
+
+    reopenButton: {
+      backgroundColor: '#EAF3EF',
+      borderRadius: 11,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    },
+
+    reopenButtonText: {
+      color: '#526C64',
+      fontSize: 10,
+      fontWeight: '800',
+    },
+
+    waitingText: {
+      color: '#9AA4A7',
+      fontSize: 9,
+      fontWeight: '700',
+    },
+
+    closingProgress: {
+      color: '#526C64',
+      fontSize: 11,
+      fontWeight: '700',
+      textAlign: 'center',
+      marginTop: 15,
+      marginBottom: 10,
+    },
+
+    completeAssessmentButton: {
+      minHeight: 50,
+      borderRadius: 15,
+      backgroundColor: '#123C47',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    completeAssessmentButtonDisabled: {
+      backgroundColor: '#AAB4B6',
+    },
+
+    completeAssessmentButtonText: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontWeight: '800',
+    },
+
+    closingHint: {
+      color: '#839095',
+      fontSize: 10,
+      textAlign: 'center',
+      marginTop: 9,
+    },
+
+    assessmentFinishedCard: {
+      backgroundColor: '#EAF6EF',
+      borderRadius: 20,
+      padding: 17,
+      marginTop: 22,
+    },
+
+    assessmentFinishedTitle: {
+      color: '#2E7059',
+      fontSize: 14,
+      fontWeight: '800',
+      marginBottom: 4,
+    },
+
+    assessmentFinishedText: {
+      color: '#526C64',
+      fontSize: 11,
+      lineHeight: 16,
+    },
+
   });
