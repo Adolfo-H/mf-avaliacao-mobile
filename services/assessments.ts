@@ -161,3 +161,39 @@ export async function completeAssessment(
 
   return response.data;
 }
+
+export async function completeAssessmentSection(
+  uuid: string,
+  section: string
+): Promise<Assessment> {
+  const token = await requireToken();
+
+  const response =
+    await apiRequest<AssessmentResponse>(
+      `/assessments/${uuid}/sections/${section}/complete`,
+      {
+        method: 'POST',
+        token,
+      }
+    );
+
+  return response.data;
+}
+
+export async function reopenAssessmentSection(
+  uuid: string,
+  section: string
+): Promise<Assessment> {
+  const token = await requireToken();
+
+  const response =
+    await apiRequest<AssessmentResponse>(
+      `/assessments/${uuid}/sections/${section}/reopen`,
+      {
+        method: 'POST',
+        token,
+      }
+    );
+
+  return response.data;
+}
