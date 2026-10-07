@@ -38,6 +38,7 @@ import {
 import type {
   AssessmentPostural,
   PosturalOption,
+  PosturalPhoto,
   PosturalPhotoPosition,
 } from '@/types/postural-assessment';
 
@@ -140,6 +141,53 @@ export default function PosturalAssessmentScreen() {
       if (showLoading) setLoading(false);
     }
   }, [assessmentUuid, hydrate, loadPhotoUrls]);
+
+  const updateLocalPhoto = useCallback(
+    (updatedPhoto: PosturalPhoto) => {
+      setData(current => {
+        if (!current) {
+          return current;
+        }
+
+        return {
+          ...current,
+          photos: current.photos.map(photo =>
+            photo.position === updatedPhoto.position
+              ? updatedPhoto
+              : photo
+          ),
+        };
+      });
+    },
+    []
+  );
+
+  const refreshPhotoUrl = useCallback(
+    async (position: PosturalPhotoPosition) => {
+      if (!assessmentUuid) {
+        return;
+      }
+
+      try {
+        const uri =
+          await getPosturalPhotoDataUrl(
+            assessmentUuid,
+            position
+          );
+
+        setPhotoUrls(current => ({
+          ...current,
+          [position]: uri,
+        }));
+      } catch {
+        setPhotoUrls(current => ({
+          ...current,
+          [position]: null,
+        }));
+      }
+    },
+    [assessmentUuid]
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -255,26 +303,48 @@ export default function PosturalAssessmentScreen() {
   ) {
     if (!assessmentUuid || !data) return;
 
-    const photo = data.photos.find(item => item.position === position);
+    const photo =
+      data.photos.find(
+        item => item.position === position
+      );
 
     try {
       setBusy(true);
       setError('');
       setMessage('');
 
-      await uploadPosturalPhoto(
-        assessmentUuid,
-        position,
-        asset,
-        {
-          grid_enabled: photo?.grid_enabled ?? false,
-          observation: photoObservations[position]?.trim() || null,
-          captured_at: new Date().toISOString(),
-        }
-      );
+      const updatedPhoto =
+        await uploadPosturalPhoto(
+          assessmentUuid,
+          position,
+          asset,
+          {
+            grid_enabled:
+              photo?.grid_enabled ?? false,
 
-      await load(false);
-      setMessage('Fotografia postural salva com sucesso.');
+            observation:
+              photoObservations[
+                position
+              ]?.trim() || null,
+
+            captured_at:
+              new Date().toISOString(),
+          }
+        );
+
+      updateLocalPhoto(updatedPhoto);
+
+      setPhotoObservations(current => ({
+        ...current,
+        [position]:
+          updatedPhoto.observation ?? '',
+      }));
+
+      await refreshPhotoUrl(position);
+
+      setMessage(
+        'Fotografia postural salva com sucesso.'
+      );
     } catch (exception) {
       setError(
         exception instanceof Error
@@ -286,22 +356,45 @@ export default function PosturalAssessmentScreen() {
     }
   }
 
-  async function savePhotoObservation(position: PosturalPhotoPosition) {
-    if (!assessmentUuid || readOnly || busy) return;
+  async function savePhotoObservation(
+    position: PosturalPhotoPosition
+  ) {
+    if (
+      !assessmentUuid ||
+      readOnly ||
+      busy
+    ) {
+      return;
+    }
 
     try {
       setBusy(true);
       setError('');
       setMessage('');
-      await updatePosturalPhoto(
-        assessmentUuid,
-        position,
-        {
-          observation: photoObservations[position]?.trim() || null,
-        }
+
+      const updatedPhoto =
+        await updatePosturalPhoto(
+          assessmentUuid,
+          position,
+          {
+            observation:
+              photoObservations[
+                position
+              ]?.trim() || null,
+          }
+        );
+
+      updateLocalPhoto(updatedPhoto);
+
+      setPhotoObservations(current => ({
+        ...current,
+        [position]:
+          updatedPhoto.observation ?? '',
+      }));
+
+      setMessage(
+        'Observação da fotografia salva.'
       );
-      await load(false);
-      setMessage('Observação da fotografia salva.');
     } catch (exception) {
       setError(
         exception instanceof Error
@@ -313,18 +406,32 @@ export default function PosturalAssessmentScreen() {
     }
   }
 
-  async function toggleGrid(position: PosturalPhotoPosition, enabled: boolean) {
-    if (!assessmentUuid || readOnly || busy) return;
+  async function toggleGrid(
+    position: PosturalPhotoPosition,
+    enabled: boolean
+  ) {
+    if (
+      !assessmentUuid ||
+      readOnly ||
+      busy
+    ) {
+      return;
+    }
 
     try {
       setBusy(true);
       setError('');
-      await updatePosturalPhoto(
-        assessmentUuid,
-        position,
-        { grid_enabled: enabled }
-      );
-      await load(false);
+
+      const updatedPhoto =
+        await updatePosturalPhoto(
+          assessmentUuid,
+          position,
+          {
+            grid_enabled: enabled,
+          }
+        );
+
+      updateLocalPhoto(updatedPhoto);
     } catch (exception) {
       setError(
         exception instanceof Error
@@ -336,14 +443,25 @@ export default function PosturalAssessmentScreen() {
     }
   }
 
-  async function deletePhoto(position: PosturalPhotoPosition) {
-    if (!assessmentUuid || readOnly || busy) return;
+  async function deletePhoto(
+    position: PosturalPhotoPosition
+  ) {
+    if (
+      !assessmentUuid ||
+      readOnly ||
+      busy
+    ) {
+      return;
+    }
 
     Alert.alert(
       'Excluir fotografia',
       'Deseja remover esta fotografia postural?',
       [
-        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
         {
           text: 'Excluir',
           style: 'destructive',
@@ -352,9 +470,55 @@ export default function PosturalAssessmentScreen() {
               setBusy(true);
               setError('');
               setMessage('');
-              await removePosturalPhoto(assessmentUuid, position);
-              await load(false);
-              setMessage('Fotografia removida.');
+
+              await removePosturalPhoto(
+                assessmentUuid,
+                position
+              );
+
+              setData(current => {
+                if (!current) {
+                  return current;
+                }
+
+                return {
+                  ...current,
+                  photos: current.photos.map(
+                    photo =>
+                      photo.position === position
+                        ? {
+                            ...photo,
+                            has_photo: false,
+                            grid_enabled: false,
+                            grid_settings: null,
+                            observation: null,
+                            captured_at: null,
+                            uploaded_at: null,
+                          }
+                        : photo
+                  ),
+                };
+              });
+
+              setPhotoUrls(current => ({
+                ...current,
+                [position]: null,
+              }));
+
+              setPhotoObservations(current => ({
+                ...current,
+                [position]: '',
+              }));
+
+              setPreview(current =>
+                current === position
+                  ? null
+                  : current
+              );
+
+              setMessage(
+                'Fotografia removida.'
+              );
             } catch (exception) {
               setError(
                 exception instanceof Error

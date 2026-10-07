@@ -1,6 +1,7 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -16,6 +17,8 @@ import {
 type AuthContextData = {
   user: AuthUser | null;
   loading: boolean;
+  sessionError: string | null;
+  retrySession: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -29,23 +32,44 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [
+    sessionError,
+    setSessionError,
+  ] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadSession() {
+  const loadSession = useCallback(
+    async () => {
       try {
-        const restoredUser = await restoreSession();
+        setLoading(true);
+        setSessionError(null);
+
+        const restoredUser =
+          await restoreSession();
+
         setUser(restoredUser);
+      } catch {
+        setSessionError(
+          'Não foi possível validar sua sessão. Verifique sua conexão e tente novamente.'
+        );
       } finally {
         setLoading(false);
       }
-    }
+    },
+    []
+  );
 
-    loadSession();
-  }, []);
+  useEffect(() => {
+    void loadSession();
+  }, [loadSession]);
+
+  async function retrySession() {
+    await loadSession();
+  }
 
   async function signIn(email: string, password: string) {
     const authenticatedUser = await login(email, password);
 
+    setSessionError(null);
     setUser(authenticatedUser);
   }
 
@@ -53,6 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await logout();
     } finally {
+      setSessionError(null);
       setUser(null);
     }
   }
@@ -62,6 +87,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         user,
         loading,
+        sessionError,
+        retrySession,
         signIn,
         signOut,
       }}
