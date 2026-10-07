@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useEffect } from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -11,7 +12,20 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function WelcomeScreen() {
-  const { user, loading } = useAuth();
+  const {
+    user,
+    loading,
+    sessionError,
+    retrySession,
+  } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace(
+        '/(app)/(tabs)/dashboard'
+      );
+    }
+  }, [loading, user]);
 
   if (loading) {
     return (
@@ -34,14 +48,44 @@ export default function WelcomeScreen() {
   }
 
   if (user) {
-    router.replace('/(app)/(tabs)/dashboard');
-
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator
           size="large"
           color="#123C47"
         />
+      </SafeAreaView>
+    );
+  }
+
+  if (sessionError) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.label}>
+            SESSÃO PRESERVADA
+          </Text>
+
+          <Text style={styles.title}>
+            Não foi possível acessar o servidor.
+          </Text>
+
+          <Text style={styles.description}>
+            {sessionError} Seu acesso não foi apagado.
+          </Text>
+
+          <TouchableOpacity
+            style={styles.button}
+            activeOpacity={0.85}
+            onPress={() => {
+              void retrySession();
+            }}
+          >
+            <Text style={styles.buttonText}>
+              Tentar novamente
+            </Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }

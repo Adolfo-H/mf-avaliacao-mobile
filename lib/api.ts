@@ -1,3 +1,5 @@
+import { ApiError } from '@/lib/api-error';
+
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 if (!API_URL) {
@@ -38,7 +40,11 @@ export async function apiRequest<T>(
       data?.errors?.email?.[0] ??
       'Não foi possível concluir a solicitação.';
 
-    throw new Error(message);
+    throw new ApiError(
+      message,
+      response.status,
+      data
+    );
   }
 
   return data as T;

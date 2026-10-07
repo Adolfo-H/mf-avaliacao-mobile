@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
 import { apiRequest } from '@/lib/api';
+import { shouldDeleteTokenAfterRestoreFailure } from '@/lib/auth-session';
 
 const TOKEN_KEY = 'mf_avaliacao_auth_token';
 
@@ -91,9 +92,17 @@ export async function restoreSession(): Promise<AuthUser | null> {
 
   try {
     return await getMe();
-  } catch {
-    await deleteToken();
-    return null;
+  } catch (error) {
+    if (
+      shouldDeleteTokenAfterRestoreFailure(
+        error
+      )
+    ) {
+      await deleteToken();
+      return null;
+    }
+
+    throw error;
   }
 }
 
