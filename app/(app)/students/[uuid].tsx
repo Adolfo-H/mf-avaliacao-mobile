@@ -29,9 +29,12 @@ import {
   uploadStudentPhoto,
 } from '@/services/students';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { Student } from '@/types/student';
 
 export default function StudentDetailsScreen() {
+  const { user } = useAuth();
+
   const params = useLocalSearchParams<{
     uuid?: string | string[];
   }>();
@@ -1031,6 +1034,33 @@ const result =
           </View>
         ) : null}
 
+        {(user?.role === 'admin' || user?.role === 'evaluator') ? (
+          <Pressable
+            style={styles.assessmentHistoryCard}
+            onPress={() =>
+              router.push({
+                pathname: '/(app)/students/[uuid]/assessment-history',
+                params: { uuid: student.uuid },
+              })
+            }
+          >
+            <View style={styles.assessmentHistoryIcon}>
+              <Ionicons name="stats-chart-outline" size={23} color="#40856C" />
+            </View>
+
+            <View style={styles.assessmentHistoryInfo}>
+              <Text style={styles.assessmentHistoryTitle}>
+                Histórico de avaliações
+              </Text>
+              <Text style={styles.assessmentHistoryDescription}>
+                Consulte avaliações, medidas e evolução do aluno
+              </Text>
+            </View>
+
+            <Ionicons name="chevron-forward" size={20} color="#40856C" />
+          </Pressable>
+        ) : null}
+
         <Text
           style={styles.sectionTitle}
         >
@@ -1973,6 +2003,44 @@ const styles =
       color: '#FFFFFF',
       fontSize: 12,
       fontWeight: '700',
+    },
+
+    assessmentHistoryCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      padding: 17,
+      marginBottom: 24,
+      borderWidth: 1,
+      borderColor: '#DAE8E0',
+      backgroundColor: '#FFFFFF',
+      borderRadius: 20,
+    },
+
+    assessmentHistoryIcon: {
+      width: 45,
+      height: 45,
+      borderRadius: 13,
+      backgroundColor: '#EAF3EF',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    assessmentHistoryInfo: {
+      flex: 1,
+    },
+
+    assessmentHistoryTitle: {
+      fontSize: 14,
+      color: '#172D34',
+      fontWeight: '800',
+    },
+
+    assessmentHistoryDescription: {
+      marginTop: 5,
+      fontSize: 11,
+      lineHeight: 16,
+      color: '#718084',
     },
 
     sectionTitle: {
