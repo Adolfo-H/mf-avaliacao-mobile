@@ -12,7 +12,6 @@ const COLORS = {
 export default function TabsLayout() {
   return (
     <Tabs
-      initialRouteName="dashboard"
       screenOptions={{
         headerShown: false,
 
@@ -42,7 +41,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
-              color={color}
+              color={typeof color === 'string' ? color : COLORS.muted}
               size={size}
             />
           ),
@@ -56,7 +55,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? 'people' : 'people-outline'}
-              color={color}
+              color={typeof color === 'string' ? color : COLORS.muted}
               size={size}
             />
           ),
@@ -70,7 +69,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? 'clipboard' : 'clipboard-outline'}
-              color={color}
+              color={typeof color === 'string' ? color : COLORS.muted}
               size={size}
             />
           ),
@@ -84,7 +83,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? 'person-circle' : 'person-circle-outline'}
-              color={color}
+              color={typeof color === 'string' ? color : COLORS.muted}
               size={size}
             />
           ),
