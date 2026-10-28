@@ -93,6 +93,9 @@ function MetricCard({ metric }: { metric: ComparisonMetric }) {
           Variação: {variationText(metric)}
         </Text>
       </View>
+      {metric.comparison_note ? (
+        <Text style={styles.metricNote}>{metric.comparison_note}</Text>
+      ) : null}
 
       <View style={styles.metricRow}>
         <Text style={styles.metricSideLabel}>Anterior</Text>
@@ -470,6 +473,7 @@ const styles = StyleSheet.create({
   },
   metricTitle: { flex: 1, fontSize: 14, color: '#172D34', fontWeight: '800' },
   metricChange: { fontSize: 11, color: '#63777B', fontWeight: '700' },
+  metricNote: { fontSize: 11, color: '#9B6868', marginBottom: 8 },
   metricRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   secondMetricRow: { marginTop: 10 },
   metricSideLabel: { color: '#7C8B8E', fontSize: 11 },
