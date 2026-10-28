@@ -10,19 +10,13 @@ export type ComparisonAssessment = {
 };
 
 export type ComparisonMetric = {
-  key:
-    | 'weight_kg'
-    | 'height_m'
-    | 'bmi'
-    | 'body_fat_percentage'
-    | 'waist_cm'
-    | 'hip_cm'
-    | 'waist_to_hip_ratio';
+  key: string;
   label: string;
   unit: string | null;
   base: number | null;
   target: number | null;
   delta: number | null;
+  comparison_note?: string | null;
 };
 
 export type AssessmentComparisonResponse = {
