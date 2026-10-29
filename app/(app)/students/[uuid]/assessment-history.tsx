@@ -301,6 +301,72 @@ export default function StudentAssessmentHistoryScreen() {
         </Text>
 
         <Pressable
+          style={styles.evolutionShortcut}
+          onPress={() => {
+            if (!studentUuid) return;
+            router.push({
+              pathname: '/(app)/students/[uuid]/assessment-evolution',
+              params: { uuid: studentUuid },
+            });
+          }}
+        >
+          <View style={styles.evolutionShortcutIcon}>
+            <Ionicons name="stats-chart-outline" size={21} color="#40856C" />
+          </View>
+          <View style={styles.evolutionShortcutText}>
+            <Text style={styles.evolutionShortcutTitle}>Gráficos de evolução</Text>
+            <Text style={styles.evolutionShortcutDescription}>
+              Peso, IMC, RCQ e perímetros por data
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={19} color="#40856C" />
+        </Pressable>
+
+        <Pressable
+          style={styles.photoComparisonShortcut}
+          onPress={() => {
+            if (!studentUuid) return;
+            router.push({
+              pathname: '/(app)/students/[uuid]/assessment-photo-comparison',
+              params: { uuid: studentUuid },
+            });
+          }}
+        >
+          <View style={styles.photoComparisonIcon}>
+            <Ionicons name="images-outline" size={21} color="#40856C" />
+          </View>
+          <View style={styles.photoComparisonText}>
+            <Text style={styles.photoComparisonTitle}>Comparar fotografias</Text>
+            <Text style={styles.photoComparisonDescription}>
+              Veja fotos de duas avaliações lado a lado
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={19} color="#40856C" />
+        </Pressable>
+
+        <Pressable
+          style={styles.reportShortcut}
+          onPress={() => {
+            if (!studentUuid) return;
+            router.push({
+              pathname: '/(app)/students/[uuid]/assessment-reports',
+              params: { uuid: studentUuid },
+            });
+          }}
+        >
+          <View style={styles.reportShortcutIcon}>
+            <Ionicons name="document-text-outline" size={21} color="#40856C" />
+          </View>
+          <View style={styles.reportShortcutText}>
+            <Text style={styles.reportShortcutTitle}>Relatório em PDF</Text>
+            <Text style={styles.reportShortcutDescription}>
+              Gere e visualize o relatório de uma avaliação concluída
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={19} color="#40856C" />
+        </Pressable>
+
+        <Pressable
           style={styles.comparisonShortcut}
           onPress={() => {
             if (!studentUuid) return;
@@ -440,6 +506,42 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12, color: '#66787A', lineHeight: 19, marginBottom: 17,
   },
+  evolutionShortcut: {
+    flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15,
+    borderRadius: 17, backgroundColor: '#FFFFFF', borderWidth: 1,
+    borderColor: '#D6E5DC', marginBottom: 11,
+  },
+  evolutionShortcutIcon: {
+    backgroundColor: '#EAF3EF', width: 43, height: 43, borderRadius: 13,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  evolutionShortcutText: { flex: 1 },
+  evolutionShortcutTitle: { color: '#172D34', fontSize: 13, fontWeight: '800' },
+  evolutionShortcutDescription: { color: '#748589', marginTop: 4, fontSize: 10 },
+  photoComparisonShortcut: {
+    flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15,
+    borderRadius: 17, backgroundColor: '#FFFFFF', borderWidth: 1,
+    borderColor: '#D6E5DC', marginBottom: 11,
+  },
+  photoComparisonIcon: {
+    backgroundColor: '#EAF3EF', width: 43, height: 43, borderRadius: 13,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  photoComparisonText: { flex: 1 },
+  photoComparisonTitle: { color: '#172D34', fontSize: 13, fontWeight: '800' },
+  photoComparisonDescription: { color: '#748589', marginTop: 4, fontSize: 10 },
+  reportShortcut: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    borderWidth: 1, borderColor: '#D6E5DC', backgroundColor: '#FFFFFF',
+    borderRadius: 17, padding: 15, marginBottom: 11,
+  },
+  reportShortcutIcon: {
+    backgroundColor: '#EAF3EF', width: 43, height: 43, borderRadius: 13,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  reportShortcutText: { flex: 1 },
+  reportShortcutTitle: { color: '#172D34', fontSize: 13, fontWeight: '800' },
+  reportShortcutDescription: { color: '#748589', marginTop: 4, fontSize: 10 },
   comparisonShortcut: {
     flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15,
     borderRadius: 17, backgroundColor: '#FFFFFF', borderWidth: 1,
