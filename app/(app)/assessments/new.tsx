@@ -175,7 +175,14 @@ const loadInitialData = useCallback(
 );
 
 useEffect(() => {
-  void loadInitialData();
+  // Inicia a busca fora da execucao sincrona do efeito.
+  let effectActive = true;
+  void Promise.resolve().then(() => {
+    if (effectActive) void loadInitialData();
+  });
+  return () => {
+    effectActive = false;
+  };
 }, [loadInitialData]);
 
   async function handleStudentSearch() {

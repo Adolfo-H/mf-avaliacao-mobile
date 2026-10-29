@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -8,6 +9,15 @@ import {
   Text,
   View,
 } from 'react-native';
+
+import { getDashboardSummary } from '@/services/dashboard-summary';
+import type { DashboardSummary } from '@/types/dashboard-summary';
+
+function formatAssessmentDate(date: string | null): string {
+  if (!date) return 'Sem data';
+  const [year, month, day] = date.split('-');
+  return year && month && day ? `${day}/${month}/${year}` : date;
+}
 
 const COLORS = {
   background: '#F7F8F6',
@@ -20,6 +30,28 @@ const COLORS = {
 };
 
 export default function DashboardScreen() {
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const canViewAssessments = summary?.permissions.can_view_assessments !== false;
+
+  const loadSummary = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    try {
+      const result = await getDashboardSummary();
+      setSummary(result);
+      setError('');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Não foi possível atualizar o painel.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => {
+    void loadSummary();
+  }, [loadSummary]));
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
@@ -59,6 +91,7 @@ export default function DashboardScreen() {
               styles.primaryButton,
               pressed && styles.pressed,
             ]}
+            disabled={!canViewAssessments}
             onPress={() =>
               router.push('/(app)/(tabs)/avaliacoes')
             }
@@ -101,8 +134,12 @@ export default function DashboardScreen() {
               />
             </View>
 
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Alunos</Text>
+            <Text style={styles.statValue}>
+              {loading && !summary ? '...' : (summary?.students.count ?? '—')}
+            </Text>
+            <Text style={styles.statLabel}>
+              {summary?.students.label ?? 'Alunos'}
+            </Text>
           </Pressable>
 
           <Pressable
@@ -110,6 +147,7 @@ export default function DashboardScreen() {
               styles.statCard,
               pressed && styles.pressed,
             ]}
+            disabled={!canViewAssessments}
             onPress={() =>
               router.push('/(app)/(tabs)/avaliacoes')
             }
@@ -122,10 +160,23 @@ export default function DashboardScreen() {
               />
             </View>
 
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>
+              {loading && !summary ? '...' : (summary?.assessments?.total ?? '—')}
+            </Text>
             <Text style={styles.statLabel}>Avaliações</Text>
           </Pressable>
         </View>
+
+        {canViewAssessments && summary?.assessments ? (
+          <View style={styles.statusRow}>
+            <View style={styles.statusChip}>
+              <Text style={styles.statusChipText}>Rascunhos: {summary.assessments.draft}</Text>
+            </View>
+            <View style={styles.statusChip}>
+              <Text style={styles.statusChipText}>Concluídas: {summary.assessments.completed}</Text>
+            </View>
+          </View>
+        ) : null}
 
         <Text style={styles.sectionTitle}>Acesso rápido</Text>
 
@@ -166,7 +217,8 @@ export default function DashboardScreen() {
             styles.actionCard,
             pressed && styles.pressed,
           ]}
-          onPress={() =>
+          disabled={!canViewAssessments}
+            onPress={() =>
             router.push('/(app)/(tabs)/avaliacoes')
           }
         >
@@ -199,23 +251,54 @@ export default function DashboardScreen() {
           Atividade recente
         </Text>
 
-        <View style={styles.emptyCard}>
-          <View style={styles.emptyIcon}>
-            <Ionicons
-              name="document-text-outline"
-              size={26}
-              color={COLORS.green}
-            />
+        {error ? (
+          <Pressable style={styles.errorCard} onPress={() => void loadSummary()}>
+            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.retryText}>Tocar para tentar novamente</Text>
+          </Pressable>
+        ) : null}
+
+        {!canViewAssessments ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>Acesso clínico restrito</Text>
+            <Text style={styles.emptyDescription}>
+              Este perfil visualiza somente os indicadores administrativos.
+            </Text>
           </View>
-
-          <Text style={styles.emptyTitle}>
-            Nenhuma avaliação registrada
-          </Text>
-
-          <Text style={styles.emptyDescription}>
-            As avaliações mais recentes aparecerão aqui.
-          </Text>
-        </View>
+        ) : summary?.recent && summary.recent.length > 0 ? (
+          summary.recent.map(item => (
+            <Pressable
+              key={item.uuid}
+              style={({ pressed }) => [styles.recentCard, pressed && styles.pressed]}
+              onPress={() => router.push({
+                pathname: '/(app)/assessments/[uuid]',
+                params: { uuid: item.uuid },
+              })}
+            >
+              <View style={styles.recentCardTop}>
+                <Text style={styles.recentStudent} numberOfLines={1}>
+                  {item.student.name ?? 'Aluno sem nome'}
+                </Text>
+                <Text style={styles.recentStatus}>{item.status_label}</Text>
+              </View>
+              <Text style={styles.recentDate}>
+                Avaliação de {formatAssessmentDate(item.evaluation_date)}
+              </Text>
+            </Pressable>
+          ))
+        ) : (
+          <View style={styles.emptyCard}>
+            <View style={styles.emptyIcon}>
+              <Ionicons name="document-text-outline" size={26} color={COLORS.green} />
+            </View>
+            <Text style={styles.emptyTitle}>
+              {loading ? 'Carregando avaliações...' : 'Nenhuma avaliação registrada'}
+            </Text>
+            <Text style={styles.emptyDescription}>
+              {loading ? 'Consultando informações atualizadas.' : 'As avaliações mais recentes aparecerão aqui.'}
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -447,6 +530,27 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     textAlign: 'center',
   },
+
+  statusRow: {
+    flexDirection: 'row', gap: 10, marginTop: -18, marginBottom: 28, flexWrap: 'wrap',
+  },
+  statusChip: {
+    backgroundColor: '#EAF3EF', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 13,
+  },
+  statusChipText: { color: '#315E4D', fontSize: 12, fontWeight: '700' },
+  recentCard: {
+    backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border,
+    borderRadius: 17, padding: 16, marginBottom: 10,
+  },
+  recentCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  recentStudent: { color: COLORS.text, fontWeight: '800', fontSize: 14, flex: 1 },
+  recentStatus: { color: COLORS.green, fontSize: 11, fontWeight: '700' },
+  recentDate: { marginTop: 6, color: COLORS.muted, fontSize: 12 },
+  errorCard: {
+    padding: 14, borderRadius: 14, backgroundColor: '#FFF3EF', marginBottom: 12,
+  },
+  errorText: { color: '#9B4646', fontSize: 12 },
+  retryText: { color: COLORS.primary, marginTop: 8, fontWeight: '800', fontSize: 12 },
 
   pressed: {
     opacity: 0.72,

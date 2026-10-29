@@ -3,7 +3,7 @@ import {
   router,
   useLocalSearchParams,
 } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -76,19 +76,9 @@ export default function EditStudentScreen() {
   const [error, setError] =
     useState('');
 
-  useEffect(() => {
-    if (!studentUuid) {
-      setError('Aluno inválido.');
-      setLoading(false);
-      return;
-    }
-
-    void loadStudent(studentUuid);
-  }, [studentUuid]);
-
-  async function loadStudent(
+  const loadStudent = useCallback(async (
     uuid: string
-  ) {
+  ) => {
     try {
       setLoading(true);
       setError('');
@@ -160,7 +150,25 @@ export default function EditStudentScreen() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    // O carregamento automatico e agendado apos o Effect.
+    // Evita setState sincrono e nao chama funcao antes de sua definicao.
+    let effectActive = true;
+    void Promise.resolve().then(() => {
+      if (!effectActive) return;
+      if (!studentUuid) {
+        setError('Aluno inválido.');
+        setLoading(false);
+        return;
+      }
+      void loadStudent(studentUuid);
+    });
+    return () => {
+      effectActive = false;
+    };
+  }, [studentUuid, loadStudent]);
 
   async function handleSave() {
     if (
