@@ -780,6 +780,86 @@ export default function BodyCompositionScreen() {
             />
           </View>
 
+          <Pressable
+            style={styles.infoBox}
+            onPress={() => {
+              if (!assessmentUuid) return;
+              router.push({
+                pathname: '/(app)/assessments/[uuid]/clinical-preview',
+                params: { uuid: assessmentUuid },
+              });
+            }}
+          >
+            <Ionicons name="calculator-outline" size={21} color="#40856C" />
+            <Text style={styles.infoText}>
+              Abrir prévia matemática de 3 ou 7 dobras (não homologada).
+              Salve as medidas antes de consultar.
+            </Text>
+          </Pressable>
+
+          {protocol === 'guedes_3' ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Abrir prévia matemática Guedes"
+              style={styles.infoBox}
+              onPress={() => {
+                if (!assessmentUuid) return;
+                router.push({
+                  pathname: '/(app)/assessments/[uuid]/guedes-preview',
+                  params: { uuid: assessmentUuid },
+                });
+              }}
+            >
+              <Ionicons name="calculator-outline" size={21} color="#40856C" />
+              <Text style={styles.infoText}>
+                Abrir prévia Guedes de 3 dobras (não homologada).
+                Salve o protocolo e as medidas antes de consultar.
+              </Text>
+            </Pressable>
+          ) : null}
+
+          {protocol === 'bioimpedance' ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Abrir registro de bioimpedância"
+              style={styles.infoBox}
+              onPress={() => {
+                if (!assessmentUuid) return;
+                router.push({
+                  pathname: '/(app)/assessments/[uuid]/bioimpedance',
+                  params: { uuid: assessmentUuid, readOnly: readOnly ? '1' : '0' },
+                });
+              }}
+            >
+              <Ionicons name="pulse-outline" size={21} color="#40856C" />
+              <Text style={styles.infoText}>
+                Registrar valores do equipamento de bioimpedância.
+                Nenhum cálculo ou laudo automático será realizado.
+              </Text>
+            </Pressable>
+          ) : null}
+
+          {protocol === 'weltman' ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Abrir prévia Weltman"
+              style={styles.infoBox}
+              onPress={() => {
+                if (!assessmentUuid) return;
+                router.push({
+                  pathname: '/(app)/assessments/[uuid]/weltman-preview',
+                  params: { uuid: assessmentUuid, readOnly: readOnly ? '1' : '0' },
+                });
+              }}
+            >
+              <Ionicons name="calculator-outline" size={21} color="#40856C" />
+              <Text style={styles.infoText}>
+                Registrar dois perímetros abdominais e consultar prévia matemática Weltman.
+                Equação populacional sem homologação clínica.
+              </Text>
+            </Pressable>
+          ) : null}
+
           <SectionTitle
             number="3"
             title="Resultados"
@@ -873,13 +953,12 @@ export default function BodyCompositionScreen() {
             </Text>
           </View>
 
-          {protocol ===
-          'pollock_7' ? (
+          {['pollock_7', 'pollock_3', 'guedes_3'].includes(protocol ?? '') ? (
             <>
               <SectionTitle
                 number="4"
                 title="Dobras cutâneas"
-                description="Pollock de 7 dobras — valores em milímetros."
+                description="Dobras em milímetros. A equação utiliza 3 ou 7 sítios conforme protocolo e sexo."
               />
 
               <View
@@ -946,15 +1025,7 @@ export default function BodyCompositionScreen() {
                     styles.warningText
                   }
                 >
-                  As sete dobras podem
-                  ser registradas, mas
-                  o cálculo do
-                  percentual de gordura
-                  do Pollock 7 ainda
-                  aguarda validação da
-                  equação pela
-                  profissional
-                  responsável.
+                  As medidas ficam salvas para acompanhamento. A prévia das fórmulas Jackson–Pollock é apenas para revisão: ainda não foi homologada profissionalmente.
                 </Text>
               </View>
             </>
