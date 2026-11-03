@@ -41,3 +41,7 @@ app-example
 # generated native folders
 /ios
 /android
+# MF: configuracoes locais nao devem entrar no Git
+.env
+.env.*
+!.env.example

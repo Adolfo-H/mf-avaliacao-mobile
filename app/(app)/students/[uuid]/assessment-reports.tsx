@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { File } from 'expo-file-system';
+import type { File } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -96,7 +97,10 @@ export default function AssessmentReportsScreen() {
       setReport(null);
       const file = await downloadAssessmentReport(studentUuid, selectedUuid);
       setReport({ file, uuid: selectedUuid });
-      await file.preview({ title: 'Relatório de avaliação física', mimeType: 'application/pdf' });
+      // MF_PWA_REPORT_V1: no Safari o usuário abre a visualização com um segundo toque.
+      if (Platform.OS !== 'web') {
+        await file.preview({ title: 'Relatório de avaliação física', mimeType: 'application/pdf' });
+      }
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : 'Falha ao abrir o PDF.');
     } finally {
@@ -107,6 +111,10 @@ export default function AssessmentReportsScreen() {
   async function shareReport() {
     if (!report || report.uuid !== selectedUuid || downloading) return;
     try {
+      if (Platform.OS === 'web') {
+        window.open(report.file.uri, '_blank', 'noopener,noreferrer');
+        return;
+      }
       if (!(await Sharing.isAvailableAsync())) {
         Alert.alert('Compartilhamento indisponível', 'Este dispositivo não permite compartilhar arquivos neste momento.');
         return;
@@ -126,7 +134,9 @@ export default function AssessmentReportsScreen() {
       report.file.delete();
     }
     setReport(null);
-    Alert.alert('Arquivo temporário', 'A cópia local do PDF foi excluída do cache do aplicativo.');
+    if (Platform.OS !== 'web') {
+      Alert.alert('Arquivo temporário', 'A cópia local do PDF foi excluída do cache do aplicativo.');
+    }
   }
 
   return (
@@ -225,14 +235,14 @@ export default function AssessmentReportsScreen() {
           onPress={() => void openReport()}
         >
           {downloading ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons name="document-text-outline" color="#FFFFFF" size={20} />}
-          <Text style={styles.mainButtonText}>{downloading ? 'Gerando PDF...' : 'Gerar e visualizar PDF'}</Text>
+          <Text style={styles.mainButtonText}>{downloading ? 'Gerando PDF...' : Platform.OS === 'web' ? 'Gerar PDF' : 'Gerar e visualizar PDF'}</Text>
         </Pressable>
 
         {report && report.uuid === selectedUuid ? (
           <View style={styles.actions}>
             <Pressable style={styles.actionButton} onPress={() => void shareReport()}>
               <Ionicons name="share-outline" color="#40856C" size={19} />
-              <Text style={styles.actionText}>Compartilhar ou imprimir</Text>
+              <Text style={styles.actionText}>{Platform.OS === 'web' ? 'Abrir PDF / imprimir / compartilhar' : 'Compartilhar ou imprimir'}</Text>
             </Pressable>
             <Pressable style={styles.deleteButton} onPress={clearTemporaryPdf}>
               <Ionicons name="trash-outline" color="#9F5555" size={18} />
