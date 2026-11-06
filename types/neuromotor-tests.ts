@@ -81,7 +81,19 @@ export type NeuromotorSection = {
   completed_at: string | null;
 };
 
+export type NeuromotorReferenceReview = {
+  version: string;
+  status: string;
+  recorded_count: number;
+  total_count: number;
+  summary: string;
+  items: Record<string, { status: string }>;
+  classification: null;
+  professionally_approved: false;
+};
+
 export type AssessmentNeuromotor = {
+  reference_review?: NeuromotorReferenceReview;
   assessment_uuid: string;
   neuromotor_tests: NeuromotorPayload;
   results: NeuromotorResults;

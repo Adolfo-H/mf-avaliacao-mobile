@@ -567,6 +567,7 @@ export default function Vo2MaxScreen() {
               />
             </View>
 
+            {form.protocol === 'cooper_12_min' ? (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Abrir prévia matemática de Cooper"
@@ -587,6 +588,30 @@ export default function Vo2MaxScreen() {
                 </Text>
               </View>
             </Pressable>
+            ) : null}
+
+            {form.protocol === 'run_2400m' ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Abrir prévia matemática do teste de 2.400 metros"
+                style={styles.pendingCard}
+                onPress={() => {
+                  if (!uuid) return;
+                  router.push({
+                    pathname: '/(app)/assessments/[uuid]/vo2-2400-preview',
+                    params: { uuid },
+                  });
+                }}
+              >
+                <Ionicons name="calculator-outline" size={22} color="#A56F28" />
+                <View style={styles.flex}>
+                  <Text style={styles.pendingLabel}>PRÉVIA 2.400 M / 1,5 MILHA</Text>
+                  <Text style={styles.pendingText}>
+                    Cálculo indireto para revisão profissional. Salve a distância e o tempo antes de consultar.
+                  </Text>
+                </View>
+              </Pressable>
+            ) : null}
 
             {form.protocol === 'walk_1_mile' ? (
               <Pressable

@@ -12,7 +12,17 @@ export type SpinePainRegion =
   | 'lumbar'
   | 'cervical';
 
+export type ParqExternalFormReference = {
+  version: string;
+  completed_on: string;
+  document_reference: string;
+  source_url?: string;
+  recorded_at?: string;
+  recorded_by?: number;
+};
+
 export type AssessmentAnamnesisPayload = {
+  parq_external?: ParqExternalFormReference;
   objectives?: AnamnesisObjective[];
 
   objective_other?: string | null;
@@ -74,6 +84,8 @@ export type ParqQuestion = {
 
 export type ParqData = {
   configured: boolean;
+  external_form_registered?: boolean;
+  external_form_status?: string;
 
   questions: ParqQuestion[];
 
