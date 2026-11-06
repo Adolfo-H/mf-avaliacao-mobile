@@ -7,14 +7,12 @@ import {
 
 import {
   useCallback,
-  useMemo,
   useState,
 } from 'react';
 
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -36,7 +34,6 @@ import {
 import {
   AnamnesisObjective,
   AssessmentAnamnesis,
-  ParqQuestion,
   SpinePainRegion,
 } from '@/types/anamnesis';
 
@@ -199,17 +196,6 @@ export default function AnamnesisScreen() {
     setDiastolicPressure,
   ] = useState('');
 
-  const [parqExternalVersion, setParqExternalVersion] = useState('2025');
-  const [parqExternalDate, setParqExternalDate] = useState('');
-  const [parqExternalReference, setParqExternalReference] = useState('');
-
-  const [
-    parqAnswers,
-    setParqAnswers,
-  ] = useState<
-    Record<number, boolean | null>
-  >({});
-
   const [loading, setLoading] =
     useState(true);
 
@@ -315,26 +301,6 @@ export default function AnamnesisScreen() {
           )
         );
 
-        setParqExternalVersion(payload.parq_external?.version ?? '2025');
-        setParqExternalDate(isoToBrazilianDate(payload.parq_external?.completed_on ?? null));
-        setParqExternalReference(payload.parq_external?.document_reference ?? '');
-
-        const answers: Record<
-          number,
-          boolean | null
-        > = {};
-
-        for (
-          const question
-          of data.parq.questions
-        ) {
-          answers[question.id] =
-            question.answer;
-        }
-
-        setParqAnswers(
-          answers
-        );
       },
       []
     );
@@ -383,38 +349,6 @@ export default function AnamnesisScreen() {
       void loadData();
     }, [loadData])
   );
-
-  const answeredParqCount =
-    useMemo(() => {
-      if (!loadedData) {
-        return 0;
-      }
-
-      return loadedData.parq.questions
-        .filter(
-          (question) =>
-            parqAnswers[
-              question.id
-            ] !== null &&
-            parqAnswers[
-              question.id
-            ] !== undefined
-        )
-        .length;
-    }, [
-      loadedData,
-      parqAnswers,
-    ]);
-
-  const hasPositiveParq =
-    useMemo(() => {
-      return Object.values(
-        parqAnswers
-      ).some(
-        (answer) =>
-          answer === true
-      );
-    }, [parqAnswers]);
 
   function toggleObjective(
     objective: AnamnesisObjective
@@ -531,51 +465,9 @@ export default function AnamnesisScreen() {
         }
       }
 
-      // PAR-Q+ oficial é preenchido fora do app; armazenamos só a referência.
-      let parqExternalPayload: { version: string; completed_on: string; document_reference: string } | undefined;
-      if (!loadedData?.parq.configured && (parqExternalDate.trim() || parqExternalReference.trim())) {
-        const version = parqExternalVersion.trim();
-        const completedOn = parseBrazilianDate(parqExternalDate);
-        const reference = parqExternalReference.trim();
-        if (!/^20[0-9]{2}$/.test(version) || !completedOn || !/^[A-Za-z0-9._-]{3,80}$/.test(reference)) {
-          throw new Error('Para registrar o PAR-Q+ externo, informe ano (ex.: 2025), data válida e referência interna sem espaços.');
-        }
-        const prev = loadedData?.anamnesis?.parq_external;
-        if (!prev || prev.version !== version || prev.completed_on !== completedOn || prev.document_reference !== reference) {
-          parqExternalPayload = { version, completed_on: completedOn, document_reference: reference };
-        }
-      }
-
       setSaving(true);
       setError('');
       setSuccessMessage('');
-
-      const parqPayload =
-        loadedData?.parq
-          .configured
-          ? loadedData.parq.questions
-              .filter(
-                (question) =>
-                  parqAnswers[
-                    question.id
-                  ] !== null &&
-                  parqAnswers[
-                    question.id
-                  ] !==
-                    undefined
-              )
-              .map(
-                (question) => ({
-                  question_version_id:
-                    question.id,
-
-                  answer:
-                    parqAnswers[
-                      question.id
-                    ] as boolean,
-                })
-              )
-          : undefined;
 
       const updated =
         await updateAssessmentAnamnesis(
@@ -662,10 +554,6 @@ export default function AnamnesisScreen() {
             diastolic_blood_pressure:
               diastolic,
 
-            parq_answers:
-              parqPayload,
-
-            parq_external: parqExternalPayload,
           }
         );
 
@@ -1263,176 +1151,6 @@ export default function AnamnesisScreen() {
             </View>
           </View>
 
-          <SectionTitle
-            number="6"
-            title="PAR-Q"
-            description="Questionário de prontidão para atividade física."
-          />
-
-          {!loadedData?.parq
-            .configured ? (
-            <View
-              style={
-                styles.parqUnavailable
-              }
-            >
-              <View
-                style={
-                  styles.parqIcon
-                }
-              >
-                <Ionicons
-                  name="shield-checkmark-outline"
-                  size={25}
-                  color="#A66A19"
-                />
-              </View>
-
-              <View
-                style={styles.flex}
-              >
-                <Text
-                  style={
-                    styles.parqUnavailableTitle
-                  }
-                >
-                  Questionário aguardando
-                  validação
-                </Text>
-
-                <Text
-                  style={
-                    styles.parqUnavailableText
-                  }
-                >
-                  A redação oficial do
-                  PAR-Q ainda não foi
-                  aprovada pela
-                  profissional responsável.
-                  Nenhuma pergunta provisória
-                  será utilizada.
-                </Text>
-                <Pressable
-                  accessibilityRole="link"
-                  onPress={() => {
-                    void Linking.openURL('https://eparmedx.com/how-to-cite/');
-                  }}
-                >
-                  <Text style={[styles.parqUnavailableText, { marginTop: 8, textDecorationLine: "underline", color: "#176A6B" }]}>
-                    Consultar versão oficial do PAR-Q+ (site externo)
-                  </Text>
-                </Pressable>
-                <Text style={[styles.parqUnavailableText, { marginTop: 10 }]}>
-                  Preencha a versão oficial fora do aplicativo e mantenha o documento assinado sob guarda privada.
-                  O registro abaixo não confirma aptidão para exercício e não substitui análise profissional.
-                </Text>
-                <Field label="Ano/versão do formulário oficial" value={parqExternalVersion} placeholder="2025"
-                  editable={!readOnly} maxLength={4} onChangeText={setParqExternalVersion} />
-                <Field label="Data de preenchimento" value={parqExternalDate} placeholder="DD/MM/AAAA"
-                  editable={!readOnly} onChangeText={setParqExternalDate} />
-                <Field label="Referência interna do documento guardado" value={parqExternalReference}
-                  placeholder="FORM-MF-001" editable={!readOnly} maxLength={80}
-                  onChangeText={setParqExternalReference} />
-                {loadedData?.parq.external_form_registered ? (
-                  <Text style={[styles.parqUnavailableText, { color: '#40856C', marginTop: 5 }]}>
-                    Referência do formulário registrada. Isso NÃO equivale a liberação para atividade física.
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-          ) : (
-            <View
-              style={styles.card}
-            >
-              <View
-                style={
-                  styles.parqSummary
-                }
-              >
-                <Text
-                  style={
-                    styles.parqSummaryText
-                  }
-                >
-                  {answeredParqCount} de{' '}
-                  {
-                    loadedData.parq
-                      .total_questions
-                  }{' '}
-                  respondidas
-                </Text>
-              </View>
-
-              {hasPositiveParq ? (
-                <View
-                  style={
-                    styles.medicalAlert
-                  }
-                >
-                  <Ionicons
-                    name="warning-outline"
-                    size={22}
-                    color="#A66A19"
-                  />
-
-                  <Text
-                    style={
-                      styles.medicalAlertText
-                    }
-                  >
-                    Existe pelo menos uma
-                    resposta “Sim”. Antes
-                    da conclusão da
-                    anamnese deverá ser
-                    seguida a conduta
-                    definida pela MF.
-                  </Text>
-                </View>
-              ) : null}
-
-              {loadedData.parq.questions.map(
-                (
-                  question,
-                  index
-                ) => (
-                  <ParqQuestionCard
-                    key={
-                      question.id
-                    }
-                    question={
-                      question
-                    }
-                    number={
-                      index + 1
-                    }
-                    value={
-                      parqAnswers[
-                        question.id
-                      ] ?? null
-                    }
-                    disabled={
-                      readOnly
-                    }
-                    onChange={(
-                      answer
-                    ) =>
-                      setParqAnswers(
-                        (
-                          current
-                        ) => ({
-                          ...current,
-
-                          [question.id]:
-                            answer,
-                        })
-                      )
-                    }
-                  />
-                )
-              )}
-            </View>
-          )}
-
           {!readOnly ? (
             <>
               <Pressable
@@ -1809,58 +1527,6 @@ function MultilineField({
         onChangeText={
           onChangeText
         }
-      />
-    </View>
-  );
-}
-
-type ParqQuestionCardProps = {
-  question: ParqQuestion;
-
-  number: number;
-
-  value: boolean | null;
-
-  disabled: boolean;
-
-  onChange: (
-    value: boolean
-  ) => void;
-};
-
-function ParqQuestionCard({
-  question,
-  number,
-  value,
-  disabled,
-  onChange,
-}: ParqQuestionCardProps) {
-  return (
-    <View
-      style={
-        styles.parqQuestion
-      }
-    >
-      <Text
-        style={
-          styles.parqQuestionNumber
-        }
-      >
-        Pergunta {number}
-      </Text>
-
-      <Text
-        style={
-          styles.parqQuestionText
-        }
-      >
-        {question.text}
-      </Text>
-
-      <BooleanSelector
-        value={value}
-        disabled={disabled}
-        onChange={onChange}
       />
     </View>
   );
