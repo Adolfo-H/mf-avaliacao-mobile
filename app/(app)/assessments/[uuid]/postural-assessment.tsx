@@ -11,7 +11,6 @@ import {
 } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Modal,
   Pressable,
@@ -25,6 +24,8 @@ import {
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
+
+import { confirmAction } from '@/lib/confirm-action';
 
 import {
   getAssessmentPostural,
@@ -454,18 +455,15 @@ export default function PosturalAssessmentScreen() {
       return;
     }
 
-    Alert.alert(
+    const confirmed = await confirmAction(
       'Excluir fotografia',
       'Deseja remover esta fotografia postural?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
+      { confirmLabel: 'Excluir', destructive: true }
+    );
+
+    if (!confirmed) {
+      return;
+    }
             try {
               setBusy(true);
               setError('');
@@ -528,10 +526,6 @@ export default function PosturalAssessmentScreen() {
             } finally {
               setBusy(false);
             }
-          },
-        },
-      ]
-    );
   }
 
   if (loading) {

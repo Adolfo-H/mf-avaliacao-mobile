@@ -609,11 +609,6 @@ export default function NeuromotorTestsScreen() {
               />
             </View>
 
-            <PendingResultCard
-              title="Classificação da flexibilidade"
-              subtitle="Aguardando critérios e tabela de referência validados."
-            />
-
             <SectionHeading
               index="02"
               eyebrow="RESISTÊNCIA MUSCULAR"
@@ -695,11 +690,6 @@ export default function NeuromotorTestsScreen() {
                   value
                 )
               }
-            />
-
-            <PendingResultCard
-              title="Classificação da flexão abdominal"
-              subtitle="Aguardando faixa de referência por sexo e idade."
             />
 
             <SectionHeading
@@ -786,8 +776,8 @@ export default function NeuromotorTestsScreen() {
             />
 
             <PendingResultCard
-              title="Classificação da flexão de braços"
-              subtitle="Aguardando faixa de referência por sexo e idade."
+              title="Classificações ainda indisponíveis"
+              subtitle="As medidas são registradas normalmente. As classificações dependem de tabelas de referência aprovadas pela profissional responsável."
             />
 
             {data?.previous ? (
