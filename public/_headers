@@ -1,0 +1,7 @@
+# Netlify: arquivos do app web não devem ser armazenados em cache persistente.
+/*
+  Cache-Control: no-store
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Permissions-Policy: microphone=(), geolocation=()

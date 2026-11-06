@@ -565,6 +565,50 @@ export default function Vo2MaxScreen() {
               />
             </View>
 
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Abrir prévia matemática de Cooper"
+              style={styles.pendingCard}
+              onPress={() => {
+                if (!uuid) return;
+                router.push({
+                  pathname: '/(app)/assessments/[uuid]/vo2-cooper-preview',
+                  params: { uuid },
+                });
+              }}
+            >
+              <Ionicons name="calculator-outline" size={22} color="#A56F28" />
+              <View style={styles.flex}>
+                <Text style={styles.pendingLabel}>PRÉVIA MATEMÁTICA (NÃO HOMOLOGADA)</Text>
+                <Text style={styles.pendingText}>
+                  Ver estimativa indireta de Cooper (12 minutos). Salve as medidas antes de abrir.
+                </Text>
+              </View>
+            </Pressable>
+
+            {form.protocol === 'walk_1_mile' ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Abrir prévia matemática Rockport"
+                style={styles.pendingCard}
+                onPress={() => {
+                  if (!uuid) return;
+                  router.push({
+                    pathname: '/(app)/assessments/[uuid]/vo2-rockport-preview',
+                    params: { uuid },
+                  });
+                }}
+              >
+                <Ionicons name="calculator-outline" size={22} color="#A56F28" />
+                <View style={styles.flex}>
+                  <Text style={styles.pendingLabel}>PRÉVIA MATEMÁTICA ROCKPORT</Text>
+                  <Text style={styles.pendingText}>
+                    Caminhada de 1 milha: estimativa indireta não homologada. Salve os dados antes de consultar.
+                  </Text>
+                </View>
+              </Pressable>
+            ) : null}
+
             <Heading
               number="04"
               title="Resultado"

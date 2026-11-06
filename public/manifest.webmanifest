@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "MF Avaliação Física",
+  "short_name": "MF Avaliação",
+  "description": "Avaliações físicas e acompanhamento MF Saúde e Movimento.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#123C47",
+  "background_color": "#F7F8F6",
+  "icons": [
+    {
+      "src": "/mf-pwa-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
