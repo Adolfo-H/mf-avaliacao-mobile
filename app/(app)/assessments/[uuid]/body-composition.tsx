@@ -863,7 +863,7 @@ export default function BodyCompositionScreen() {
           <SectionTitle
             number="3"
             title="Resultados"
-            description="Resultados disponíveis com as fórmulas atualmente validadas."
+            description="O IMC é calculado após salvar as medidas. Classificações e estimativas exigem validação profissional."
           />
 
           <View
@@ -923,34 +923,6 @@ export default function BodyCompositionScreen() {
               value="Aguardando validação da fórmula"
               available={false}
             />
-          </View>
-
-          <View
-            style={
-              styles.infoBox
-            }
-          >
-            <Ionicons
-              name="information-circle-outline"
-              size={21}
-              color="#40856C"
-            />
-
-            <Text
-              style={
-                styles.infoText
-              }
-            >
-              O IMC já pode ser
-              calculado porque sua
-              fórmula está definida.
-              Percentual de gordura,
-              classificação e demais
-              resultados serão
-              habilitados após a
-              validação profissional
-              dos protocolos.
-            </Text>
           </View>
 
           {['pollock_7', 'pollock_3', 'guedes_3'].includes(protocol ?? '') ? (

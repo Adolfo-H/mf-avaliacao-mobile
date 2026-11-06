@@ -14,7 +14,6 @@ import {
 
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Pressable,
   RefreshControl,
@@ -27,6 +26,8 @@ import {
 import {
   SafeAreaView,
   } from 'react-native-safe-area-context';
+
+import { confirmAction } from '@/lib/confirm-action';
 
 import {
   completeAssessment,
@@ -95,6 +96,9 @@ export default function AssessmentDetailsScreen() {
     actionBusy,
     setActionBusy,
   ] = useState(false);
+
+  const [completionError, setCompletionError] = useState('');
+  const [confirmingCompletion, setConfirmingCompletion] = useState(false);
 
   const loadAssessment =
     useCallback(
@@ -275,81 +279,60 @@ export default function AssessmentDetailsScreen() {
   }
 
   async function finishAssessment() {
-    if (
-      !assessmentUuid ||
-      !assessment ||
-      assessment.status !== 'draft' ||
-      actionBusy
-    ) {
+    if (!assessmentUuid || !assessment || assessment.status !== 'draft' || actionBusy) {
       return;
     }
 
     try {
       setActionBusy(true);
       setError('');
+      setCompletionError('');
 
-      const updated =
-        await completeAssessment(
-          assessmentUuid
-        );
-
+      const updated = await completeAssessment(assessmentUuid);
       setAssessment(updated);
-
-      Alert.alert(
-        'Avaliação concluída',
-        'A avaliação foi concluída e agora está disponível somente para consulta.'
-      );
+      // O cartão de sucesso aparece quando status mudar para completed.
     } catch (exception) {
-      setError(
-        exception instanceof Error
-          ? exception.message
-          : 'Não foi possível concluir a avaliação.'
-      );
+      const message = exception instanceof Error
+        ? exception.message
+        : 'Não foi possível concluir a avaliação.';
+      setError(message);
+      setCompletionError(message);
     } finally {
       setActionBusy(false);
     }
   }
 
-  function handleCompleteAssessment() {
-    if (
-      !assessment ||
-      assessment.status !== 'draft' ||
-      actionBusy
-    ) {
+  async function handleCompleteAssessment() {
+    if (!assessment || assessment.status !== 'draft' || actionBusy || confirmingCompletion) {
       return;
     }
 
-    const pending =
-      assessment.sections.filter(
-        section =>
-          section.status !== 'completed'
-      );
+    const pending = assessment.sections.filter(section => section.status !== 'completed');
 
     if (pending.length > 0) {
-      Alert.alert(
-        'Avaliação ainda incompleta',
-        `Conclua as ${pending.length} seção(ões) pendente(s) antes de finalizar a avaliação.`
+      setCompletionError(
+        `Existem ${pending.length} seções pendentes. Conclua todas antes de finalizar a avaliação.`
       );
       return;
     }
 
-    Alert.alert(
-      'Concluir avaliação?',
-      'Depois de concluída, a avaliação ficará disponível somente para consulta.',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Concluir',
-          style: 'destructive',
-          onPress: () => {
-            void finishAssessment();
-          },
-        },
-      ]
-    );
+    setCompletionError('');
+    setConfirmingCompletion(true);
+
+    try {
+      // Alert.alert não apresenta diálogo na versão web/PWA.
+      const confirmed = await confirmAction(
+        'Concluir avaliação?',
+        'Depois de concluída, a avaliação ficará disponível somente para consulta.',
+        { confirmLabel: 'Concluir' }
+      );
+
+      if (confirmed) {
+        await finishAssessment();
+      }
+    } finally {
+      setConfirmingCompletion(false);
+    }
   }
 
   function openSection(
@@ -967,26 +950,6 @@ export default function AssessmentDetailsScreen() {
             )}
         </View>
 
-        <View
-          style={
-            styles.nextStepBox
-          }
-        >
-          <Ionicons
-            name="information-circle-outline"
-            size={22}
-            color="#40856C"
-          />
-
-          <Text
-            style={
-              styles.nextStepText
-            }
-          >
-            Anamnese, Composição Corporal, Perímetros, VO₂Max e Testes neuromotores já estão disponíveis. As demais seções serão habilitadas conforme avançarmos.
-          </Text>
-        </View>
-
         <Text
           style={
             styles.footer
@@ -1081,6 +1044,7 @@ export default function AssessmentDetailsScreen() {
                 styles.completeAssessmentButton,
                 (
                   actionBusy ||
+                  confirmingCompletion ||
                   assessment.progress.total === 0 ||
                   assessment.progress.completed !==
                     assessment.progress.total
@@ -1089,11 +1053,12 @@ export default function AssessmentDetailsScreen() {
               ]}
               disabled={
                 actionBusy ||
+                confirmingCompletion ||
                 assessment.progress.total === 0 ||
                 assessment.progress.completed !==
                   assessment.progress.total
               }
-              onPress={handleCompleteAssessment}
+              onPress={() => { void handleCompleteAssessment(); }}
             >
               {actionBusy ? (
                 <ActivityIndicator
@@ -1106,6 +1071,10 @@ export default function AssessmentDetailsScreen() {
                 </Text>
               )}
             </Pressable>
+
+            {completionError ? (
+              <Text style={styles.errorText}>{completionError}</Text>
+            ) : null}
 
             {assessment.progress.completed !==
             assessment.progress.total ? (
@@ -1483,7 +1452,7 @@ function getSectionDescription(
 ): string {
   switch (key) {
     case 'anamnesis':
-      return 'Objetivos, histórico, sinais vitais e PAR-Q';
+      return 'Objetivos, histórico e sinais vitais';
 
     case 'body_composition':
       return 'Peso, altura, protocolo e composição corporal';
