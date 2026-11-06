@@ -100,10 +100,22 @@ export type BodyCompositionSection = {
   completed_at: string | null;
 };
 
+export type AdultBmiReferencePreview = {
+  status: string;
+  bmi_kg_m2: number | null;
+  reference_category: string | null;
+  reference: string;
+  professionally_approved: boolean;
+  persisted: boolean;
+  warning: string;
+};
+
 export type AssessmentBodyComposition = {
   assessment_uuid: string;
 
   body_composition: BodyCompositionPayload;
+
+  bmi_reference_preview?: AdultBmiReferencePreview;
 
   results: BodyCompositionResults;
 

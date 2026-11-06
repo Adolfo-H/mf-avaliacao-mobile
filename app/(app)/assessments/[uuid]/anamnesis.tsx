@@ -14,6 +14,7 @@ import {
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -1286,6 +1287,16 @@ export default function AnamnesisScreen() {
                   Nenhuma pergunta provisória
                   será utilizada.
                 </Text>
+                <Pressable
+                  accessibilityRole="link"
+                  onPress={() => {
+                    void Linking.openURL('https://eparmedx.com/how-to-cite/');
+                  }}
+                >
+                  <Text style={[styles.parqUnavailableText, { marginTop: 8, textDecorationLine: "underline", color: "#176A6B" }]}>
+                    Consultar versão oficial do PAR-Q+ (site externo)
+                  </Text>
+                </Pressable>
               </View>
             </View>
           ) : (

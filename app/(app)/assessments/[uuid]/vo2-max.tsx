@@ -431,14 +431,16 @@ export default function Vo2MaxScreen() {
               />
               <View style={styles.flex}>
                 <Text style={styles.pendingLabel}>
-                  FC MÁXIMA ESTIMADA
+                  FC MÁXIMA TEÓRICA — PRÉVIA
                 </Text>
                 <Text style={styles.pendingValue}>
-                  Não calculada
+                  {data.max_heart_rate_preview?.status === 'preview_available'
+                    ? `${data.max_heart_rate_preview.estimated_bpm} bpm`
+                    : 'Indisponível para esta avaliação'}
                 </Text>
                 <Text style={styles.pendingText}>
-                  Fórmula aguardando validação
-                  profissional.
+                  Equação de Tanaka (2001). Estimativa populacional não homologada;
+                  não usar isoladamente para prescrição de exercício.
                 </Text>
               </View>
             </View>

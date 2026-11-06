@@ -25,6 +25,16 @@ export type Vo2Results = {
   calculation_status: string;
 };
 
+export type MaxHeartRatePreview = {
+  status: string;
+  estimated_bpm: number | null;
+  formula: string;
+  reference: string;
+  professionally_approved: boolean;
+  persisted: boolean;
+  warning: string;
+};
+
 export type AssessmentVo2Max = {
   assessment_uuid: string;
   evaluation_date: string;
@@ -41,6 +51,8 @@ export type AssessmentVo2Max = {
   };
 
   results: Vo2Results;
+
+  max_heart_rate_preview?: MaxHeartRatePreview;
 
   previous: {
     assessment_uuid: string;
