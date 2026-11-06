@@ -777,7 +777,7 @@ export default function NeuromotorTestsScreen() {
 
             <PendingResultCard
               title="Classificações ainda indisponíveis"
-              subtitle="As medidas são registradas normalmente. As classificações dependem de tabelas de referência aprovadas pela profissional responsável."
+              subtitle={data?.reference_review?.summary ?? 'As classificações dependem de tabelas aprovadas pela profissional responsável.'}
             />
 
             {data?.previous ? (

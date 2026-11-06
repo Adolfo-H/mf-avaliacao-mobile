@@ -199,6 +199,10 @@ export default function AnamnesisScreen() {
     setDiastolicPressure,
   ] = useState('');
 
+  const [parqExternalVersion, setParqExternalVersion] = useState('2025');
+  const [parqExternalDate, setParqExternalDate] = useState('');
+  const [parqExternalReference, setParqExternalReference] = useState('');
+
   const [
     parqAnswers,
     setParqAnswers,
@@ -310,6 +314,10 @@ export default function AnamnesisScreen() {
             payload.diastolic_blood_pressure
           )
         );
+
+        setParqExternalVersion(payload.parq_external?.version ?? '2025');
+        setParqExternalDate(isoToBrazilianDate(payload.parq_external?.completed_on ?? null));
+        setParqExternalReference(payload.parq_external?.document_reference ?? '');
 
         const answers: Record<
           number,
@@ -523,6 +531,21 @@ export default function AnamnesisScreen() {
         }
       }
 
+      // PAR-Q+ oficial é preenchido fora do app; armazenamos só a referência.
+      let parqExternalPayload: { version: string; completed_on: string; document_reference: string } | undefined;
+      if (!loadedData?.parq.configured && (parqExternalDate.trim() || parqExternalReference.trim())) {
+        const version = parqExternalVersion.trim();
+        const completedOn = parseBrazilianDate(parqExternalDate);
+        const reference = parqExternalReference.trim();
+        if (!/^20[0-9]{2}$/.test(version) || !completedOn || !/^[A-Za-z0-9._-]{3,80}$/.test(reference)) {
+          throw new Error('Para registrar o PAR-Q+ externo, informe ano (ex.: 2025), data válida e referência interna sem espaços.');
+        }
+        const prev = loadedData?.anamnesis?.parq_external;
+        if (!prev || prev.version !== version || prev.completed_on !== completedOn || prev.document_reference !== reference) {
+          parqExternalPayload = { version, completed_on: completedOn, document_reference: reference };
+        }
+      }
+
       setSaving(true);
       setError('');
       setSuccessMessage('');
@@ -641,6 +664,8 @@ export default function AnamnesisScreen() {
 
             parq_answers:
               parqPayload,
+
+            parq_external: parqExternalPayload,
           }
         );
 
@@ -1297,6 +1322,22 @@ export default function AnamnesisScreen() {
                     Consultar versão oficial do PAR-Q+ (site externo)
                   </Text>
                 </Pressable>
+                <Text style={[styles.parqUnavailableText, { marginTop: 10 }]}>
+                  Preencha a versão oficial fora do aplicativo e mantenha o documento assinado sob guarda privada.
+                  O registro abaixo não confirma aptidão para exercício e não substitui análise profissional.
+                </Text>
+                <Field label="Ano/versão do formulário oficial" value={parqExternalVersion} placeholder="2025"
+                  editable={!readOnly} maxLength={4} onChangeText={setParqExternalVersion} />
+                <Field label="Data de preenchimento" value={parqExternalDate} placeholder="DD/MM/AAAA"
+                  editable={!readOnly} onChangeText={setParqExternalDate} />
+                <Field label="Referência interna do documento guardado" value={parqExternalReference}
+                  placeholder="FORM-MF-001" editable={!readOnly} maxLength={80}
+                  onChangeText={setParqExternalReference} />
+                {loadedData?.parq.external_form_registered ? (
+                  <Text style={[styles.parqUnavailableText, { color: '#40856C', marginTop: 5 }]}>
+                    Referência do formulário registrada. Isso NÃO equivale a liberação para atividade física.
+                  </Text>
+                ) : null}
               </View>
             </View>
           ) : (
