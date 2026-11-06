@@ -907,9 +907,13 @@ export default function BodyCompositionScreen() {
             />
 
             <ResultItem
-              label="Classificação do IMC"
-              value="Aguardando validação da tabela"
-              available={false}
+              label="Faixa de IMC para adultos (OMS · prévia)"
+              value={
+                loadedData?.bmi_reference_preview?.status === 'preview_available'
+                  ? (loadedData.bmi_reference_preview.reference_category ?? 'Indisponível')
+                  : 'Não disponível para esta avaliação'
+              }
+              available={loadedData?.bmi_reference_preview?.status === 'preview_available'}
             />
 
             <View
@@ -920,10 +924,16 @@ export default function BodyCompositionScreen() {
 
             <ResultItem
               label="Percentual de gordura"
-              value="Aguardando validação da fórmula"
+              value="Conferir nas prévias matemáticas do protocolo selecionado"
               available={false}
             />
           </View>
+
+          {loadedData?.bmi_reference_preview?.status === 'preview_available' ? (
+            <Text style={styles.infoText}>
+              Faixa de referência populacional, não é diagnóstico nem classificação clínica homologada.
+            </Text>
+          ) : null}
 
           {['pollock_7', 'pollock_3', 'guedes_3'].includes(protocol ?? '') ? (
             <>
