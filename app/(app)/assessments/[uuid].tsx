@@ -27,7 +27,7 @@ import {
   SafeAreaView,
   } from 'react-native-safe-area-context';
 
-import { confirmAction } from '@/lib/confirm-action';
+import { AssessmentCompletionDialog } from '@/components/AssessmentCompletionDialog';
 
 import {
   completeAssessment,
@@ -302,13 +302,12 @@ export default function AssessmentDetailsScreen() {
     }
   }
 
-  async function handleCompleteAssessment() {
+  function handleCompleteAssessment() {
     if (!assessment || assessment.status !== 'draft' || actionBusy || confirmingCompletion) {
       return;
     }
 
     const pending = assessment.sections.filter(section => section.status !== 'completed');
-
     if (pending.length > 0) {
       setCompletionError(
         `Existem ${pending.length} seções pendentes. Conclua todas antes de finalizar a avaliação.`
@@ -316,23 +315,9 @@ export default function AssessmentDetailsScreen() {
       return;
     }
 
+    // Abre a confirmação visual MF no iPhone, Safari, Chrome e Android.
     setCompletionError('');
     setConfirmingCompletion(true);
-
-    try {
-      // Alert.alert não apresenta diálogo na versão web/PWA.
-      const confirmed = await confirmAction(
-        'Concluir avaliação?',
-        'Depois de concluída, a avaliação ficará disponível somente para consulta.',
-        { confirmLabel: 'Concluir' }
-      );
-
-      if (confirmed) {
-        await finishAssessment();
-      }
-    } finally {
-      setConfirmingCompletion(false);
-    }
   }
 
   function openSection(
@@ -1096,6 +1081,20 @@ export default function AssessmentDetailsScreen() {
         )}
 
       </ScrollView>
+      <AssessmentCompletionDialog
+        visible={confirmingCompletion}
+        busy={actionBusy}
+        completedSections={assessment.progress.completed}
+        totalSections={assessment.progress.total}
+        onCancel={() => {
+          if (!actionBusy) setConfirmingCompletion(false);
+        }}
+        onConfirm={() => {
+          if (actionBusy) return;
+          setConfirmingCompletion(false);
+          void finishAssessment();
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -1452,7 +1451,7 @@ function getSectionDescription(
 ): string {
   switch (key) {
     case 'anamnesis':
-      return 'Objetivos, histórico e sinais vitais';
+      return 'Objetivos, histórico de saúde e sinais vitais';
 
     case 'body_composition':
       return 'Peso, altura, protocolo e composição corporal';

@@ -780,23 +780,6 @@ export default function BodyCompositionScreen() {
             />
           </View>
 
-          <Pressable
-            style={styles.infoBox}
-            onPress={() => {
-              if (!assessmentUuid) return;
-              router.push({
-                pathname: '/(app)/assessments/[uuid]/clinical-preview',
-                params: { uuid: assessmentUuid },
-              });
-            }}
-          >
-            <Ionicons name="calculator-outline" size={21} color="#40856C" />
-            <Text style={styles.infoText}>
-              Abrir prévia matemática de 3 ou 7 dobras (não homologada).
-              Salve as medidas antes de consultar.
-            </Text>
-          </Pressable>
-
           {protocol === 'guedes_3' ? (
             <Pressable
               accessibilityRole="button"
@@ -991,25 +974,6 @@ export default function BodyCompositionScreen() {
                 )}
               </View>
 
-              <View
-                style={
-                  styles.warningBox
-                }
-              >
-                <Ionicons
-                  name="calculator-outline"
-                  size={21}
-                  color="#A66A19"
-                />
-
-                <Text
-                  style={
-                    styles.warningText
-                  }
-                >
-                  As medidas ficam salvas para acompanhamento. A prévia das fórmulas Jackson–Pollock é apenas para revisão: ainda não foi homologada profissionalmente.
-                </Text>
-              </View>
             </>
           ) : null}
 
