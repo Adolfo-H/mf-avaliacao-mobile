@@ -62,11 +62,21 @@ export function MFThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [scheme]);
 
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    document.documentElement.setAttribute('data-mf-theme', theme);
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
+
   const value = useMemo<MFThemeContextValue>(() => ({
     theme, preference, setPreference, colors: MF_COLORS[theme],
     desktop: Platform.OS === 'web' && width >= 1000, width,
   }), [theme, preference, width, setPreference]);
 
+  // Sincronizar ANTES do render dos filhos. O bridge legado tem de usar a
+  // mesma paleta do contexto; efeitos pós-render deixam textos invisíveis
+  // após a troca claro/escuro no Safari e no app instalado.
+  setMFActiveTheme(theme);
   return <MFThemeContext.Provider value={value}>{children}</MFThemeContext.Provider>;
 }
 

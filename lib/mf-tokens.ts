@@ -1,5 +1,3 @@
-import { Appearance, Platform } from 'react-native';
-
 /** Cores aprovadas no protótipo MF Saúde & Movimento. */
 export const MF_COLORS = {
   light: {
@@ -43,16 +41,12 @@ export const MF_COLORS = {
 export type MFTheme = keyof typeof MF_COLORS;
 export type MFPalette = { [K in keyof (typeof MF_COLORS)['light']]: string };
 
+/**
+ * Fonte única do tema ativo para os estilos antigos e os novos componentes.
+ * A definição pertence ao MFThemeProvider; NÃO consultar outra vez matchMedia
+ * ou localStorage aqui: iOS/PWA pode devolver um tema diferente do contexto.
+ */
 let activeTheme: MFTheme = 'light';
 export function setMFActiveTheme(next: MFTheme): void { activeTheme = next; }
-export function getMFActiveTheme(): MFTheme {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    try {
-      const stored = window.localStorage.getItem('mf:appearance:v1');
-      if (stored === 'light' || stored === 'dark') return stored;
-      return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    } catch { /* armazenamento de preferência opcional */ }
-  }
-  return activeTheme;
-}
-export function getMFPalette(): MFPalette { return MF_COLORS[getMFActiveTheme()]; }
+export function getMFActiveTheme(): MFTheme { return activeTheme; }
+export function getMFPalette(): MFPalette { return MF_COLORS[activeTheme]; }

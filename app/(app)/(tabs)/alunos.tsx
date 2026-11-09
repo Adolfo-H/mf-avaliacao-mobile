@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useMFTheme } from '@/contexts/MFThemeContext';
 import { MFButton, MFBadge, MFEmpty, MFFilter, MFHeading, MFSearch } from '@/components/MFUI';
+import { MFStudentAvatar } from '@/components/MFStudentAvatar';
 import { listStudents } from '@/services/students';
 import type { Student, StudentStatus } from '@/types/student';
 
@@ -14,11 +15,6 @@ const FILTERS = [
   { value: 'all', label: 'Todos' },
 ];
 type Filter = StudentStatus | 'all';
-function initials(name: string): string {
-  const p = name.trim().split(/\s+/).filter(Boolean);
-  return p.length > 1 ? `${p[0][0]}${p[p.length - 1][0]}`.toUpperCase() : (p[0] ?? 'MF').slice(0, 2).toUpperCase();
-}
-
 export default function StudentsScreen() {
   const { colors: c, desktop } = useMFTheme();
   const [students, setStudents] = useState<Student[]>([]);
@@ -57,7 +53,7 @@ export default function StudentsScreen() {
       <View style={{ borderRadius: 19, overflow: 'hidden', borderWidth: 1, borderColor: c.border, backgroundColor: c.surface }}>
         {desktop ? <View style={{ height: 51, backgroundColor: c.soft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20 }}><Text style={{ flex: 2.2, color: c.muted, fontSize: 11, fontWeight: '800' }}>ALUNO</Text><Text style={{ flex: 1.1, color: c.muted, fontSize: 11, fontWeight: '800' }}>CONTATO</Text><Text style={{ flex: .7, color: c.muted, fontSize: 11, fontWeight: '800' }}>IDADE</Text><Text style={{ flex: .8, color: c.muted, fontSize: 11, fontWeight: '800' }}>STATUS</Text><Text style={{ width: 25 }} /></View> : null}
         {students.map((item, i) => <Pressable key={item.uuid} onPress={() => go(item.uuid)} style={{ borderTopWidth: i || desktop ? 1 : 0, borderTopColor: c.border, paddingHorizontal: desktop ? 20 : 15, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', gap: 13 }}>
-          <View style={{ flex: desktop ? 2.2 : 1, flexDirection: 'row', alignItems: 'center', gap: 13 }}><View style={{ width: 45, height: 45, borderRadius: 15, backgroundColor: c.greenSoft, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: c.greenText, fontWeight: '800', fontSize: 13 }}>{initials(item.name)}</Text></View><View style={{ flex: 1 }}><Text numberOfLines={1} style={{ color: c.ink, fontWeight: '800', fontSize: 13 }}>{item.name}</Text>{!desktop ? <Text style={{ color: c.muted, marginTop: 6, fontSize: 10 }}>{item.age === null ? 'Idade não informada' : `${item.age} anos`} · {item.archived ? 'Arquivado' : item.active ? 'Ativo' : 'Inativo'}</Text> : <Text style={{ color: c.muted, marginTop: 5, fontSize: 10 }}>{item.contact?.mobile_phone || 'Contato não informado'}</Text>}</View></View>
+          <View style={{ flex: desktop ? 2.2 : 1, flexDirection: 'row', alignItems: 'center', gap: 13 }}><MFStudentAvatar uuid={item.uuid} hasPhoto={item.has_photo} name={item.name} /><View style={{ flex: 1 }}><Text numberOfLines={1} style={{ color: c.ink, fontWeight: '800', fontSize: 13 }}>{item.name}</Text>{!desktop ? <Text style={{ color: c.muted, marginTop: 6, fontSize: 10 }}>{item.age === null ? 'Idade não informada' : `${item.age} anos`} · {item.archived ? 'Arquivado' : item.active ? 'Ativo' : 'Inativo'}</Text> : <Text style={{ color: c.muted, marginTop: 5, fontSize: 10 }}>{item.contact?.mobile_phone || 'Contato não informado'}</Text>}</View></View>
           {desktop ? <><Text numberOfLines={1} style={{ flex: 1.1, color: c.muted, fontSize: 11 }}>{item.contact?.email || '—'}</Text><Text style={{ flex: .7, color: c.muted, fontSize: 12 }}>{item.age === null ? '—' : `${item.age} anos`}</Text><View style={{ flex: .8 }}><MFBadge label={item.archived ? 'Arquivado' : item.active ? 'Ativo' : 'Inativo'} positive={item.active && !item.archived}/></View></> : null}
           <Ionicons name="chevron-forward" size={19} color={c.muted}/>
         </Pressable>)}

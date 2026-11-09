@@ -1,3 +1,4 @@
+import { clearMFStudentThumbnails } from '@/lib/mf-photo-cache';
 import {
   createContext,
   ReactNode,
@@ -77,6 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await logout();
     } finally {
+      clearMFStudentThumbnails();
       setSessionError(null);
       setUser(null);
     }
