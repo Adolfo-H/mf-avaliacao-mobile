@@ -1,15 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -44,6 +38,8 @@ function parseCentimeters(raw: string, label: string): number | null {
 }
 
 export default function WeltmanPreviewScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[]; readOnly?: string | string[] }>();
   const uuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
   const readOnly = (Array.isArray(params.readOnly) ? params.readOnly[0] : params.readOnly) === '1';
@@ -124,7 +120,7 @@ export default function WeltmanPreviewScreen() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Pressable accessibilityRole="button" accessibilityLabel="Voltar" style={styles.back} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color="#123C47" />
+            <Ionicons name="chevron-back" size={24} color={mfLegacyColor('#123C47')} />
           </Pressable>
           <View style={{ flex: 1 }}>
             <Text style={styles.eyebrow}>MF AVALIAÇÃO FÍSICA</Text>
@@ -133,7 +129,7 @@ export default function WeltmanPreviewScreen() {
         </View>
 
         <View style={styles.notice}>
-          <Ionicons name="information-circle-outline" color="#40856C" size={21} />
+          <Ionicons name="information-circle-outline" color={mfLegacyColor('#40856C')} size={21} />
           <Text style={styles.noticeText}>
             Equação de população específica, para conferência profissional. Não representa diagnóstico,
             não é homologada e não integra os resultados oficiais ou relatórios PDF.
@@ -143,7 +139,7 @@ export default function WeltmanPreviewScreen() {
         {!uuid ? <Text style={styles.error}>Avaliação inválida.</Text> : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
         {success ? <Text style={styles.success}>{success}</Text> : null}
-        {loading && uuid ? <ActivityIndicator size="large" color="#40856C" style={{ marginTop: 30 }} /> : null}
+        {loading && uuid ? <ActivityIndicator size="large" color={mfLegacyColor('#40856C')} style={{ marginTop: 30 }} /> : null}
 
         {!loading && uuid ? (
           <>
@@ -186,7 +182,7 @@ export default function WeltmanPreviewScreen() {
               style={styles.confirmRow}
               onPress={() => { setConfirmed(value => !value); setDirty(true); setSuccess(''); }}
             >
-              <Ionicons name={confirmed ? 'checkbox' : 'square-outline'} size={25} color="#40856C" />
+              <Ionicons name={confirmed ? 'checkbox' : 'square-outline'} size={25} color={mfLegacyColor('#40856C')} />
               <Text style={styles.confirmText}>
                 Confirmo, como profissional responsável, que avaliei a aplicabilidade desta equação
                 para a pessoa examinada. Isso não substitui a homologação do método.
@@ -195,7 +191,7 @@ export default function WeltmanPreviewScreen() {
 
             {!readOnly ? (
               <Pressable accessibilityRole="button" disabled={saving} style={[styles.button, saving && styles.disabled]} onPress={() => void save()}>
-                {saving ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons name="save-outline" size={21} color="#FFFFFF" />}
+                {saving ? <ActivityIndicator color={mfLegacyColor('#FFFFFF')} /> : <Ionicons name="save-outline" size={21} color={mfLegacyColor('#FFFFFF')} />}
                 <Text style={styles.buttonText}>{saving ? 'Salvando...' : 'Salvar medidas e atualizar prévia'}</Text>
               </Pressable>
             ) : null}
@@ -234,7 +230,7 @@ function MeasureInput({ label, hint, value, onChange, editable }: {
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={onChange}
-        editable={editable} placeholder="Ex.: 110,5" placeholderTextColor="#9CA8A9" />
+        editable={editable} placeholder="Ex.: 110,5" placeholderTextColor={mfLegacyColor('#9CA8A9')} />
       <Text style={styles.hint}>{hint}</Text>
     </View>
   );

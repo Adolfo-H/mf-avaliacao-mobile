@@ -1,558 +1,111 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import type { ViewStyle } from 'react-native';
+import { useAuth } from '@/contexts/AuthContext';
+import { useMFTheme } from '@/contexts/MFThemeContext';
 import { getDashboardSummary } from '@/services/dashboard-summary';
-import type { DashboardSummary } from '@/types/dashboard-summary';
+import type { DashboardSummary, DashboardRecentAssessment } from '@/types/dashboard-summary';
 
-function formatAssessmentDate(date: string | null): string {
-  if (!date) return 'Sem data';
-  const [year, month, day] = date.split('-');
-  return year && month && day ? `${day}/${month}/${year}` : date;
+function brDate(value: string | null) {
+  if (!value) return 'Sem data';
+  const [y, m, d] = value.split('-');
+  return y && m && d ? `${d}/${m}/${y}` : value;
 }
-
-const COLORS = {
-  background: '#F7F8F6',
-  primary: '#123C47',
-  green: '#40856C',
-  text: '#172D34',
-  muted: '#718084',
-  white: '#FFFFFF',
-  border: '#E4E9E7',
-};
 
 export default function DashboardScreen() {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const { colors: c, desktop } = useMFTheme();
+  const { user } = useAuth();
+  const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const canViewAssessments = summary?.permissions.can_view_assessments !== false;
-
-  const loadSummary = useCallback(async (): Promise<void> => {
+  const load = useCallback(async () => {
     setLoading(true);
-    try {
-      const result = await getDashboardSummary();
-      setSummary(result);
-      setError('');
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível atualizar o painel.');
-    } finally {
-      setLoading(false);
-    }
+    try { setData(await getDashboardSummary()); setError(''); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Não foi possível carregar o painel.'); }
+    finally { setLoading(false); }
   }, []);
+  useFocusEffect(useCallback(() => { void load(); }, [load]));
 
-  useFocusEffect(useCallback(() => {
-    void loadSummary();
-  }, [loadSummary]));
+  const allowed = data?.permissions.can_view_assessments !== false && user?.role !== 'reception';
+  const firstDraft = data?.recent.find(item => item.status === 'draft');
+  const metric = [
+    { name: data?.students.label ?? 'Alunos ativos', value: data?.students.count, icon: 'people-outline' as const, href: '/(app)/(tabs)/alunos' as const, note: 'Base de acompanhamento' },
+    { name: 'Avaliações', value: data?.assessments?.total, icon: 'pulse-outline' as const, href: '/(app)/(tabs)/avaliacoes' as const, note: 'Registros da equipe' },
+    { name: 'Em andamento', value: data?.assessments?.draft, icon: 'time-outline' as const, href: '/(app)/(tabs)/avaliacoes' as const, note: 'Rascunhos para retomar' },
+    { name: 'Concluídas', value: data?.assessments?.completed, icon: 'checkmark-circle-outline' as const, href: '/(app)/(tabs)/avaliacoes' as const, note: 'Registros preservados' },
+  ];
+  const card: ViewStyle = { backgroundColor: c.surface, borderColor: c.border, borderWidth: 1, borderRadius: 20, padding: desktop ? 24 : 19 };
+  const head = user?.name?.split(' ')[0] ?? 'Equipe';
+  const total = data?.assessments?.total ?? 0;
+  const done = data?.assessments?.completed ?? 0;
+  const pct = total > 0 ? Math.round(100 * done / total) : 0;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.topBar}>
+    <ScrollView style={{ flex: 1, backgroundColor: c.bg }} contentContainerStyle={{ padding: desktop ? 34 : 18, maxWidth: 1300, width: '100%', alignSelf: 'center', paddingBottom: 58 }}>
+      <Text style={{ color: c.greenText, fontWeight: '800', fontSize: 11, letterSpacing: 1.6, marginBottom: 9 }}>SEU ESPAÇO DE ACOMPANHAMENTO</Text>
+      <Text style={{ color: c.ink, fontFamily: 'Manrope', fontWeight: '800', fontSize: desktop ? 31 : 27, letterSpacing: -0.8 }}>Um novo olhar para cada evolução.</Text>
+      <Text style={{ marginTop: 9, color: c.muted, fontSize: 13, marginBottom: 26 }}>Olá, {head}. Seu acompanhamento começa aqui.</Text>
+
+      {error ? <Pressable onPress={() => void load()} style={{ ...card, marginBottom: 16, backgroundColor: c.errorSoft }}><Text style={{ color: c.error }}>{error} · Toque para tentar novamente.</Text></Pressable> : null}
+
+      <View style={{ flexDirection: desktop ? 'row' : 'column', gap: 18, marginBottom: 20 }}>
+        <View style={{ flex: desktop ? 1.7 : undefined, minHeight: desktop ? 252 : 242, borderRadius: 23, backgroundColor: '#343D5A', overflow: 'hidden', padding: desktop ? 30 : 25, justifyContent: 'space-between' }}>
           <View>
-            <Text style={styles.brandSmall}>MF SAÚDE E MOVIMENTO</Text>
-            <Text style={styles.pageTitle}>Avaliação Física</Text>
+            <Text style={{ color: c.lime, fontWeight: '800', fontSize: 10, letterSpacing: 1.7 }}>CADA AVALIAÇÃO CONTA</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: desktop ? 30 : 28, fontWeight: '800', letterSpacing: -0.6, marginTop: 10 }}>Cuidar começa\npor conhecer.</Text>
+            <Text style={{ color: '#D9E0F0', fontSize: 12, lineHeight: 19, marginTop: 9, maxWidth: 360 }}>Uma visão completa para acompanhar cada pessoa, do primeiro registro à sua evolução.</Text>
           </View>
-
-          <View style={styles.avatar}>
-            <Ionicons
-              name="person-outline"
-              size={22}
-              color={COLORS.primary}
-            />
-          </View>
-        </View>
-
-        <View style={styles.hero}>
-          <Text style={styles.heroEyebrow}>PAINEL</Text>
-
-          <Text style={styles.heroTitle}>
-            Tudo pronto para a próxima avaliação.
-          </Text>
-
-          <Text style={styles.heroDescription}>
-            Cadastre alunos, registre avaliações e acompanhe a evolução em um
-            único lugar.
-          </Text>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.primaryButton,
-              pressed && styles.pressed,
-            ]}
-            disabled={!canViewAssessments}
-            onPress={() =>
-              router.push('/(app)/(tabs)/avaliacoes')
-            }
-          >
-            <View style={styles.primaryButtonIcon}>
-              <Ionicons
-                name="add"
-                size={22}
-                color={COLORS.primary}
-              />
-            </View>
-
-            <Text style={styles.primaryButtonText}>
-              Nova avaliação
-            </Text>
-
-            <Ionicons
-              name="arrow-forward"
-              size={20}
-              color={COLORS.white}
-            />
+          <Pressable disabled={!allowed} onPress={() => router.push('/(app)/assessments/new')} style={{ alignSelf: 'flex-start', borderRadius: 13, paddingHorizontal: 19, minHeight: 46, backgroundColor: c.lime, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', gap: 9, opacity: allowed ? 1 : .6 }}>
+            <Ionicons name="add" color={c.onLime} size={21}/><Text style={{ fontSize: 13, fontWeight: '800', color: c.onLime }}>Nova avaliação</Text>
           </Pressable>
         </View>
 
-        <Text style={styles.sectionTitle}>Resumo</Text>
-
-        <View style={styles.statsRow}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.statCard,
-              pressed && styles.pressed,
-            ]}
-            onPress={() => router.push('/(app)/(tabs)/alunos')}
-          >
-            <View style={styles.statIcon}>
-              <Ionicons
-                name="people-outline"
-                size={22}
-                color={COLORS.green}
-              />
-            </View>
-
-            <Text style={styles.statValue}>
-              {loading && !summary ? '...' : (summary?.students.count ?? '—')}
-            </Text>
-            <Text style={styles.statLabel}>
-              {summary?.students.label ?? 'Alunos'}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.statCard,
-              pressed && styles.pressed,
-            ]}
-            disabled={!canViewAssessments}
-            onPress={() =>
-              router.push('/(app)/(tabs)/avaliacoes')
-            }
-          >
-            <View style={styles.statIcon}>
-              <Ionicons
-                name="clipboard-outline"
-                size={22}
-                color={COLORS.green}
-              />
-            </View>
-
-            <Text style={styles.statValue}>
-              {loading && !summary ? '...' : (summary?.assessments?.total ?? '—')}
-            </Text>
-            <Text style={styles.statLabel}>Avaliações</Text>
-          </Pressable>
+        <View style={{ ...card, flex: desktop ? 1 : undefined, minHeight: desktop ? 252 : 174 }}>
+          <Text style={{ color: c.ink, fontSize: 15, fontWeight: '800', marginBottom: 22 }}>Continue de onde parou</Text>
+          {loading && !data ? <ActivityIndicator color={c.lime} /> : firstDraft && allowed ? (
+            <>
+              <Text style={{ color: c.ink, fontWeight: '800', fontSize: 14 }}>{firstDraft.student.name ?? 'Avaliação em andamento'}</Text>
+              <Text style={{ color: c.muted, fontSize: 11, marginTop: 6, marginBottom: 14 }}>Avaliação de {brDate(firstDraft.evaluation_date)}</Text>
+              <Text style={{ color: c.greenText, fontSize: 11, fontWeight: '700', marginBottom: 15 }}>Avaliação ainda em preenchimento</Text>
+              <Pressable onPress={() => router.push({ pathname: '/(app)/assessments/[uuid]', params: { uuid: firstDraft.uuid } })} style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: c.border, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: c.ink, fontWeight: '800', fontSize: 12 }}>Continuar avaliação →</Text>
+              </Pressable>
+            </>
+          ) : <Text style={{ color: c.muted, fontSize: 13, lineHeight: 20 }}>Não há avaliações em andamento para retomar.</Text>}
         </View>
+      </View>
 
-        {canViewAssessments && summary?.assessments ? (
-          <View style={styles.statusRow}>
-            <View style={styles.statusChip}>
-              <Text style={styles.statusChipText}>Rascunhos: {summary.assessments.draft}</Text>
-            </View>
-            <View style={styles.statusChip}>
-              <Text style={styles.statusChipText}>Concluídas: {summary.assessments.completed}</Text>
-            </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
+        {metric.map(m => <Pressable key={m.name} disabled={m.name !== metric[0].name && !allowed} onPress={() => router.push(m.href)} style={{ ...card, width: desktop ? '23.6%' : '48%', minHeight: desktop ? 138 : 136, padding: 16, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name={m.icon} size={20} color={c.muted} />
+            <Text numberOfLines={2} style={{ color: c.muted, flexShrink: 1, fontSize: 11 }}>{m.name}</Text>
           </View>
-        ) : null}
+          <Text style={{ color: c.ink, fontSize: 29, fontWeight: '800' }}>{loading && !data ? '···' : m.value ?? '—'}</Text>
+          <Text numberOfLines={1} style={{ color: c.greenText, fontSize: 10, fontWeight: '700' }}>{m.note}</Text>
+        </Pressable>)}
+      </View>
 
-        <Text style={styles.sectionTitle}>Acesso rápido</Text>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.actionCard,
-            pressed && styles.pressed,
-          ]}
-          onPress={() => router.push('/(app)/(tabs)/alunos')}
-        >
-          <View style={styles.actionIcon}>
-            <Ionicons
-              name="person-add-outline"
-              size={22}
-              color={COLORS.green}
-            />
-          </View>
-
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>
-              Cadastrar aluno
-            </Text>
-
-            <Text style={styles.actionDescription}>
-              Adicione um novo aluno à base da MF.
-            </Text>
-          </View>
-
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={COLORS.muted}
-          />
-        </Pressable>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.actionCard,
-            pressed && styles.pressed,
-          ]}
-          disabled={!canViewAssessments}
-            onPress={() =>
-            router.push('/(app)/(tabs)/avaliacoes')
-          }
-        >
-          <View style={styles.actionIcon}>
-            <Ionicons
-              name="fitness-outline"
-              size={22}
-              color={COLORS.green}
-            />
-          </View>
-
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>
-              Avaliações
-            </Text>
-
-            <Text style={styles.actionDescription}>
-              Consulte avaliações realizadas ou inicie uma nova.
-            </Text>
-          </View>
-
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={COLORS.muted}
-          />
-        </Pressable>
-
-        <Text style={styles.sectionTitle}>
-          Atividade recente
-        </Text>
-
-        {error ? (
-          <Pressable style={styles.errorCard} onPress={() => void loadSummary()}>
-            <Text style={styles.errorText}>{error}</Text>
-            <Text style={styles.retryText}>Tocar para tentar novamente</Text>
-          </Pressable>
-        ) : null}
-
-        {!canViewAssessments ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>Acesso clínico restrito</Text>
-            <Text style={styles.emptyDescription}>
-              Este perfil visualiza somente os indicadores administrativos.
-            </Text>
-          </View>
-        ) : summary?.recent && summary.recent.length > 0 ? (
-          summary.recent.map(item => (
-            <Pressable
-              key={item.uuid}
-              style={({ pressed }) => [styles.recentCard, pressed && styles.pressed]}
-              onPress={() => router.push({
-                pathname: '/(app)/assessments/[uuid]',
-                params: { uuid: item.uuid },
-              })}
-            >
-              <View style={styles.recentCardTop}>
-                <Text style={styles.recentStudent} numberOfLines={1}>
-                  {item.student.name ?? 'Aluno sem nome'}
-                </Text>
-                <Text style={styles.recentStatus}>{item.status_label}</Text>
-              </View>
-              <Text style={styles.recentDate}>
-                Avaliação de {formatAssessmentDate(item.evaluation_date)}
-              </Text>
-            </Pressable>
-          ))
-        ) : (
-          <View style={styles.emptyCard}>
-            <View style={styles.emptyIcon}>
-              <Ionicons name="document-text-outline" size={26} color={COLORS.green} />
-            </View>
-            <Text style={styles.emptyTitle}>
-              {loading ? 'Carregando avaliações...' : 'Nenhuma avaliação registrada'}
-            </Text>
-            <Text style={styles.emptyDescription}>
-              {loading ? 'Consultando informações atualizadas.' : 'As avaliações mais recentes aparecerão aqui.'}
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+      <View style={{ flexDirection: desktop ? 'row' : 'column', gap: 18 }}>
+        <View style={{ ...card, flex: desktop ? 1.4 : undefined }}>
+          <Text style={{ color: c.ink, fontSize: 17, fontWeight: '800' }}>Seu acompanhamento</Text>
+          <Text style={{ color: c.muted, marginTop: 5, fontSize: 12 }}>Distribuição das avaliações registradas</Text>
+          <Text style={{ color: c.ink, fontSize: 30, fontWeight: '800', marginTop: 28 }}>{total} <Text style={{ fontSize: 12, fontWeight: '500', color: c.muted }}>avaliações</Text></Text>
+          <View style={{ marginTop: 19, backgroundColor: c.soft, height: 13, borderRadius: 99, overflow: 'hidden' }}><View style={{ width: `${pct}%`, height: 13, backgroundColor: c.lime, borderRadius: 99 }} /></View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 15 }}><Text style={{ fontSize: 12, color: c.muted }}>{done} concluídas</Text><Text style={{ fontSize: 12, color: c.greenText, fontWeight: '800' }}>{pct}% concluídas</Text></View>
+          <Text style={{ color: c.muted, marginTop: 19, fontSize: 11, lineHeight: 17 }}>Dados reais do sistema. Sem projeções ou histórico mensal inventado.</Text>
+        </View>
+        <View style={{ ...card, flex: 1 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 18 }}><Text style={{ fontSize: 17, color: c.ink, fontWeight: '800' }}>Avaliações recentes</Text><Pressable onPress={() => router.push('/(app)/(tabs)/avaliacoes')}><Text style={{ color: c.greenText, fontWeight: '800', fontSize: 12 }}>Ver todas</Text></Pressable></View>
+          {allowed && data?.recent.length ? data.recent.slice(0, 3).map((item: DashboardRecentAssessment) => <Pressable key={item.uuid} onPress={() => router.push({ pathname: '/(app)/assessments/[uuid]', params: { uuid: item.uuid } })} style={{ padding: 14, marginBottom: 9, borderWidth: 1, borderColor: c.border, borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 39, height: 39, borderRadius: 13, backgroundColor: c.greenSoft, justifyContent: 'center', alignItems: 'center' }}><Ionicons name="person-outline" color={c.greenText} size={19}/></View>
+            <View style={{ flex: 1 }}><Text numberOfLines={1} style={{ color: c.ink, fontSize: 12, fontWeight: '800' }}>{item.student.name ?? 'Aluno'}</Text><Text style={{ color: c.muted, marginTop: 4, fontSize: 10 }}>{brDate(item.evaluation_date)} · {item.status_label}</Text></View>
+            <Ionicons name="chevron-forward" size={17} color={c.muted}/>
+          </Pressable>) : <Text style={{ color: c.muted, fontSize: 12 }}>Sem avaliações recentes para mostrar.</Text>}
+        </View>
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-
-  container: {
-    flex: 1,
-  },
-
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 30,
-  },
-
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 28,
-  },
-
-  brandSmall: {
-    color: COLORS.green,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1.4,
-    marginBottom: 5,
-  },
-
-  pageTitle: {
-    color: COLORS.text,
-    fontSize: 23,
-    fontWeight: '800',
-  },
-
-  avatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 16,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  hero: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 26,
-    padding: 24,
-    marginBottom: 30,
-  },
-
-  heroEyebrow: {
-    color: '#91C3AE',
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1.5,
-    marginBottom: 12,
-  },
-
-  heroTitle: {
-    color: COLORS.white,
-    fontSize: 27,
-    lineHeight: 34,
-    fontWeight: '800',
-    marginBottom: 10,
-  },
-
-  heroDescription: {
-    color: '#C8D5D8',
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 22,
-  },
-
-  primaryButton: {
-    minHeight: 56,
-    borderRadius: 17,
-    backgroundColor: COLORS.green,
-    paddingHorizontal: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  primaryButtonIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: COLORS.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-
-  primaryButtonText: {
-    flex: 1,
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-
-  sectionTitle: {
-    color: COLORS.text,
-    fontSize: 18,
-    fontWeight: '800',
-    marginBottom: 14,
-  },
-
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 30,
-  },
-
-  statCard: {
-    flex: 1,
-    minHeight: 150,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-
-  statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 13,
-    backgroundColor: '#EFF6F2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 18,
-  },
-
-  statValue: {
-    color: COLORS.text,
-    fontSize: 30,
-    fontWeight: '800',
-  },
-
-  statLabel: {
-    marginTop: 3,
-    color: COLORS.muted,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-
-  actionCard: {
-    minHeight: 86,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-    marginBottom: 11,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  actionIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 15,
-    backgroundColor: '#EFF6F2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-
-  actionContent: {
-    flex: 1,
-    paddingRight: 10,
-  },
-
-  actionTitle: {
-    color: COLORS.text,
-    fontSize: 15,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-
-  actionDescription: {
-    color: COLORS.muted,
-    fontSize: 13,
-    lineHeight: 18,
-  },
-
-  emptyCard: {
-    minHeight: 180,
-    backgroundColor: COLORS.white,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-
-  emptyIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 18,
-    backgroundColor: '#EFF6F2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 15,
-  },
-
-  emptyTitle: {
-    color: COLORS.text,
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 6,
-  },
-
-  emptyDescription: {
-    color: COLORS.muted,
-    fontSize: 13,
-    lineHeight: 19,
-    textAlign: 'center',
-  },
-
-  statusRow: {
-    flexDirection: 'row', gap: 10, marginTop: -18, marginBottom: 28, flexWrap: 'wrap',
-  },
-  statusChip: {
-    backgroundColor: '#EAF3EF', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 13,
-  },
-  statusChipText: { color: '#315E4D', fontSize: 12, fontWeight: '700' },
-  recentCard: {
-    backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border,
-    borderRadius: 17, padding: 16, marginBottom: 10,
-  },
-  recentCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  recentStudent: { color: COLORS.text, fontWeight: '800', fontSize: 14, flex: 1 },
-  recentStatus: { color: COLORS.green, fontSize: 11, fontWeight: '700' },
-  recentDate: { marginTop: 6, color: COLORS.muted, fontSize: 12 },
-  errorCard: {
-    padding: 14, borderRadius: 14, backgroundColor: '#FFF3EF', marginBottom: 12,
-  },
-  errorText: { color: '#9B4646', fontSize: 12 },
-  retryText: { color: COLORS.primary, marginTop: 8, fontWeight: '800', fontSize: 12 },
-
-  pressed: {
-    opacity: 0.72,
-  },
-});

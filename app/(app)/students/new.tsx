@@ -1,24 +1,16 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 
 import { createStudent } from '@/services/students';
 import { StudentSex } from '@/types/student';
 
 export default function NewStudentScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [sex, setSex] =
@@ -183,7 +175,7 @@ export default function NewStudentScreen() {
               <Ionicons
                 name="chevron-back"
                 size={24}
-                color="#123C47"
+                color={mfLegacyColor('#123C47')}
               />
             </Pressable>
 
@@ -209,7 +201,7 @@ export default function NewStudentScreen() {
               <Ionicons
                 name="alert-circle-outline"
                 size={20}
-                color="#B44747"
+                color={mfLegacyColor('#B44747')}
               />
 
               <Text style={styles.errorText}>
@@ -415,7 +407,7 @@ export default function NewStudentScreen() {
                 setAdministrativeNotes
               }
               placeholder="Informações administrativas..."
-              placeholderTextColor="#A1ACAF"
+              placeholderTextColor={mfLegacyColor('#A1ACAF')}
               multiline
               editable={!saving}
               textAlignVertical="top"
@@ -501,7 +493,7 @@ export default function NewStudentScreen() {
               <>
                 <ActivityIndicator
                   size="small"
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -517,7 +509,7 @@ export default function NewStudentScreen() {
                 <Ionicons
                   name="checkmark-outline"
                   size={21}
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -602,7 +594,7 @@ function Field({
       <TextInput
         value={value}
         placeholder={placeholder}
-        placeholderTextColor="#A1ACAF"
+        placeholderTextColor={mfLegacyColor('#A1ACAF')}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoCorrect={false}

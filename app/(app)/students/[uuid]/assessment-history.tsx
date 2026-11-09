@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import {
   router,
@@ -9,15 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { listStudentAssessmentHistory } from '@/services/assessment-history';
@@ -177,7 +171,7 @@ function HistoryCard({
           <Ionicons
             name="chevron-forward"
             size={16}
-            color="#40856C"
+            color={mfLegacyColor('#40856C')}
           />
         </View>
       </View>
@@ -192,6 +186,8 @@ const filters: { key: Filter; title: string }[] = [
 ];
 
 export default function StudentAssessmentHistoryScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{
     uuid?: string | string[];
   }>();
@@ -288,7 +284,7 @@ export default function StudentAssessmentHistoryScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="chevron-back" size={24} color="#123C47" />
+            <Ionicons name="chevron-back" size={24} color={mfLegacyColor('#123C47')} />
           </Pressable>
           <View style={styles.headerInfo}>
             <Text style={styles.eyebrow}>ALUNO</Text>
@@ -311,7 +307,7 @@ export default function StudentAssessmentHistoryScreen() {
           }}
         >
           <View style={styles.evolutionShortcutIcon}>
-            <Ionicons name="stats-chart-outline" size={21} color="#40856C" />
+            <Ionicons name="stats-chart-outline" size={21} color={mfLegacyColor('#40856C')} />
           </View>
           <View style={styles.evolutionShortcutText}>
             <Text style={styles.evolutionShortcutTitle}>Gráficos de evolução</Text>
@@ -319,7 +315,7 @@ export default function StudentAssessmentHistoryScreen() {
               Peso, IMC, RCQ e perímetros por data
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={19} color="#40856C" />
+          <Ionicons name="chevron-forward" size={19} color={mfLegacyColor('#40856C')} />
         </Pressable>
 
         <Pressable
@@ -333,7 +329,7 @@ export default function StudentAssessmentHistoryScreen() {
           }}
         >
           <View style={styles.photoComparisonIcon}>
-            <Ionicons name="images-outline" size={21} color="#40856C" />
+            <Ionicons name="images-outline" size={21} color={mfLegacyColor('#40856C')} />
           </View>
           <View style={styles.photoComparisonText}>
             <Text style={styles.photoComparisonTitle}>Comparar fotografias</Text>
@@ -341,7 +337,7 @@ export default function StudentAssessmentHistoryScreen() {
               Veja fotos de duas avaliações lado a lado
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={19} color="#40856C" />
+          <Ionicons name="chevron-forward" size={19} color={mfLegacyColor('#40856C')} />
         </Pressable>
 
         <Pressable
@@ -355,7 +351,7 @@ export default function StudentAssessmentHistoryScreen() {
           }}
         >
           <View style={styles.reportShortcutIcon}>
-            <Ionicons name="document-text-outline" size={21} color="#40856C" />
+            <Ionicons name="document-text-outline" size={21} color={mfLegacyColor('#40856C')} />
           </View>
           <View style={styles.reportShortcutText}>
             <Text style={styles.reportShortcutTitle}>Relatório em PDF</Text>
@@ -363,7 +359,7 @@ export default function StudentAssessmentHistoryScreen() {
               Gere e visualize o relatório de uma avaliação concluída
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={19} color="#40856C" />
+          <Ionicons name="chevron-forward" size={19} color={mfLegacyColor('#40856C')} />
         </Pressable>
 
         <Pressable
@@ -377,7 +373,7 @@ export default function StudentAssessmentHistoryScreen() {
           }}
         >
           <View style={styles.comparisonShortcutIcon}>
-            <Ionicons name="git-compare-outline" size={21} color="#40856C" />
+            <Ionicons name="git-compare-outline" size={21} color={mfLegacyColor('#40856C')} />
           </View>
           <View style={styles.comparisonShortcutText}>
             <Text style={styles.comparisonShortcutTitle}>
@@ -387,7 +383,7 @@ export default function StudentAssessmentHistoryScreen() {
               Veja as diferenças de peso, IMC e medidas
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={19} color="#40856C" />
+          <Ionicons name="chevron-forward" size={19} color={mfLegacyColor('#40856C')} />
         </Pressable>
 
         <View style={styles.filtersRow}>
@@ -412,7 +408,7 @@ export default function StudentAssessmentHistoryScreen() {
 
         {error ? (
           <View style={styles.errorCard}>
-            <Ionicons name="alert-circle-outline" size={23} color="#AE4B4B" />
+            <Ionicons name="alert-circle-outline" size={23} color={mfLegacyColor('#AE4B4B')} />
             <Text style={styles.errorText}>{error}</Text>
             <Pressable onPress={() => void load(currentPage, filter)}>
               <Text style={styles.retryText}>Tentar novamente</Text>
@@ -422,12 +418,12 @@ export default function StudentAssessmentHistoryScreen() {
 
         {loading ? (
           <View style={styles.centerBlock}>
-            <ActivityIndicator size="large" color="#40856C" />
+            <ActivityIndicator size="large" color={mfLegacyColor('#40856C')} />
             <Text style={styles.loadingText}>Carregando histórico...</Text>
           </View>
         ) : !error && data.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Ionicons name="calendar-outline" size={32} color="#82928E" />
+            <Ionicons name="calendar-outline" size={32} color={mfLegacyColor('#82928E')} />
             <Text style={styles.emptyTitle}>Nenhuma avaliação encontrada</Text>
             <Text style={styles.emptyText}>
               Não existem avaliações disponíveis para este filtro.
@@ -452,7 +448,7 @@ export default function StudentAssessmentHistoryScreen() {
                   disabled={currentPage <= 1 || loading}
                   onPress={() => void load(currentPage - 1, filter)}
                 >
-                  <Ionicons name="chevron-back" size={18} color="#123C47" />
+                  <Ionicons name="chevron-back" size={18} color={mfLegacyColor('#123C47')} />
                   <Text style={styles.pageButtonText}>Anterior</Text>
                 </Pressable>
 
@@ -469,7 +465,7 @@ export default function StudentAssessmentHistoryScreen() {
                   onPress={() => void load(currentPage + 1, filter)}
                 >
                   <Text style={styles.pageButtonText}>Próxima</Text>
-                  <Ionicons name="chevron-forward" size={18} color="#123C47" />
+                  <Ionicons name="chevron-forward" size={18} color={mfLegacyColor('#123C47')} />
                 </Pressable>
               </View>
             ) : null}
@@ -480,7 +476,7 @@ export default function StudentAssessmentHistoryScreen() {
           style={styles.newAssessmentButton}
           onPress={() => router.push('/(app)/assessments/new')}
         >
-          <Ionicons name="add-circle-outline" size={19} color="#FFFFFF" />
+          <Ionicons name="add-circle-outline" size={19} color={mfLegacyColor('#FFFFFF')} />
           <Text style={styles.newAssessmentText}>Nova avaliação</Text>
         </Pressable>
         <Text style={styles.footerNote}>

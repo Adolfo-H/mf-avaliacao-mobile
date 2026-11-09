@@ -1,94 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useMFTheme } from '@/contexts/MFThemeContext';
 
-const COLORS = {
-  primary: '#123C47',
-  green: '#40856C',
-  muted: '#8A989C',
-  border: '#E7EBEA',
-  white: '#FFFFFF',
-};
-
+/** Barra real é única e compartilhada pelo shell, inclusive nas telas profundas. */
 export default function TabsLayout() {
+  const { colors } = useMFTheme();
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-
-        tabBarActiveTintColor: COLORS.green,
-        tabBarInactiveTintColor: COLORS.muted,
-
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-          marginTop: 2,
-        },
-
-        tabBarStyle: {
-          height: 72,
-          paddingTop: 8,
-          paddingBottom: 10,
-          backgroundColor: COLORS.white,
-          borderTopColor: COLORS.border,
-          borderTopWidth: 1,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="dashboard"
-        options={{
-          title: 'Início',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'home' : 'home-outline'}
-              color={typeof color === 'string' ? color : COLORS.muted}
-              size={size}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="alunos"
-        options={{
-          title: 'Alunos',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'people' : 'people-outline'}
-              color={typeof color === 'string' ? color : COLORS.muted}
-              size={size}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="avaliacoes"
-        options={{
-          title: 'Avaliações',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'clipboard' : 'clipboard-outline'}
-              color={typeof color === 'string' ? color : COLORS.muted}
-              size={size}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="perfil"
-        options={{
-          title: 'Perfil',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'person-circle' : 'person-circle-outline'}
-              color={typeof color === 'string' ? color : COLORS.muted}
-              size={size}
-            />
-          ),
-        }}
-      />
+    <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: 'none', backgroundColor: colors.surface } }}>
+      <Tabs.Screen name="dashboard" options={{ title: 'Início', tabBarIcon: ({color,size}) => <Ionicons name="home-outline" color={typeof color === 'string' ? color : colors.muted} size={size}/> }} />
+      <Tabs.Screen name="alunos" options={{ title: 'Alunos', tabBarIcon: ({color,size}) => <Ionicons name="people-outline" color={typeof color === 'string' ? color : colors.muted} size={size}/> }} />
+      <Tabs.Screen name="avaliacoes" options={{ title: 'Avaliações', tabBarIcon: ({color,size}) => <Ionicons name="pulse-outline" color={typeof color === 'string' ? color : colors.muted} size={size}/> }} />
+      <Tabs.Screen name="perfil" options={{ title: 'Perfil', tabBarIcon: ({color,size}) => <Ionicons name="person-outline" color={typeof color === 'string' ? color : colors.muted} size={size}/> }} />
     </Tabs>
   );
 }

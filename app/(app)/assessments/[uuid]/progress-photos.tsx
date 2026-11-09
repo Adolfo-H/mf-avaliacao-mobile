@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -9,17 +11,7 @@ import {
   useCallback,
   useState,
 } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
@@ -56,6 +48,8 @@ type ObservationDrafts =
   >;
 
 export default function ProgressPhotosScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params =
     useLocalSearchParams<{
       uuid?: string | string[];
@@ -589,7 +583,7 @@ export default function ProgressPhotosScreen() {
       >
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text
@@ -634,7 +628,7 @@ export default function ProgressPhotosScreen() {
             <Ionicons
               name="chevron-back"
               size={24}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
           </Pressable>
 
@@ -711,7 +705,7 @@ export default function ProgressPhotosScreen() {
             }
             multiline
             placeholder="Descreva a finalidade do registro das fotos."
-            placeholderTextColor="#9AA7AA"
+            placeholderTextColor={mfLegacyColor('#9AA7AA')}
             textAlignVertical="top"
             onChangeText={
               setPurpose
@@ -737,7 +731,7 @@ export default function ProgressPhotosScreen() {
               !readOnly
             }
             placeholder="DD/MM/AAAA"
-            placeholderTextColor="#9AA7AA"
+            placeholderTextColor={mfLegacyColor('#9AA7AA')}
             onChangeText={
               setConsentDate
             }
@@ -832,7 +826,7 @@ export default function ProgressPhotosScreen() {
             <Ionicons
               name="lock-closed-outline"
               size={20}
-              color="#916A32"
+              color={mfLegacyColor('#916A32')}
             />
 
             <Text
@@ -917,7 +911,7 @@ export default function ProgressPhotosScreen() {
             <Ionicons
               name="time-outline"
               size={20}
-              color="#40856C"
+              color={mfLegacyColor('#40856C')}
             />
 
             <Text
@@ -966,7 +960,7 @@ export default function ProgressPhotosScreen() {
             <Ionicons
               name="close"
               size={28}
-              color="#FFFFFF"
+              color={mfLegacyColor('#FFFFFF')}
             />
           </Pressable>
 
@@ -998,7 +992,7 @@ export default function ProgressPhotosScreen() {
         >
           <ActivityIndicator
             size="large"
-            color="#FFFFFF"
+            color={mfLegacyColor('#FFFFFF')}
           />
         </View>
       ) : null}
@@ -1067,7 +1061,7 @@ function StatusCard({
         <Ionicons
           name="images-outline"
           size={24}
-          color="#40856C"
+          color={mfLegacyColor('#40856C')}
         />
       </View>
 
@@ -1204,7 +1198,7 @@ function ToggleRow({
           <Ionicons
             name="checkmark"
             size={17}
-            color="#FFFFFF"
+            color={mfLegacyColor('#FFFFFF')}
           />
         ) : null}
       </View>
@@ -1281,7 +1275,7 @@ function PhotoCard({
             <Ionicons
               name="checkmark"
               size={14}
-              color="#40856C"
+              color={mfLegacyColor('#40856C')}
             />
 
             <Text
@@ -1318,7 +1312,7 @@ function PhotoCard({
             <Ionicons
               name="expand-outline"
               size={16}
-              color="#FFFFFF"
+              color={mfLegacyColor('#FFFFFF')}
             />
 
             <Text
@@ -1339,7 +1333,7 @@ function PhotoCard({
           <Ionicons
             name="camera-outline"
             size={34}
-            color="#819094"
+            color={mfLegacyColor('#819094')}
           />
 
           <Text
@@ -1374,7 +1368,7 @@ function PhotoCard({
             <Ionicons
               name="camera-outline"
               size={18}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
 
             <Text
@@ -1406,7 +1400,7 @@ function PhotoCard({
             <Ionicons
               name="images-outline"
               size={18}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
 
             <Text
@@ -1443,7 +1437,7 @@ function PhotoCard({
             multiline
             textAlignVertical="top"
             placeholder="Observações da fotografia"
-            placeholderTextColor="#9AA7AA"
+            placeholderTextColor={mfLegacyColor('#9AA7AA')}
             onChangeText={
               onObservationChange
             }
@@ -1489,7 +1483,7 @@ function PhotoCard({
                 <Ionicons
                   name="trash-outline"
                   size={18}
-                  color="#B44747"
+                  color={mfLegacyColor('#B44747')}
                 />
               </Pressable>
             </View>

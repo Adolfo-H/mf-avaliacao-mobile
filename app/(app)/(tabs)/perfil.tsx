@@ -1,382 +1,50 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMFTheme } from '@/contexts/MFThemeContext';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
-
+  const { colors: c, desktop, preference, setPreference } = useMFTheme();
   const [loggingOut, setLoggingOut] = useState(false);
-
-  async function handleLogout() {
-    if (loggingOut) {
-      return;
-    }
-
-    try {
-      setLoggingOut(true);
-
-      await signOut();
-
-      router.replace('/');
-    } finally {
-      setLoggingOut(false);
-    }
-  }
-
+  const role = user?.role === 'admin' ? 'Administrador' : user?.role === 'reception' ? 'Recepção' : 'Avaliador';
+  const logout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try { await signOut(); router.replace('/'); }
+    finally { setLoggingOut(false); }
+  };
+  const card = { backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 19, padding: 19, marginBottom: 17 } as const;
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.label}>
-          CONTA
-        </Text>
-
-        <Text style={styles.title}>
-          Perfil
-        </Text>
-
-        <View style={styles.profileCard}>
-          <View style={styles.avatar}>
-            <Ionicons
-              name="person-outline"
-              size={30}
-              color="#123C47"
-            />
-          </View>
-
-          <View style={styles.profileContent}>
-            <Text style={styles.name}>
-              {user?.name ?? 'Usuário'}
-            </Text>
-
-            <Text style={styles.email}>
-              {user?.email ?? ''}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Aplicativo
-          </Text>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
-                <Ionicons
-                  name="shield-checkmark-outline"
-                  size={21}
-                  color="#40856C"
-                />
-              </View>
-
-              <View style={styles.infoContent}>
-                <Text style={styles.infoTitle}>
-                  Sessão protegida
-                </Text>
-
-                <Text style={styles.infoDescription}>
-                  Sua autenticação está protegida no dispositivo.
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
-                <Ionicons
-                  name="phone-portrait-outline"
-                  size={21}
-                  color="#40856C"
-                />
-              </View>
-
-              <View style={styles.infoContent}>
-                <Text style={styles.infoTitle}>
-                  MF Avaliação Física
-                </Text>
-
-                <Text style={styles.infoDescription}>
-                  Ambiente de desenvolvimento
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* GERENCIAMENTO DE AVALIADORES */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.managementCard,
-              pressed && styles.managementCardPressed,
-            ]}
-            onPress={() =>
-              router.push('/(app)/evaluators')
-            }
-          >
-            <View style={styles.managementIcon}>
-              <Ionicons
-                name="people-outline"
-                size={22}
-                color="#40856C"
-              />
-            </View>
-
-            <View style={styles.managementContent}>
-              <Text style={styles.managementTitle}>
-                Gerenciar avaliadores
-              </Text>
-
-              <Text style={styles.managementDescription}>
-                Cadastre e gerencie os profissionais da equipe.
-              </Text>
-            </View>
-
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color="#9BA5A8"
-            />
-          </Pressable>
-        </View>
-
-        {/* LOGOUT SEPARADO */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.logout,
-            pressed &&
-              !loggingOut &&
-              styles.logoutPressed,
-            loggingOut &&
-              styles.logoutDisabled,
-          ]}
-          onPress={handleLogout}
-          disabled={loggingOut}
-        >
-          {loggingOut ? (
-            <>
-              <ActivityIndicator
-                size="small"
-                color="#B44747"
-              />
-
-              <Text style={styles.logoutText}>
-                Saindo...
-              </Text>
-            </>
-          ) : (
-            <>
-              <Ionicons
-                name="log-out-outline"
-                size={21}
-                color="#B44747"
-              />
-
-              <Text style={styles.logoutText}>
-                Sair
-              </Text>
-            </>
-          )}
-        </Pressable>
+    <ScrollView style={{ flex: 1, backgroundColor: c.bg }} contentContainerStyle={{ maxWidth: 1080, width: '100%', alignSelf: 'center', padding: desktop ? 34 : 20, paddingBottom: 50 }}>
+      <Text style={{ color: c.greenText, fontSize: 11, fontWeight: '800', letterSpacing: 1.4 }}>MINHA CONTA</Text>
+      <Text style={{ color: c.ink, fontFamily: 'Manrope', fontSize: 29, fontWeight: '800', marginTop: 8, marginBottom: 23 }}>Seu perfil</Text>
+      <View style={{ ...card, flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+        <View style={{ width: 62, height: 62, alignItems: 'center', justifyContent: 'center', borderRadius: 19, backgroundColor: c.greenSoft }}><Ionicons name="person-outline" size={30} color={c.greenText}/></View>
+        <View style={{ flex: 1 }}><Text style={{ color: c.ink, fontSize: 17, fontWeight: '800' }}>{user?.name ?? 'Usuário'}</Text><Text style={{ color: c.muted, fontSize: 12, marginTop: 6 }}>{user?.email ?? ''}</Text><Text style={{ color: c.greenText, fontSize: 11, fontWeight: '700', marginTop: 7 }}>{role}</Text></View>
       </View>
-    </SafeAreaView>
+      <View style={card}>
+        <Text style={{ color: c.ink, fontSize: 17, fontWeight: '800', marginBottom: 7 }}>Aparência</Text>
+        <Text style={{ color: c.muted, fontSize: 12, lineHeight: 18, marginBottom: 17 }}>Escolha como prefere visualizar o MF Saúde & Movimento.</Text>
+        <View style={{ flexDirection: desktop ? 'row' : 'column', gap: 11 }}>
+          {([
+            { id: 'light' as const, title: 'Modo claro', icon: 'sunny-outline' as const, description: 'Fundo claro, contraste suave' },
+            { id: 'dark' as const, title: 'Modo escuro', icon: 'moon-outline' as const, description: 'Fundo profundo, leitura confortável' },
+            { id: 'system' as const, title: 'Automático', icon: 'phone-portrait-outline' as const, description: 'Seguir aparência do aparelho' },
+          ]).map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: preference === item.id }} onPress={() => setPreference(item.id)} style={{ flex: 1, minHeight: 75, borderRadius: 14, borderWidth: preference === item.id ? 2 : 1, borderColor: preference === item.id ? c.lime : c.border, backgroundColor: preference === item.id ? c.greenSoft : c.surface, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 11 }}>
+            <Ionicons name={item.icon} size={21} color={preference === item.id ? c.greenText : c.muted}/><View style={{ flex: 1 }}><Text style={{ fontSize: 12, color: c.ink, fontWeight: '800' }}>{item.title}</Text><Text style={{ fontSize: 10, color: c.muted, marginTop: 4 }}>{item.description}</Text></View>{preference === item.id ? <Ionicons name="checkmark-circle" size={19} color={c.greenText}/> : null}
+          </Pressable>)}
+        </View>
+      </View>
+      {user?.role === 'admin' ? <Pressable onPress={() => router.push('/(app)/evaluators')} style={{ ...card, flexDirection: 'row', alignItems: 'center', gap: 13 }}><Ionicons name="people-outline" size={23} color={c.greenText}/><View style={{ flex: 1 }}><Text style={{ fontSize: 14, fontWeight: '800', color: c.ink }}>Gerenciar equipe</Text><Text style={{ fontSize: 12, marginTop: 4, color: c.muted }}>Cadastrar e editar avaliadores</Text></View><Ionicons name="chevron-forward" color={c.muted} size={20}/></Pressable> : null}
+      {user?.role !== 'reception' ? <Pressable onPress={() => router.push('/(app)/reports')} style={{ ...card, flexDirection: 'row', alignItems: 'center', gap: 13 }}><Ionicons name="document-text-outline" size={23} color={c.greenText}/><View style={{ flex: 1 }}><Text style={{ fontSize: 14, fontWeight: '800', color: c.ink }}>Relatórios</Text><Text style={{ fontSize: 12, marginTop: 4, color: c.muted }}>Consultar avaliações concluídas e PDFs</Text></View><Ionicons name="chevron-forward" color={c.muted} size={20}/></Pressable> : null}
+      <View style={card}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><Ionicons name="shield-checkmark-outline" color={c.greenText} size={22}/><View style={{ flex: 1 }}><Text style={{ color: c.ink, fontWeight: '800', fontSize: 13 }}>Sessão protegida</Text><Text style={{ color: c.muted, fontSize: 11, lineHeight: 17, marginTop: 4 }}>O acesso usa sua conta individual, conforme permissões configuradas pela equipe.</Text></View></View></View>
+      <Pressable disabled={loggingOut} onPress={() => void logout()} style={{ height: 53, borderRadius: 14, backgroundColor: c.errorSoft, borderColor: c.error, borderWidth: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 10 }}>
+        {loggingOut ? <ActivityIndicator color={c.error}/> : <Ionicons name="log-out-outline" size={20} color={c.error}/>}
+        <Text style={{ fontSize: 13, color: c.error, fontWeight: '800' }}>{loggingOut ? 'Saindo...' : 'Sair da conta'}</Text>
+      </Pressable>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F7F8F6',
-  },
-
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 28,
-  },
-
-  label: {
-    color: '#40856C',
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1.3,
-    marginBottom: 5,
-  },
-
-  title: {
-    color: '#172D34',
-    fontSize: 28,
-    fontWeight: '800',
-    marginBottom: 28,
-  },
-
-  profileCard: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E4E9E7',
-    borderRadius: 22,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  avatar: {
-    width: 58,
-    height: 58,
-    borderRadius: 19,
-    backgroundColor: '#EAF3EF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 15,
-  },
-
-  profileContent: {
-    flex: 1,
-  },
-
-  name: {
-    color: '#172D34',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-
-  email: {
-    color: '#718084',
-    fontSize: 13,
-  },
-
-  section: {
-    marginTop: 30,
-  },
-
-  sectionTitle: {
-    color: '#172D34',
-    fontSize: 17,
-    fontWeight: '800',
-    marginBottom: 14,
-  },
-
-  infoCard: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E4E9E7',
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 10,
-  },
-
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  infoIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: '#EAF3EF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 13,
-  },
-
-  infoContent: {
-    flex: 1,
-  },
-
-  infoTitle: {
-    color: '#172D34',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 3,
-  },
-
-  infoDescription: {
-    color: '#718084',
-    fontSize: 12,
-    lineHeight: 17,
-  },
-
-  managementCard: {
-    minHeight: 78,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E4E9E7',
-    borderRadius: 18,
-    paddingHorizontal: 15,
-    paddingVertical: 13,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-
-  managementCardPressed: {
-    opacity: 0.7,
-  },
-
-  managementIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: '#EAF3EF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 13,
-  },
-
-  managementContent: {
-    flex: 1,
-    paddingRight: 10,
-  },
-
-  managementTitle: {
-    color: '#172D34',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 3,
-  },
-
-  managementDescription: {
-    color: '#718084',
-    fontSize: 12,
-    lineHeight: 17,
-  },
-
-  logout: {
-    height: 58,
-    borderRadius: 18,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#F0DDDD',
-    marginTop: 18,
-    paddingHorizontal: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-
-  logoutPressed: {
-    opacity: 0.7,
-  },
-
-  logoutDisabled: {
-    opacity: 0.7,
-  },
-
-  logoutText: {
-    color: '#B44747',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-});

@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -9,17 +11,7 @@ import {
   useCallback,
   useState,
 } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Pressable, RefreshControl, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 import {
   getStudent,
@@ -33,6 +25,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Student } from '@/types/student';
 
 export default function StudentDetailsScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const { user } = useAuth();
 
   const params = useLocalSearchParams<{
@@ -417,7 +411,7 @@ const result =
       >
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text
@@ -443,7 +437,7 @@ const result =
             <Ionicons
               name="alert-circle-outline"
               size={34}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
           </View>
 
@@ -514,7 +508,7 @@ const result =
             <Ionicons
               name="chevron-back"
               size={24}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
           </Pressable>
 
@@ -557,7 +551,7 @@ const result =
             <Ionicons
               name="create-outline"
               size={21}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
           </Pressable>
         </View>
@@ -569,7 +563,7 @@ const result =
             <Ionicons
               name="alert-circle-outline"
               size={20}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
 
             <Text
@@ -589,7 +583,7 @@ const result =
             <Ionicons
               name="image-outline"
               size={20}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
 
             <Text
@@ -616,7 +610,7 @@ const result =
               >
                 <ActivityIndicator
                   size="small"
-                  color="#123C47"
+                  color={mfLegacyColor('#123C47')}
                 />
               </View>
             ) : photoDataUrl ? (
@@ -665,13 +659,13 @@ const result =
               {uploadingPhoto ? (
                 <ActivityIndicator
                   size="small"
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
               ) : (
                 <Ionicons
                   name="camera"
                   size={16}
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
               )}
             </Pressable>
@@ -782,7 +776,7 @@ const result =
                 <Ionicons
                   name="close"
                   size={20}
-                  color="#718084"
+                  color={mfLegacyColor('#718084')}
                 />
               </Pressable>
             </View>
@@ -806,7 +800,7 @@ const result =
                 <Ionicons
                   name="camera-outline"
                   size={21}
-                  color="#40856C"
+                  color={mfLegacyColor('#40856C')}
                 />
               </View>
 
@@ -836,7 +830,7 @@ const result =
               <Ionicons
                 name="chevron-forward"
                 size={18}
-                color="#9BA5A8"
+                color={mfLegacyColor('#9BA5A8')}
               />
             </Pressable>
 
@@ -859,7 +853,7 @@ const result =
                 <Ionicons
                   name="images-outline"
                   size={21}
-                  color="#40856C"
+                  color={mfLegacyColor('#40856C')}
                 />
               </View>
 
@@ -889,7 +883,7 @@ const result =
               <Ionicons
                 name="chevron-forward"
                 size={18}
-                color="#9BA5A8"
+                color={mfLegacyColor('#9BA5A8')}
               />
             </Pressable>
 
@@ -919,7 +913,7 @@ const result =
                       <Ionicons
                         name="trash-outline"
                         size={21}
-                        color="#B44747"
+                        color={mfLegacyColor('#B44747')}
                       />
                     </View>
 
@@ -1014,7 +1008,7 @@ const result =
                         {uploadingPhoto ? (
                           <ActivityIndicator
                             size="small"
-                            color="#FFFFFF"
+                            color={mfLegacyColor('#FFFFFF')}
                           />
                         ) : (
                           <Text
@@ -1045,7 +1039,7 @@ const result =
             }
           >
             <View style={styles.assessmentHistoryIcon}>
-              <Ionicons name="stats-chart-outline" size={23} color="#40856C" />
+              <Ionicons name="stats-chart-outline" size={23} color={mfLegacyColor('#40856C')} />
             </View>
 
             <View style={styles.assessmentHistoryInfo}>
@@ -1057,7 +1051,7 @@ const result =
               </Text>
             </View>
 
-            <Ionicons name="chevron-forward" size={20} color="#40856C" />
+            <Ionicons name="chevron-forward" size={20} color={mfLegacyColor('#40856C')} />
           </Pressable>
         ) : null}
 
@@ -1201,7 +1195,7 @@ const result =
               <Ionicons
                 name="document-text-outline"
                 size={22}
-                color="#40856C"
+                color={mfLegacyColor('#40856C')}
               />
 
               <Text
@@ -1391,7 +1385,7 @@ const result =
                 {changingStatus ? (
                   <ActivityIndicator
                     size="small"
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 ) : (
                   <Text
@@ -1441,7 +1435,7 @@ function DetailRow({
         <Ionicons
           name={icon}
           size={19}
-          color="#40856C"
+          color={mfLegacyColor('#40856C')}
         />
       </View>
 

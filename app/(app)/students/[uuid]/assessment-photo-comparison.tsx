@@ -1,17 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getStudentAssessmentPhotoComparison } from '@/services/assessment-photo-comparison';
@@ -63,7 +55,7 @@ function PhotoPanel({
       <Text style={styles.photoDate}>{dateBr(date)}</Text>
       {loading && photo.has_photo ? (
         <View style={styles.photoFrame}>
-          <ActivityIndicator size="small" color="#40856C" />
+          <ActivityIndicator size="small" color={mfLegacyColor('#40856C')} />
         </View>
       ) : imageUri ? (
         <Pressable
@@ -73,12 +65,12 @@ function PhotoPanel({
         >
           <Image source={{ uri: imageUri }} resizeMode="contain" style={styles.image} />
           <View style={styles.expandIcon}>
-            <Ionicons name="expand-outline" color="#FFFFFF" size={16} />
+            <Ionicons name="expand-outline" color={mfLegacyColor('#FFFFFF')} size={16} />
           </View>
         </Pressable>
       ) : (
         <View style={styles.photoFrame}>
-          <Ionicons name="image-outline" color="#95A29F" size={30} />
+          <Ionicons name="image-outline" color={mfLegacyColor('#95A29F')} size={30} />
           <Text style={styles.missingText}>
             {photo.has_photo ? 'Imagem indisponível' : 'Sem foto nesta posição'}
           </Text>
@@ -97,6 +89,8 @@ function PhotoPanel({
 }
 
 export default function AssessmentPhotoComparisonScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const studentUuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
 
@@ -282,7 +276,7 @@ export default function AssessmentPhotoComparisonScreen() {
       >
         <View style={styles.headingRow}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={23} color="#123C47" />
+            <Ionicons name="chevron-back" size={23} color={mfLegacyColor('#123C47')} />
           </Pressable>
           <View style={styles.headingText}>
             <Text style={styles.eyebrow}>EVOLUÇÃO FÍSICA</Text>
@@ -296,7 +290,7 @@ export default function AssessmentPhotoComparisonScreen() {
         </Text>
 
         <View style={styles.counterCard}>
-          <Ionicons name="images-outline" size={20} color="#40856C" />
+          <Ionicons name="images-outline" size={20} color={mfLegacyColor('#40856C')} />
           <Text style={styles.counterText}>Selecionadas: {selection.length}/2</Text>
         </View>
 
@@ -311,12 +305,12 @@ export default function AssessmentPhotoComparisonScreen() {
 
         {loading && items.length === 0 ? (
           <View style={styles.centerBox}>
-            <ActivityIndicator color="#40856C" />
+            <ActivityIndicator color={mfLegacyColor('#40856C')} />
             <Text style={styles.muted}>Carregando avaliações...</Text>
           </View>
         ) : !error && items.length === 0 ? (
           <View style={styles.centerBox}>
-            <Ionicons name="calendar-outline" size={30} color="#889A94" />
+            <Ionicons name="calendar-outline" size={30} color={mfLegacyColor('#889A94')} />
             <Text style={styles.emptyText}>Ainda não há avaliações concluídas.</Text>
           </View>
         ) : (
@@ -350,7 +344,7 @@ export default function AssessmentPhotoComparisonScreen() {
                 onPress={() => void loadHistory(page + 1, true)}
                 disabled={loadingMore}
               >
-                {loadingMore ? <ActivityIndicator color="#123C47" /> : (
+                {loadingMore ? <ActivityIndicator color={mfLegacyColor('#123C47')} /> : (
                   <Text style={styles.loadMoreText}>Carregar mais avaliações</Text>
                 )}
               </Pressable>
@@ -369,8 +363,8 @@ export default function AssessmentPhotoComparisonScreen() {
           onPress={() => void comparePhotos()}
           disabled={selection.length !== 2 || comparing}
         >
-          {comparing ? <ActivityIndicator color="#FFFFFF" /> : (
-            <Ionicons name="git-compare-outline" size={20} color="#FFFFFF" />
+          {comparing ? <ActivityIndicator color={mfLegacyColor('#FFFFFF')} /> : (
+            <Ionicons name="git-compare-outline" size={20} color={mfLegacyColor('#FFFFFF')} />
           )}
           <Text style={styles.compareText}>
             {comparing ? 'Carregando comparação...' : 'Comparar fotografias'}
@@ -447,7 +441,7 @@ export default function AssessmentPhotoComparisonScreen() {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{preview?.title ?? ''}</Text>
             <Pressable onPress={() => setPreview(null)} accessibilityLabel="Fechar foto ampliada">
-              <Ionicons name="close-circle" size={29} color="#FFFFFF" />
+              <Ionicons name="close-circle" size={29} color={mfLegacyColor('#FFFFFF')} />
             </Pressable>
           </View>
           {preview ? (

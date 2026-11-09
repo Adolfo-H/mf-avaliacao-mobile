@@ -1,15 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getStudentAssessmentComparison } from '@/services/assessment-comparison';
@@ -121,6 +115,8 @@ function MetricCard({ metric }: { metric: ComparisonMetric }) {
 }
 
 export default function StudentAssessmentComparisonScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const studentUuid = Array.isArray(params.uuid)
     ? params.uuid[0]
@@ -259,7 +255,7 @@ export default function StudentAssessmentComparisonScreen() {
       >
         <View style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color="#123C47" />
+            <Ionicons name="chevron-back" size={24} color={mfLegacyColor('#123C47')} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={styles.eyebrow}>EVOLUÇÃO DO ALUNO</Text>
@@ -273,7 +269,7 @@ export default function StudentAssessmentComparisonScreen() {
         </Text>
 
         <View style={styles.selectionCounter}>
-          <Ionicons name="checkmark-circle-outline" color="#40856C" size={18} />
+          <Ionicons name="checkmark-circle-outline" color={mfLegacyColor('#40856C')} size={18} />
           <Text style={styles.selectionLabel}>
             {selection.length} de 2 avaliações selecionadas
           </Text>
@@ -290,12 +286,12 @@ export default function StudentAssessmentComparisonScreen() {
 
         {loading ? (
           <View style={styles.loadingBox}>
-            <ActivityIndicator color="#40856C" />
+            <ActivityIndicator color={mfLegacyColor('#40856C')} />
             <Text style={styles.muted}>Carregando avaliações...</Text>
           </View>
         ) : error ? null : items.length === 0 ? (
           <View style={styles.emptyBox}>
-            <Ionicons name="calendar-outline" size={29} color="#718084" />
+            <Ionicons name="calendar-outline" size={29} color={mfLegacyColor('#718084')} />
             <Text style={styles.emptyTitle}>Ainda não há avaliações concluídas</Text>
             <Text style={styles.muted}>
               Conclua pelo menos duas avaliações para comparar resultados.
@@ -345,7 +341,7 @@ export default function StudentAssessmentComparisonScreen() {
             onPress={() => void loadHistory(page + 1, true)}
           >
             {loadingMore ? (
-              <ActivityIndicator color="#123C47" />
+              <ActivityIndicator color={mfLegacyColor('#123C47')} />
             ) : (
               <Text style={styles.loadMoreText}>Carregar mais avaliações</Text>
             )}
@@ -361,9 +357,9 @@ export default function StudentAssessmentComparisonScreen() {
           ]}
         >
           {comparing ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color={mfLegacyColor('#FFFFFF')} />
           ) : (
-            <Ionicons name="git-compare-outline" size={20} color="#FFFFFF" />
+            <Ionicons name="git-compare-outline" size={20} color={mfLegacyColor('#FFFFFF')} />
           )}
           <Text style={styles.compareButtonText}>
             {comparing ? 'Comparando...' : 'Comparar selecionadas'}
@@ -387,7 +383,7 @@ export default function StudentAssessmentComparisonScreen() {
                 </Text>
                 <Text style={styles.muted}>{comparison.base.evaluator.name || '—'}</Text>
               </View>
-              <Ionicons name="arrow-forward-outline" size={20} color="#718084" />
+              <Ionicons name="arrow-forward-outline" size={20} color={mfLegacyColor('#718084')} />
               <View style={styles.periodColumn}>
                 <Text style={styles.periodLabel}>MAIS RECENTE</Text>
                 <Text style={styles.periodDate}>

@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import {
   router,
@@ -5,16 +7,7 @@ import {
   useLocalSearchParams,
 } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 import {
   getEvaluator,
@@ -23,6 +16,8 @@ import {
 import { Evaluator } from '@/types/evaluator';
 
 export default function EvaluatorDetailsScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{
     id?: string | string[];
   }>();
@@ -131,7 +126,7 @@ export default function EvaluatorDetailsScreen() {
       >
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text style={styles.loadingText}>
@@ -149,7 +144,7 @@ export default function EvaluatorDetailsScreen() {
             <Ionicons
               name="alert-circle-outline"
               size={34}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
           </View>
 
@@ -199,7 +194,7 @@ export default function EvaluatorDetailsScreen() {
             <Ionicons
               name="chevron-back"
               size={24}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
           </Pressable>
 
@@ -219,7 +214,7 @@ export default function EvaluatorDetailsScreen() {
             <Ionicons
               name="alert-circle-outline"
               size={20}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
 
             <Text style={styles.errorText}>
@@ -293,7 +288,7 @@ export default function EvaluatorDetailsScreen() {
           <Ionicons
             name="create-outline"
             size={20}
-            color="#123C47"
+            color={mfLegacyColor('#123C47')}
           />
 
           <Text style={styles.editButtonText}>
@@ -521,7 +516,7 @@ export default function EvaluatorDetailsScreen() {
                 {changingStatus ? (
                   <ActivityIndicator
                     size="small"
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 ) : (
                   <Text
@@ -565,7 +560,7 @@ function DetailRow({
         <Ionicons
           name={icon}
           size={19}
-          color="#40856C"
+          color={mfLegacyColor('#40856C')}
         />
       </View>
 

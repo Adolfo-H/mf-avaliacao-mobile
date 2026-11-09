@@ -1,14 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getAssessmentClinicalPreview } from '@/services/clinical-preview';
@@ -65,6 +60,8 @@ function numberText(value: number | null, digits: number): string {
 }
 
 export default function ClinicalPreviewScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const assessmentUuid = Array.isArray(params.uuid)
     ? params.uuid[0]
@@ -124,7 +121,7 @@ export default function ClinicalPreviewScreen() {
         <View style={styles.header}>
           <Pressable accessibilityRole="button" accessibilityLabel="Voltar"
             onPress={() => router.back()} style={styles.back}>
-            <Ionicons name="chevron-back" size={23} color={COLORS.primary} />
+            <Ionicons name="chevron-back" size={23} color={mfLegacyColor(COLORS.primary)} />
           </Pressable>
           <View style={styles.headerInfo}>
             <Text style={styles.eyebrow}>HOMOLOGAÇÃO CLÍNICA</Text>
@@ -133,7 +130,7 @@ export default function ClinicalPreviewScreen() {
         </View>
 
         <View style={styles.warning}>
-          <Ionicons name="alert-circle-outline" size={24} color={COLORS.amber} />
+          <Ionicons name="alert-circle-outline" size={24} color={mfLegacyColor(COLORS.amber)} />
           <View style={styles.flex}>
             <Text style={styles.warningTitle}>SIMULAÇÃO NÃO HOMOLOGADA</Text>
             <Text style={styles.warningText}>
@@ -147,7 +144,7 @@ export default function ClinicalPreviewScreen() {
           <Text style={styles.error}>Avaliação inválida.</Text>
         ) : loading ? (
           <View style={styles.loading}>
-            <ActivityIndicator color={COLORS.green} size="large" />
+            <ActivityIndicator color={mfLegacyColor(COLORS.green)} size="large" />
             <Text style={styles.muted}>Consultando medidas salvas...</Text>
           </View>
         ) : error ? (
@@ -210,7 +207,7 @@ export default function ClinicalPreviewScreen() {
             </View>
 
             <Pressable onPress={() => void reload()} style={styles.action}>
-              <Ionicons name="refresh" size={17} color="#FFFFFF" />
+              <Ionicons name="refresh" size={17} color={mfLegacyColor('#FFFFFF')} />
               <Text style={styles.actionText}>Recarregar medidas salvas</Text>
             </Pressable>
             <Text style={styles.footer}>

@@ -1,21 +1,12 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import {
   router,
   useLocalSearchParams,
 } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
 
 import {
   getStudent,
@@ -27,6 +18,8 @@ import {
 } from '@/types/student';
 
 export default function EditStudentScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{
     uuid?: string | string[];
   }>();
@@ -315,7 +308,7 @@ export default function EditStudentScreen() {
       >
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text
@@ -338,7 +331,7 @@ export default function EditStudentScreen() {
           <Ionicons
             name="alert-circle-outline"
             size={42}
-            color="#B44747"
+            color={mfLegacyColor('#B44747')}
           />
 
           <Text
@@ -412,7 +405,7 @@ export default function EditStudentScreen() {
               <Ionicons
                 name="chevron-back"
                 size={24}
-                color="#123C47"
+                color={mfLegacyColor('#123C47')}
               />
             </Pressable>
 
@@ -453,7 +446,7 @@ export default function EditStudentScreen() {
               <Ionicons
                 name="alert-circle-outline"
                 size={20}
-                color="#B44747"
+                color={mfLegacyColor('#B44747')}
               />
 
               <Text
@@ -731,7 +724,7 @@ export default function EditStudentScreen() {
                 setAdministrativeNotes
               }
               placeholder="Informações administrativas..."
-              placeholderTextColor="#A1ACAF"
+              placeholderTextColor={mfLegacyColor('#A1ACAF')}
               editable={!saving}
               multiline
               textAlignVertical="top"
@@ -769,7 +762,7 @@ export default function EditStudentScreen() {
               <>
                 <ActivityIndicator
                   size="small"
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -785,7 +778,7 @@ export default function EditStudentScreen() {
                 <Ionicons
                   name="checkmark-outline"
                   size={21}
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -878,7 +871,7 @@ function Field({
       <TextInput
         value={value}
         placeholder={placeholder}
-        placeholderTextColor="#A1ACAF"
+        placeholderTextColor={mfLegacyColor('#A1ACAF')}
         keyboardType={keyboardType}
         autoCapitalize={
           autoCapitalize

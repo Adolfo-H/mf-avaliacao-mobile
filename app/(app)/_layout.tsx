@@ -1,57 +1,13 @@
-import { Redirect, Stack } from 'expo-router';
-import {
-  ActivityIndicator,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-} from 'react-native';
-
+import { Redirect } from 'expo-router';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { MFAppShell } from '@/components/MFAppShell';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMFTheme } from '@/contexts/MFThemeContext';
 
 export default function AppLayout() {
   const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator
-          size="large"
-          color="#123C47"
-        />
-
-        <Text style={styles.loadingText}>
-          Verificando sessão...
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (!user) {
-    return <Redirect href="/(auth)/login" />;
-  }
-
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        animation: 'slide_from_right',
-      }}
-    />
-  );
+  const { colors } = useMFTheme();
+  if (loading) return <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', gap: 14 }}><ActivityIndicator size="large" color={colors.lime}/><Text style={{ color: colors.muted }}>Verificando sessão...</Text></View>;
+  if (!user) return <Redirect href="/(auth)/login" />;
+  return <MFAppShell />;
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: '#F7F8F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  loadingText: {
-    marginTop: 14,
-    color: '#66757A',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import {
   Ionicons } from '@expo/vector-icons';
 import {
@@ -12,16 +14,7 @@ import {
   useState,
   } from 'react';
 
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  } from 'react-native';
+import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import {
   SafeAreaView,
@@ -48,6 +41,8 @@ import {
 } from '@/types/assessment';
 
 export default function AssessmentDetailsScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params =
     useLocalSearchParams<{
       uuid?: string | string[];
@@ -490,7 +485,7 @@ export default function AssessmentDetailsScreen() {
       >
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text
@@ -524,7 +519,7 @@ export default function AssessmentDetailsScreen() {
             <Ionicons
               name="alert-circle-outline"
               size={36}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
           </View>
 
@@ -620,7 +615,7 @@ export default function AssessmentDetailsScreen() {
             <Ionicons
               name="chevron-back"
               size={24}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
           </Pressable>
 
@@ -656,7 +651,7 @@ export default function AssessmentDetailsScreen() {
             <Ionicons
               name="alert-circle-outline"
               size={20}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
 
             <Text
@@ -687,7 +682,7 @@ export default function AssessmentDetailsScreen() {
               >
                 <ActivityIndicator
                   size="small"
-                  color="#123C47"
+                  color={mfLegacyColor('#123C47')}
                 />
               </View>
             ) : studentPhoto ? (
@@ -1048,7 +1043,7 @@ export default function AssessmentDetailsScreen() {
               {actionBusy ? (
                 <ActivityIndicator
                   size="small"
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
               ) : (
                 <Text style={styles.completeAssessmentButtonText}>
@@ -1127,7 +1122,7 @@ function MetadataItem({
         <Ionicons
           name={icon}
           size={19}
-          color="#40856C"
+          color={mfLegacyColor('#40856C')}
         />
       </View>
 
@@ -1268,7 +1263,7 @@ function SectionCard({
         <Ionicons
           name="chevron-forward"
           size={18}
-          color="#9BA5A8"
+          color={mfLegacyColor('#9BA5A8')}
           style={
             styles.sectionChevron
           }
@@ -1277,7 +1272,7 @@ function SectionCard({
         <Ionicons
           name="lock-closed-outline"
           size={15}
-          color="#A7B0B2"
+          color={mfLegacyColor('#A7B0B2')}
           style={
             styles.sectionChevron
           }

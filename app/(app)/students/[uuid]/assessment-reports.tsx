@@ -1,19 +1,11 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import type { File } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { downloadAssessmentReport } from '@/services/assessment-reports';
@@ -29,6 +21,8 @@ function dateBR(value: string | null): string {
 const PAGE_SIZE = 20;
 
 export default function AssessmentReportsScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const studentUuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
 
@@ -150,7 +144,7 @@ export default function AssessmentReportsScreen() {
       >
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.back} accessibilityLabel="Voltar">
-            <Ionicons name="chevron-back" color="#123C47" size={24} />
+            <Ionicons name="chevron-back" color={mfLegacyColor('#123C47')} size={24} />
           </Pressable>
           <View style={{ flex: 1 }}>
             <Text style={styles.eyebrow}>MF SAÚDE E MOVIMENTO</Text>
@@ -163,7 +157,7 @@ export default function AssessmentReportsScreen() {
         </Text>
 
         <View style={styles.notice}>
-          <Ionicons name="lock-closed-outline" color="#40856C" size={19} />
+          <Ionicons name="lock-closed-outline" color={mfLegacyColor('#40856C')} size={19} />
           <Text style={styles.noticeText}>
             Documento confidencial. Nesta primeira versão, o relatório não inclui fotos, laudos ou classificações clínicas ainda não aprovadas.
           </Text>
@@ -180,12 +174,12 @@ export default function AssessmentReportsScreen() {
 
         {loading ? (
           <View style={styles.center}>
-            <ActivityIndicator color="#40856C" />
+            <ActivityIndicator color={mfLegacyColor('#40856C')} />
             <Text style={styles.muted}>Carregando avaliações concluídas...</Text>
           </View>
         ) : items.length === 0 && !error ? (
           <View style={styles.center}>
-            <Ionicons name="document-text-outline" size={34} color="#8A9998" />
+            <Ionicons name="document-text-outline" size={34} color={mfLegacyColor('#8A9998')} />
             <Text style={styles.emptyTitle}>Nenhuma avaliação concluída</Text>
             <Text style={styles.muted}>Finalize uma avaliação antes de gerar o relatório.</Text>
           </View>
@@ -213,7 +207,7 @@ export default function AssessmentReportsScreen() {
                       Peso: {item.weight_kg === null ? '—' : `${item.weight_kg} kg`} · IMC: {item.bmi ?? '—'}
                     </Text>
                   </View>
-                  <Ionicons name="document-attach-outline" size={21} color="#40856C" />
+                  <Ionicons name="document-attach-outline" size={21} color={mfLegacyColor('#40856C')} />
                 </Pressable>
               );
             })}
@@ -234,18 +228,18 @@ export default function AssessmentReportsScreen() {
           disabled={!selectedUuid || downloading}
           onPress={() => void openReport()}
         >
-          {downloading ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons name="document-text-outline" color="#FFFFFF" size={20} />}
+          {downloading ? <ActivityIndicator color={mfLegacyColor('#FFFFFF')} /> : <Ionicons name="document-text-outline" color={mfLegacyColor('#FFFFFF')} size={20} />}
           <Text style={styles.mainButtonText}>{downloading ? 'Gerando PDF...' : Platform.OS === 'web' ? 'Gerar PDF' : 'Gerar e visualizar PDF'}</Text>
         </Pressable>
 
         {report && report.uuid === selectedUuid ? (
           <View style={styles.actions}>
             <Pressable style={styles.actionButton} onPress={() => void shareReport()}>
-              <Ionicons name="share-outline" color="#40856C" size={19} />
+              <Ionicons name="share-outline" color={mfLegacyColor('#40856C')} size={19} />
               <Text style={styles.actionText}>{Platform.OS === 'web' ? 'Abrir PDF / imprimir / compartilhar' : 'Compartilhar ou imprimir'}</Text>
             </Pressable>
             <Pressable style={styles.deleteButton} onPress={clearTemporaryPdf}>
-              <Ionicons name="trash-outline" color="#9F5555" size={18} />
+              <Ionicons name="trash-outline" color={mfLegacyColor('#9F5555')} size={18} />
               <Text style={styles.deleteText}>Excluir cópia temporária</Text>
             </Pressable>
           </View>
