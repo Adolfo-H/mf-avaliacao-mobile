@@ -1,3 +1,4 @@
+"use no memo";
 import { useMFTheme } from '@/contexts/MFThemeContext';
 import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
