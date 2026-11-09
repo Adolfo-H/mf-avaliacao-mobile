@@ -1,0 +1,50 @@
+/* MF Saúde & Movimento — temas acessíveis e autofill do iOS Safari.
+   Nenhum conteúdo clínico é armazenado no CSS, cache ou service worker. */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+:root {
+  color-scheme: light;
+  --mf-login-field: #ffffff;
+  --mf-login-ink: #212b43;
+  --mf-focus: #42651b;
+}
+:root[data-mf-theme="dark"] {
+  color-scheme: dark;
+  --mf-login-field: #1a2234;
+  --mf-login-ink: #f4f6fc;
+  --mf-focus: #b7ec66;
+}
+html, body, #root { font-family: 'Manrope', system-ui, -apple-system, sans-serif; }
+button, input, textarea, select { font: inherit; }
+:focus-visible { outline: 3px solid var(--mf-focus); outline-offset: 3px; }
+
+/* Safari/iOS e Chromium impõem amarelo no preenchimento de senha; color-scheme
+   sozinho não anula a regra interna. O inset cobre o fundo nativo e preserva
+   a cor da fonte nos dois temas. Aplicado SOMENTE ao login. */
+#mf-login-email:-webkit-autofill,
+#mf-login-email:-webkit-autofill:hover,
+#mf-login-email:-webkit-autofill:focus,
+#mf-login-password:-webkit-autofill,
+#mf-login-password:-webkit-autofill:hover,
+#mf-login-password:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  -webkit-text-fill-color: var(--mf-login-ink) !important;
+  caret-color: var(--mf-login-ink) !important;
+  color: var(--mf-login-ink) !important;
+  transition: background-color 99999s ease-out 0s;
+}
+#mf-login-email:focus-visible, #mf-login-password:focus-visible {
+  outline: 2px solid var(--mf-focus);
+  outline-offset: 2px;
+}
+/* Em navegadores que suportam o padrão :autofill, manter a mesma correção.
+   Bloco separado para não invalidar :-webkit-autofill em Safari antigo. */
+#mf-login-email:autofill,
+#mf-login-password:autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  -webkit-text-fill-color: var(--mf-login-ink) !important;
+  caret-color: var(--mf-login-ink) !important;
+  color: var(--mf-login-ink) !important;
+  transition: background-color 99999s ease-out 0s;
+}
