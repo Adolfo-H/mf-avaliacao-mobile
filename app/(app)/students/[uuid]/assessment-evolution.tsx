@@ -1,15 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Fragment, useCallback, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getStudentAssessmentEvolution } from '@/services/assessment-evolution';
@@ -84,7 +78,7 @@ function EvolutionLineChart({ metric }: { metric: EvolutionMetric }) {
   if (valid.length === 0) {
     return (
       <View style={styles.chartEmpty}>
-        <Ionicons name="analytics-outline" size={31} color="#93ABA4" />
+        <Ionicons name="analytics-outline" size={31} color={mfLegacyColor('#93ABA4')} />
         <Text style={styles.emptyTitle}>Nenhuma medição disponível</Text>
         <Text style={styles.mutedCenter}>
           Este indicador ainda não possui resultados registrados no período.
@@ -220,6 +214,8 @@ function MetricSummary({ metric }: { metric: EvolutionMetric }) {
 }
 
 export default function StudentAssessmentEvolutionScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const studentUuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
   const [period, setPeriod] = useState<EvolutionPeriodMonths>(6);
@@ -326,7 +322,7 @@ export default function StudentAssessmentEvolutionScreen() {
 
         {error ? (
           <View style={styles.errorCard}>
-            <Ionicons name="alert-circle-outline" size={23} color="#A34A44" />
+            <Ionicons name="alert-circle-outline" size={23} color={mfLegacyColor('#A34A44')} />
             <Text style={styles.errorText}>{error}</Text>
             <Pressable onPress={() => void load()}>
               <Text style={styles.retry}>Tentar novamente</Text>
@@ -363,7 +359,7 @@ export default function StudentAssessmentEvolutionScreen() {
 
             {data.assessment_count === 0 ? (
               <View style={styles.emptyCard}>
-                <Ionicons name="calendar-outline" size={32} color="#87A29A" />
+                <Ionicons name="calendar-outline" size={32} color={mfLegacyColor('#87A29A')} />
                 <Text style={styles.emptyTitle}>Sem avaliações concluídas</Text>
                 <Text style={styles.mutedCenter}>
                   Não foram encontradas avaliações concluídas nesse período.

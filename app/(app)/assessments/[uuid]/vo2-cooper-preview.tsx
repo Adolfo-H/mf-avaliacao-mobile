@@ -1,14 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getCooperPreview } from '@/services/vo2-cooper-preview';
@@ -54,6 +49,8 @@ function decimal(value: number | null, digits: number): string {
 }
 
 export default function Vo2CooperPreviewScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const uuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
   const [data, setData] = useState<CooperPreviewData | null>(null);
@@ -101,7 +98,7 @@ export default function Vo2CooperPreviewScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Pressable accessibilityRole="button" accessibilityLabel="Voltar" style={styles.back} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={23} color={C.primary} />
+            <Ionicons name="chevron-back" size={23} color={mfLegacyColor(C.primary)} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={styles.eyebrow}>HOMOLOGAÇÃO CLÍNICA</Text>
@@ -110,7 +107,7 @@ export default function Vo2CooperPreviewScreen() {
         </View>
 
         <View style={styles.warningCard}>
-          <Ionicons name="alert-circle-outline" size={24} color={C.warning} />
+          <Ionicons name="alert-circle-outline" size={24} color={mfLegacyColor(C.warning)} />
           <View style={styles.flex}>
             <Text style={styles.warningTitle}>SIMULAÇÃO NÃO HOMOLOGADA</Text>
             <Text style={styles.warningText}>
@@ -124,7 +121,7 @@ export default function Vo2CooperPreviewScreen() {
           <Text style={styles.error}>Avaliação inválida.</Text>
         ) : loading ? (
           <View style={styles.loading}>
-            <ActivityIndicator size="large" color={C.green} />
+            <ActivityIndicator size="large" color={mfLegacyColor(C.green)} />
             <Text style={styles.subtle}>Consultando dados salvos...</Text>
           </View>
         ) : error ? (
@@ -171,7 +168,7 @@ export default function Vo2CooperPreviewScreen() {
             </View>
 
             <Pressable accessibilityRole="button" style={styles.button} onPress={() => void reload()}>
-              <Ionicons name="refresh" size={17} color={C.white} />
+              <Ionicons name="refresh" size={17} color={mfLegacyColor(C.white)} />
               <Text style={styles.buttonText}>Recarregar dados salvos</Text>
             </Pressable>
             <Text style={styles.footer}>

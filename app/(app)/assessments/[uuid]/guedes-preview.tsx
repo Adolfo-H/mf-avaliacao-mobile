@@ -1,9 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getAssessmentGuedesPreview } from '@/services/guedes-preview';
@@ -27,6 +27,8 @@ function formatNumber(value: number | null, digits: number): string {
 }
 
 export default function GuedesPreviewScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const uuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
   const [data, setData] = useState<GuedesPreviewResponse['data'] | null>(null);
@@ -77,7 +79,7 @@ export default function GuedesPreviewScreen() {
         <View style={styles.header}>
           <Pressable accessibilityRole="button" accessibilityLabel="Voltar"
             onPress={() => router.back()} style={styles.back}>
-            <Ionicons name="chevron-back" size={23} color={COLORS.primary} />
+            <Ionicons name="chevron-back" size={23} color={mfLegacyColor(COLORS.primary)} />
           </Pressable>
           <View style={styles.flex}>
             <Text style={styles.eyebrow}>PRÉVIA CLÍNICA · ETAPA 08D</Text>
@@ -86,7 +88,7 @@ export default function GuedesPreviewScreen() {
         </View>
 
         <View style={styles.notice}>
-          <Ionicons name="alert-circle-outline" size={24} color={COLORS.amber} />
+          <Ionicons name="alert-circle-outline" size={24} color={mfLegacyColor(COLORS.amber)} />
           <View style={styles.flex}>
             <Text style={styles.noticeTitle}>NÃO HOMOLOGADO</Text>
             <Text style={styles.noticeText}>
@@ -100,7 +102,7 @@ export default function GuedesPreviewScreen() {
           <Text style={styles.error}>Avaliação inválida.</Text>
         ) : loading ? (
           <View style={styles.loading}>
-            <ActivityIndicator size="large" color={COLORS.green} />
+            <ActivityIndicator size="large" color={mfLegacyColor(COLORS.green)} />
             <Text style={styles.muted}>Consultando medidas salvas...</Text>
           </View>
         ) : error ? (
@@ -148,7 +150,7 @@ export default function GuedesPreviewScreen() {
             ) : null}
             <Text style={styles.footnote}>{p.reference}</Text>
             <Pressable accessibilityRole="button" style={styles.action} onPress={() => void reload()}>
-              <Ionicons name="refresh-outline" size={18} color={COLORS.white} />
+              <Ionicons name="refresh-outline" size={18} color={mfLegacyColor(COLORS.white)} />
               <Text style={styles.actionText}>Atualizar prévia</Text>
             </Pressable>
           </>

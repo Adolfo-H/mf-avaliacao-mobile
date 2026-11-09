@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -9,18 +11,7 @@ import {
   useCallback,
   useState,
 } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
@@ -49,6 +40,8 @@ type PhotoUrls =
 const EMPTY_PHOTOS: PhotoUrls = {};
 
 export default function PosturalAssessmentScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{
     uuid?: string | string[];
     readOnly?: string | string[];
@@ -531,7 +524,7 @@ export default function PosturalAssessmentScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#123C47" />
+        <ActivityIndicator size="large" color={mfLegacyColor('#123C47')} />
         <Text style={styles.loadingText}>Carregando avaliação postural...</Text>
       </SafeAreaView>
     );
@@ -541,7 +534,7 @@ export default function PosturalAssessmentScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorPage}>
-          <Ionicons name="alert-circle-outline" size={38} color="#B44747" />
+          <Ionicons name="alert-circle-outline" size={38} color={mfLegacyColor('#B44747')} />
           <Text style={styles.errorTitle}>Não foi possível abrir a avaliação postural</Text>
           <Text style={styles.errorText}>{error || 'Tente novamente.'}</Text>
           <Pressable style={styles.primaryButton} onPress={() => router.back()}>
@@ -566,7 +559,7 @@ export default function PosturalAssessmentScreen() {
       >
         <View style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color="#123C47" />
+            <Ionicons name="chevron-back" size={24} color={mfLegacyColor('#123C47')} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={styles.eyebrow}>AVALIAÇÃO FÍSICA</Text>
@@ -576,7 +569,7 @@ export default function PosturalAssessmentScreen() {
 
         <View style={styles.introCard}>
           <View style={styles.introIcon}>
-            <Ionicons name="body-outline" size={24} color="#40856C" />
+            <Ionicons name="body-outline" size={24} color={mfLegacyColor('#40856C')} />
           </View>
           <View style={styles.flex}>
             <Text style={styles.introTitle}>Registro postural</Text>
@@ -588,21 +581,21 @@ export default function PosturalAssessmentScreen() {
 
         {readOnly ? (
           <View style={styles.infoBox}>
-            <Ionicons name="lock-closed-outline" size={20} color="#66757A" />
+            <Ionicons name="lock-closed-outline" size={20} color={mfLegacyColor('#66757A')} />
             <Text style={styles.infoText}>Avaliação concluída: modo somente leitura.</Text>
           </View>
         ) : null}
 
         {error ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle-outline" size={20} color="#B44747" />
+            <Ionicons name="alert-circle-outline" size={20} color={mfLegacyColor('#B44747')} />
             <Text style={styles.errorBoxText}>{error}</Text>
           </View>
         ) : null}
 
         {message ? (
           <View style={styles.successBox}>
-            <Ionicons name="checkmark-circle-outline" size={20} color="#40856C" />
+            <Ionicons name="checkmark-circle-outline" size={20} color={mfLegacyColor('#40856C')} />
             <Text style={styles.successText}>{message}</Text>
           </View>
         ) : null}
@@ -659,7 +652,7 @@ export default function PosturalAssessmentScreen() {
             onChangeText={setObservations}
             editable={!readOnly}
             placeholder="Registre observações adicionais da avaliação postural."
-            placeholderTextColor="#9AA6A9"
+            placeholderTextColor={mfLegacyColor('#9AA6A9')}
             textAlignVertical="top"
           />
         </View>
@@ -671,10 +664,10 @@ export default function PosturalAssessmentScreen() {
             onPress={handleSave}
           >
             {busy ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={mfLegacyColor('#FFFFFF')} />
             ) : (
               <>
-                <Ionicons name="save-outline" size={20} color="#FFFFFF" />
+                <Ionicons name="save-outline" size={20} color={mfLegacyColor('#FFFFFF')} />
                 <Text style={styles.primaryButtonText}>Salvar avaliação postural</Text>
               </>
             )}
@@ -691,7 +684,7 @@ export default function PosturalAssessmentScreen() {
 
         {!data.photo_consent?.active ? (
           <View style={styles.warningBox}>
-            <Ionicons name="shield-checkmark-outline" size={22} color="#9A6B22" />
+            <Ionicons name="shield-checkmark-outline" size={22} color={mfLegacyColor('#9A6B22')} />
             <View style={styles.flex}>
               <Text style={styles.warningTitle}>Consentimento necessário</Text>
               <Text style={styles.warningText}>
@@ -731,12 +724,12 @@ export default function PosturalAssessmentScreen() {
                   />
                   {photo.grid_enabled ? <SymmetryGrid /> : null}
                   <View style={styles.expandBadge}>
-                    <Ionicons name="expand-outline" size={18} color="#FFFFFF" />
+                    <Ionicons name="expand-outline" size={18} color={mfLegacyColor('#FFFFFF')} />
                   </View>
                 </>
               ) : (
                 <View style={styles.photoPlaceholder}>
-                  <Ionicons name="camera-outline" size={34} color="#8A989C" />
+                  <Ionicons name="camera-outline" size={34} color={mfLegacyColor('#8A989C')} />
                   <Text style={styles.placeholderText}>Adicione uma fotografia desta posição</Text>
                 </View>
               )}
@@ -773,7 +766,7 @@ export default function PosturalAssessmentScreen() {
                   editable={!readOnly}
                   multiline
                   placeholder="Observação opcional desta posição."
-                  placeholderTextColor="#9AA6A9"
+                  placeholderTextColor={mfLegacyColor('#9AA6A9')}
                   textAlignVertical="top"
                 />
                 {!readOnly ? (
@@ -795,7 +788,7 @@ export default function PosturalAssessmentScreen() {
                   disabled={!canManagePhotos() || busy}
                   onPress={() => void takePhoto(photo.position)}
                 >
-                  <Ionicons name="camera-outline" size={18} color="#123C47" />
+                  <Ionicons name="camera-outline" size={18} color={mfLegacyColor('#123C47')} />
                   <Text style={styles.secondaryButtonText}>Câmera</Text>
                 </Pressable>
 
@@ -804,7 +797,7 @@ export default function PosturalAssessmentScreen() {
                   disabled={!canManagePhotos() || busy}
                   onPress={() => void choosePhoto(photo.position)}
                 >
-                  <Ionicons name="images-outline" size={18} color="#123C47" />
+                  <Ionicons name="images-outline" size={18} color={mfLegacyColor('#123C47')} />
                   <Text style={styles.secondaryButtonText}>Galeria</Text>
                 </Pressable>
 
@@ -814,7 +807,7 @@ export default function PosturalAssessmentScreen() {
                     disabled={busy}
                     onPress={() => void deletePhoto(photo.position)}
                   >
-                    <Ionicons name="trash-outline" size={18} color="#B44747" />
+                    <Ionicons name="trash-outline" size={18} color={mfLegacyColor('#B44747')} />
                   </Pressable>
                 ) : null}
               </View>
@@ -836,7 +829,7 @@ export default function PosturalAssessmentScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{previewPhoto?.label ?? 'Fotografia postural'}</Text>
               <Pressable style={styles.modalClose} onPress={() => setPreview(null)}>
-                <Ionicons name="close" size={24} color="#123C47" />
+                <Ionicons name="close" size={24} color={mfLegacyColor('#123C47')} />
               </Pressable>
             </View>
             {previewUri ? (

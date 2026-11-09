@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import {
   router,
@@ -11,17 +13,7 @@ import {
   useState,
 } from 'react';
 
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import {
   SafeAreaView,
@@ -232,6 +224,8 @@ const BONE_FIELDS: BoneField[] = [
 ];
 
 export default function AnthropometryScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params =
     useLocalSearchParams<{
       uuid?: string | string[];
@@ -698,7 +692,7 @@ export default function AnthropometryScreen() {
       >
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text
@@ -730,7 +724,7 @@ export default function AnthropometryScreen() {
           <Ionicons
             name="alert-circle-outline"
             size={44}
-            color="#B44747"
+            color={mfLegacyColor('#B44747')}
           />
 
           <Text
@@ -820,7 +814,7 @@ export default function AnthropometryScreen() {
                 <Ionicons
                   name="chevron-back"
                   size={24}
-                  color="#123C47"
+                  color={mfLegacyColor('#123C47')}
                 />
               </Pressable>
 
@@ -1133,7 +1127,7 @@ export default function AnthropometryScreen() {
                 <Ionicons
                   name="time-outline"
                   size={20}
-                  color="#40856C"
+                  color={mfLegacyColor('#40856C')}
                 />
 
                 <Text
@@ -1187,13 +1181,13 @@ export default function AnthropometryScreen() {
                 {saving ? (
                   <ActivityIndicator
                     size="small"
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 ) : (
                   <Ionicons
                     name="save-outline"
                     size={21}
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 )}
 
@@ -1308,7 +1302,7 @@ function StatusCard({
         <Ionicons
           name="body-outline"
           size={26}
-          color="#40856C"
+          color={mfLegacyColor('#40856C')}
         />
       </View>
 
@@ -1563,7 +1557,7 @@ function CompactMeasureInput({
           }
           keyboardType="decimal-pad"
           placeholder="0,0"
-          placeholderTextColor="#A5B0B3"
+          placeholderTextColor={mfLegacyColor('#A5B0B3')}
           selectTextOnFocus
           onChangeText={
             onChangeText
@@ -1685,7 +1679,7 @@ function SingleMeasureRow({
           }
           keyboardType="decimal-pad"
           placeholder="0,0"
-          placeholderTextColor="#A5B0B3"
+          placeholderTextColor={mfLegacyColor('#A5B0B3')}
           selectTextOnFocus
           onChangeText={
             onChangeText
@@ -1737,7 +1731,7 @@ function RcqCard({
           <Ionicons
             name="calculator-outline"
             size={22}
-            color="#40856C"
+            color={mfLegacyColor('#40856C')}
           />
         </View>
 
@@ -1818,7 +1812,7 @@ function RcqCard({
         <Ionicons
           name="information-circle-outline"
           size={18}
-          color="#55786C"
+          color={mfLegacyColor('#55786C')}
         />
 
         <Text

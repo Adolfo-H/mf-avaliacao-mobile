@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import {
   router,
@@ -5,17 +7,7 @@ import {
   useLocalSearchParams,
 } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -55,6 +47,8 @@ const EMPTY_FORM: FormState = {
 };
 
 export default function Vo2MaxScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{
     uuid?: string | string[];
     readOnly?: string | string[];
@@ -259,7 +253,7 @@ export default function Vo2MaxScreen() {
       <SafeAreaView style={styles.center}>
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
         <Text style={styles.muted}>
           Carregando VO₂Max...
@@ -274,7 +268,7 @@ export default function Vo2MaxScreen() {
         <Ionicons
           name="alert-circle-outline"
           size={42}
-          color="#B44747"
+          color={mfLegacyColor('#B44747')}
         />
         <Text style={styles.errorTitle}>
           Não foi possível abrir VO₂Max
@@ -318,7 +312,7 @@ export default function Vo2MaxScreen() {
                 <Ionicons
                   name="chevron-back"
                   size={24}
-                  color="#123C47"
+                  color={mfLegacyColor('#123C47')}
                 />
               </Pressable>
 
@@ -348,7 +342,7 @@ export default function Vo2MaxScreen() {
                 <Ionicons
                   name="heart-outline"
                   size={25}
-                  color="#40856C"
+                  color={mfLegacyColor('#40856C')}
                 />
               </View>
 
@@ -427,7 +421,7 @@ export default function Vo2MaxScreen() {
               <Ionicons
                 name="pulse-outline"
                 size={22}
-                color="#A56F28"
+                color={mfLegacyColor('#A56F28')}
               />
               <View style={styles.flex}>
                 <Text style={styles.pendingLabel}>
@@ -580,7 +574,7 @@ export default function Vo2MaxScreen() {
                 });
               }}
             >
-              <Ionicons name="calculator-outline" size={22} color="#A56F28" />
+              <Ionicons name="calculator-outline" size={22} color={mfLegacyColor('#A56F28')} />
               <View style={styles.flex}>
                 <Text style={styles.pendingLabel}>PRÉVIA MATEMÁTICA (NÃO HOMOLOGADA)</Text>
                 <Text style={styles.pendingText}>
@@ -603,7 +597,7 @@ export default function Vo2MaxScreen() {
                   });
                 }}
               >
-                <Ionicons name="calculator-outline" size={22} color="#A56F28" />
+                <Ionicons name="calculator-outline" size={22} color={mfLegacyColor('#A56F28')} />
                 <View style={styles.flex}>
                   <Text style={styles.pendingLabel}>PRÉVIA 2.400 M / 1,5 MILHA</Text>
                   <Text style={styles.pendingText}>
@@ -626,7 +620,7 @@ export default function Vo2MaxScreen() {
                   });
                 }}
               >
-                <Ionicons name="calculator-outline" size={22} color="#A56F28" />
+                <Ionicons name="calculator-outline" size={22} color={mfLegacyColor('#A56F28')} />
                 <View style={styles.flex}>
                   <Text style={styles.pendingLabel}>PRÉVIA MATEMÁTICA ROCKPORT</Text>
                   <Text style={styles.pendingText}>
@@ -670,7 +664,7 @@ export default function Vo2MaxScreen() {
                 <Ionicons
                   name="time-outline"
                   size={20}
-                  color="#40856C"
+                  color={mfLegacyColor('#40856C')}
                 />
                 <View style={styles.flex}>
                   <Text style={styles.previousTitle}>
@@ -702,13 +696,13 @@ export default function Vo2MaxScreen() {
               >
                 {saving ? (
                   <ActivityIndicator
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 ) : (
                   <Ionicons
                     name="save-outline"
                     size={20}
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 )}
                 <Text style={styles.saveText}>
@@ -869,7 +863,7 @@ function Field({
           editable={!readOnly}
           keyboardType="decimal-pad"
           placeholder="0"
-          placeholderTextColor="#9DAAAC"
+          placeholderTextColor={mfLegacyColor('#9DAAAC')}
           onChangeText={onChange}
         />
         <Text style={styles.unit}>
@@ -903,7 +897,7 @@ function TextField({
         value={value}
         editable={!readOnly}
         placeholder={placeholder}
-        placeholderTextColor="#9DAAAC"
+        placeholderTextColor={mfLegacyColor('#9DAAAC')}
         onChangeText={onChange}
       />
     </View>
@@ -935,7 +929,7 @@ function TextArea({
         multiline
         textAlignVertical="top"
         placeholder={placeholder}
-        placeholderTextColor="#9DAAAC"
+        placeholderTextColor={mfLegacyColor('#9DAAAC')}
         onChangeText={onChange}
       />
     </View>

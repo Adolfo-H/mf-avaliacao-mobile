@@ -1,21 +1,12 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import {
   router,
   useLocalSearchParams,
 } from 'expo-router';
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
 
 import {
   getEvaluator,
@@ -23,6 +14,8 @@ import {
 } from '@/services/evaluators';
 
 export default function EditEvaluatorScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{
     id?: string | string[];
   }>();
@@ -175,7 +168,7 @@ export default function EditEvaluatorScreen() {
       >
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text style={styles.loadingText}>
@@ -209,7 +202,7 @@ export default function EditEvaluatorScreen() {
               <Ionicons
                 name="chevron-back"
                 size={24}
-                color="#123C47"
+                color={mfLegacyColor('#123C47')}
               />
             </Pressable>
 
@@ -234,7 +227,7 @@ export default function EditEvaluatorScreen() {
               <Ionicons
                 name="alert-circle-outline"
                 size={20}
-                color="#B44747"
+                color={mfLegacyColor('#B44747')}
               />
 
               <Text style={styles.errorText}>
@@ -351,7 +344,7 @@ export default function EditEvaluatorScreen() {
               <>
                 <ActivityIndicator
                   size="small"
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -367,7 +360,7 @@ export default function EditEvaluatorScreen() {
                 <Ionicons
                   name="checkmark-outline"
                   size={21}
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -463,7 +456,7 @@ function Field({
       <TextInput
         value={value}
         placeholder={placeholder}
-        placeholderTextColor="#A1ACAF"
+        placeholderTextColor={mfLegacyColor('#A1ACAF')}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}

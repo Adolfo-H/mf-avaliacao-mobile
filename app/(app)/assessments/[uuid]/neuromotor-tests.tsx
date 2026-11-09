@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import {
   router,
@@ -8,17 +10,7 @@ import {
   useCallback,
   useState,
 } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -84,6 +76,8 @@ const EMPTY_FORM: FormState = {
 };
 
 export default function NeuromotorTestsScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{
     uuid?: string | string[];
     readOnly?: string | string[];
@@ -423,7 +417,7 @@ export default function NeuromotorTestsScreen() {
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
         <Text style={styles.loadingText}>
           Carregando testes...
@@ -439,7 +433,7 @@ export default function NeuromotorTestsScreen() {
           <Ionicons
             name="alert-circle-outline"
             size={44}
-            color="#B44747"
+            color={mfLegacyColor('#B44747')}
           />
 
           <Text style={styles.errorPageTitle}>
@@ -488,7 +482,7 @@ export default function NeuromotorTestsScreen() {
                 <Ionicons
                   name="chevron-back"
                   size={24}
-                  color="#123C47"
+                  color={mfLegacyColor('#123C47')}
                 />
               </Pressable>
 
@@ -785,7 +779,7 @@ export default function NeuromotorTestsScreen() {
                 <Ionicons
                   name="time-outline"
                   size={20}
-                  color="#40856C"
+                  color={mfLegacyColor('#40856C')}
                 />
 
                 <View style={styles.previousContent}>
@@ -820,13 +814,13 @@ export default function NeuromotorTestsScreen() {
                 {saving ? (
                   <ActivityIndicator
                     size="small"
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 ) : (
                   <Ionicons
                     name="save-outline"
                     size={20}
-                    color="#FFFFFF"
+                    color={mfLegacyColor('#FFFFFF')}
                   />
                 )}
 
@@ -855,7 +849,7 @@ function StatusCard({
         <Ionicons
           name="fitness-outline"
           size={25}
-          color="#40856C"
+          color={mfLegacyColor('#40856C')}
         />
       </View>
 
@@ -1117,7 +1111,7 @@ function NumberField({
         editable={!readOnly}
         keyboardType="number-pad"
         placeholder="0"
-        placeholderTextColor="#A5B0B3"
+        placeholderTextColor={mfLegacyColor('#A5B0B3')}
         onChangeText={onChangeText}
       />
     </View>
@@ -1158,7 +1152,7 @@ function NumberWithUnitField({
           editable={!readOnly}
           keyboardType="decimal-pad"
           placeholder="0"
-          placeholderTextColor="#A5B0B3"
+          placeholderTextColor={mfLegacyColor('#A5B0B3')}
           onChangeText={onChangeValue}
         />
 
@@ -1171,7 +1165,7 @@ function NumberWithUnitField({
           value={unit}
           editable={!readOnly}
           placeholder={unitPlaceholder}
-          placeholderTextColor="#A5B0B3"
+          placeholderTextColor={mfLegacyColor('#A5B0B3')}
           onChangeText={onChangeUnit}
         />
       </View>
@@ -1204,7 +1198,7 @@ function UnitInput({
         editable={!readOnly}
         keyboardType="number-pad"
         placeholder="0"
-        placeholderTextColor="#A5B0B3"
+        placeholderTextColor={mfLegacyColor('#A5B0B3')}
         onChangeText={onChangeText}
       />
 
@@ -1243,7 +1237,7 @@ function TextField({
         value={value}
         editable={!readOnly}
         placeholder={placeholder}
-        placeholderTextColor="#A5B0B3"
+        placeholderTextColor={mfLegacyColor('#A5B0B3')}
         onChangeText={onChangeText}
       />
     </View>
@@ -1280,7 +1274,7 @@ function TextAreaField({
         multiline
         textAlignVertical="top"
         placeholder={placeholder}
-        placeholderTextColor="#A5B0B3"
+        placeholderTextColor={mfLegacyColor('#A5B0B3')}
         onChangeText={onChangeText}
       />
     </View>
@@ -1299,7 +1293,7 @@ function PendingResultCard({
       <Ionicons
         name="information-circle-outline"
         size={21}
-        color="#A56F28"
+        color={mfLegacyColor('#A56F28')}
       />
 
       <View style={styles.pendingText}>

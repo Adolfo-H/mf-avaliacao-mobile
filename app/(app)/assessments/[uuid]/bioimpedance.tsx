@@ -1,15 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -91,6 +85,8 @@ function hydrate(data: BioimpedanceRecord | null | undefined): Form {
 }
 
 export default function AssessmentBioimpedanceScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[]; readOnly?: string | string[] }>();
   const uuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
   const readOnly = (Array.isArray(params.readOnly) ? params.readOnly[0] : params.readOnly) === '1';
@@ -164,7 +160,7 @@ export default function AssessmentBioimpedanceScreen() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Pressable accessibilityRole="button" accessibilityLabel="Voltar" style={styles.back} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={22} color="#123C47" />
+            <Ionicons name="chevron-back" size={22} color={mfLegacyColor('#123C47')} />
           </Pressable>
           <View style={{ flex: 1 }}>
             <Text style={styles.eyebrow}>MF AVALIAÇÃO FÍSICA</Text>
@@ -173,7 +169,7 @@ export default function AssessmentBioimpedanceScreen() {
         </View>
 
         <View style={styles.notice}>
-          <Ionicons name="information-circle-outline" size={21} color="#40856C" />
+          <Ionicons name="information-circle-outline" size={21} color={mfLegacyColor('#40856C')} />
           <Text style={styles.noticeText}>
             Transcreva os valores exibidos no equipamento. O aplicativo não realiza equação de bioimpedância,
             não classifica os dados e não os incorpora aos resultados clínicos oficiais ou PDF.
@@ -181,7 +177,7 @@ export default function AssessmentBioimpedanceScreen() {
         </View>
         {readOnly ? <Text style={styles.subtle}>Avaliação concluída: consulta somente leitura.</Text> : null}
         {!uuid ? <Text style={styles.error}>Avaliação inválida.</Text> : null}
-        {loading && uuid ? <ActivityIndicator size="large" color="#40856C" style={{ marginTop: 24 }} /> : null}
+        {loading && uuid ? <ActivityIndicator size="large" color={mfLegacyColor('#40856C')} style={{ marginTop: 24 }} /> : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
         {success ? <Text style={styles.success}>{success}</Text> : null}
 
@@ -219,7 +215,7 @@ export default function AssessmentBioimpedanceScreen() {
             {!readOnly ? (
               <Pressable accessibilityRole="button" style={[styles.button, saving && styles.disabled]}
                 onPress={() => void save()} disabled={saving}>
-                {saving ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons name="save-outline" size={20} color="#FFFFFF" />}
+                {saving ? <ActivityIndicator color={mfLegacyColor('#FFFFFF')} /> : <Ionicons name="save-outline" size={20} color={mfLegacyColor('#FFFFFF')} />}
                 <Text style={styles.buttonText}>{saving ? 'Salvando...' : 'Salvar dados do equipamento'}</Text>
               </Pressable>
             ) : null}
@@ -252,7 +248,7 @@ function Field({ label, value, onChange, editable, numeric = false, multiline = 
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <TextInput value={value} onChangeText={onChange} editable={editable}
-        placeholder={placeholder} placeholderTextColor="#98A6A8" keyboardType={numeric ? 'decimal-pad' : 'default'}
+        placeholder={placeholder} placeholderTextColor={mfLegacyColor('#98A6A8')} keyboardType={numeric ? 'decimal-pad' : 'default'}
         multiline={multiline} maxLength={multiline ? 2000 : 120}
         style={[styles.input, multiline && styles.multiline, !editable && styles.disabledInput]} />
     </View>

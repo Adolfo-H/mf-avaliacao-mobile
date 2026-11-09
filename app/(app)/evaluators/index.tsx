@@ -1,21 +1,16 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { useCallback, useState } from 'react';
 
 import { listEvaluators } from '@/services/evaluators';
 import { Evaluator } from '@/types/evaluator';
 
 export default function EvaluatorsScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const [evaluators, setEvaluators] = useState<Evaluator[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -63,7 +58,7 @@ export default function EvaluatorsScreen() {
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator
           size="large"
-          color="#123C47"
+          color={mfLegacyColor('#123C47')}
         />
 
         <Text style={styles.loadingText}>
@@ -93,7 +88,7 @@ export default function EvaluatorsScreen() {
             <Ionicons
               name="chevron-back"
               size={24}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
           </Pressable>
 
@@ -116,7 +111,7 @@ export default function EvaluatorsScreen() {
             <Ionicons
               name="add"
               size={24}
-              color="#FFFFFF"
+              color={mfLegacyColor('#FFFFFF')}
             />
           </Pressable>
         </View>
@@ -130,7 +125,7 @@ export default function EvaluatorsScreen() {
             <Ionicons
               name="alert-circle-outline"
               size={20}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
 
             <Text style={styles.errorText}>
@@ -145,7 +140,7 @@ export default function EvaluatorsScreen() {
               <Ionicons
                 name="people-outline"
                 size={34}
-                color="#40856C"
+                color={mfLegacyColor('#40856C')}
               />
             </View>
 
@@ -167,7 +162,7 @@ export default function EvaluatorsScreen() {
               <Ionicons
                 name="add"
                 size={20}
-                color="#FFFFFF"
+                color={mfLegacyColor('#FFFFFF')}
               />
 
               <Text style={styles.emptyButtonText}>
@@ -249,7 +244,7 @@ export default function EvaluatorsScreen() {
                     <Ionicons
                       name="card-outline"
                       size={15}
-                      color="#839095"
+                      color={mfLegacyColor('#839095')}
                     />
 
                     <Text
@@ -265,7 +260,7 @@ export default function EvaluatorsScreen() {
                     <Ionicons
                       name="mail-outline"
                       size={15}
-                      color="#839095"
+                      color={mfLegacyColor('#839095')}
                     />
 
                     <Text
@@ -280,7 +275,7 @@ export default function EvaluatorsScreen() {
                 <Ionicons
                   name="chevron-forward"
                   size={20}
-                  color="#9BA5A8"
+                  color={mfLegacyColor('#9BA5A8')}
                 />
               </Pressable>
             ))}

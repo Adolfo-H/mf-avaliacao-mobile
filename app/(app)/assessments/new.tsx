@@ -1,3 +1,5 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import {
@@ -6,16 +8,7 @@ import {
   useState,
 } from 'react';
 
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import {
   SafeAreaView,
@@ -43,6 +36,8 @@ import {
 } from '@/types/student';
 
 export default function NewAssessmentScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const [
     students,
     setStudents,
@@ -313,7 +308,7 @@ useEffect(() => {
             <Ionicons
               name="chevron-back"
               size={24}
-              color="#123C47"
+              color={mfLegacyColor('#123C47')}
             />
           </Pressable>
 
@@ -358,7 +353,7 @@ useEffect(() => {
             <Ionicons
               name="alert-circle-outline"
               size={20}
-              color="#B44747"
+              color={mfLegacyColor('#B44747')}
             />
 
             <Text
@@ -457,7 +452,7 @@ useEffect(() => {
               <Ionicons
                 name="search-outline"
                 size={20}
-                color="#839095"
+                color={mfLegacyColor('#839095')}
               />
 
               <TextInput
@@ -468,7 +463,7 @@ useEffect(() => {
                   setStudentSearch
                 }
                 placeholder="Pesquisar aluno"
-                placeholderTextColor="#A1ACAF"
+                placeholderTextColor={mfLegacyColor('#A1ACAF')}
                 returnKeyType="search"
                 autoCorrect={false}
                 style={
@@ -492,7 +487,7 @@ useEffect(() => {
                   <Ionicons
                     name="close-circle"
                     size={20}
-                    color="#A1ACAF"
+                    color={mfLegacyColor('#A1ACAF')}
                   />
                 </Pressable>
               ) : null}
@@ -506,7 +501,7 @@ useEffect(() => {
               >
                 <ActivityIndicator
                   size="small"
-                  color="#40856C"
+                  color={mfLegacyColor('#40856C')}
                 />
 
                 <Text
@@ -609,7 +604,7 @@ useEffect(() => {
                         <Ionicons
                           name="chevron-forward"
                           size={19}
-                          color="#9BA5A8"
+                          color={mfLegacyColor('#9BA5A8')}
                         />
                       </Pressable>
                     </View>
@@ -637,7 +632,7 @@ useEffect(() => {
           >
             <ActivityIndicator
               size="small"
-              color="#40856C"
+              color={mfLegacyColor('#40856C')}
             />
 
             <Text
@@ -659,7 +654,7 @@ useEffect(() => {
             <Ionicons
               name="person-outline"
               size={21}
-              color="#A66A19"
+              color={mfLegacyColor('#A66A19')}
             />
 
             <Text
@@ -805,7 +800,7 @@ useEffect(() => {
             <Ionicons
               name="calendar-outline"
               size={22}
-              color="#40856C"
+              color={mfLegacyColor('#40856C')}
             />
           </View>
 
@@ -838,7 +833,7 @@ useEffect(() => {
                 setError('');
               }}
               placeholder="DD/MM/AAAA"
-              placeholderTextColor="#A1ACAF"
+              placeholderTextColor={mfLegacyColor('#A1ACAF')}
               keyboardType="numeric"
               maxLength={10}
               editable={!saving}
@@ -855,7 +850,7 @@ useEffect(() => {
           <Ionicons
             name="information-circle-outline"
             size={21}
-            color="#40856C"
+            color={mfLegacyColor('#40856C')}
           />
 
           <Text
@@ -889,7 +884,7 @@ useEffect(() => {
             <>
               <ActivityIndicator
                 size="small"
-                color="#FFFFFF"
+                color={mfLegacyColor('#FFFFFF')}
               />
 
               <Text
@@ -905,7 +900,7 @@ useEffect(() => {
               <Ionicons
                 name="clipboard-outline"
                 size={21}
-                color="#FFFFFF"
+                color={mfLegacyColor('#FFFFFF')}
               />
 
               <Text
@@ -1024,7 +1019,7 @@ function StudentAvatar({
       >
         <ActivityIndicator
           size="small"
-          color="#40856C"
+          color={mfLegacyColor('#40856C')}
         />
       </View>
     );

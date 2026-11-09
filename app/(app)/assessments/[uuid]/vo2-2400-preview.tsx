@@ -1,14 +1,9 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getRun2400Preview } from '@/services/vo2-2400-preview';
 import type { Run2400PreviewData, Run2400PreviewStatus } from '@/types/vo2-2400-preview';
@@ -40,6 +35,8 @@ function decimal(value: number | null, digits = 2): string {
 }
 
 export default function Run2400PreviewScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const params = useLocalSearchParams<{ uuid?: string | string[] }>();
   const uuid = Array.isArray(params.uuid) ? params.uuid[0] : params.uuid;
   const [data, setData] = useState<Run2400PreviewData | null>(null);
@@ -80,7 +77,7 @@ export default function Run2400PreviewScreen() {
             style={styles.back}
             onPress={() => router.back()}
           >
-            <Ionicons name="chevron-back" size={23} color={C.navy} />
+            <Ionicons name="chevron-back" size={23} color={mfLegacyColor(C.navy)} />
           </Pressable>
           <View style={styles.flex}>
             <Text style={styles.eyebrow}>PROTOCOLO DE CONFERÊNCIA</Text>
@@ -89,7 +86,7 @@ export default function Run2400PreviewScreen() {
         </View>
 
         <View style={styles.warning}>
-          <Ionicons name="alert-circle-outline" size={23} color={C.warn} />
+          <Ionicons name="alert-circle-outline" size={23} color={mfLegacyColor(C.warn)} />
           <View style={styles.flex}>
             <Text style={styles.warningTitle}>PRÉVIA NÃO HOMOLOGADA</Text>
             <Text style={styles.warningText}>
@@ -102,7 +99,7 @@ export default function Run2400PreviewScreen() {
 
         {loading ? (
           <View style={styles.loading}>
-            <ActivityIndicator size="large" color={C.green} />
+            <ActivityIndicator size="large" color={mfLegacyColor(C.green)} />
             <Text style={styles.muted}>Consultando as medidas salvas...</Text>
           </View>
         ) : error ? (
@@ -141,7 +138,7 @@ export default function Run2400PreviewScreen() {
         ) : null}
 
         <Pressable accessibilityRole="button" style={styles.button} onPress={() => void reload()}>
-          <Ionicons name="refresh" size={18} color={C.white} />
+          <Ionicons name="refresh" size={18} color={mfLegacyColor(C.white)} />
           <Text style={styles.buttonText}>Atualizar prévia</Text>
         </Pressable>
         <Text style={styles.footer}>

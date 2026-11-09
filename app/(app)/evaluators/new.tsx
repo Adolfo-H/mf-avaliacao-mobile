@@ -1,23 +1,15 @@
+import { useMFTheme } from '@/contexts/MFThemeContext';
+import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 
 import { createEvaluator } from '@/services/evaluators';
 
 export default function NewEvaluatorScreen() {
+  void useMFTheme(); // Re-renderizar na troca de tema e largura.
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -117,7 +109,7 @@ export default function NewEvaluatorScreen() {
               <Ionicons
                 name="chevron-back"
                 size={24}
-                color="#123C47"
+                color={mfLegacyColor('#123C47')}
               />
             </Pressable>
 
@@ -142,7 +134,7 @@ export default function NewEvaluatorScreen() {
               <Ionicons
                 name="alert-circle-outline"
                 size={20}
-                color="#B44747"
+                color={mfLegacyColor('#B44747')}
               />
 
               <Text style={styles.errorText}>
@@ -311,7 +303,7 @@ export default function NewEvaluatorScreen() {
               <>
                 <ActivityIndicator
                   size="small"
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -325,7 +317,7 @@ export default function NewEvaluatorScreen() {
                 <Ionicons
                   name="checkmark-outline"
                   size={21}
-                  color="#FFFFFF"
+                  color={mfLegacyColor('#FFFFFF')}
                 />
 
                 <Text
@@ -406,7 +398,7 @@ function Field({
       <TextInput
         value={value}
         placeholder={placeholder}
-        placeholderTextColor="#A1ACAF"
+        placeholderTextColor={mfLegacyColor('#A1ACAF')}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
