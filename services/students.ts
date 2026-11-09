@@ -1,9 +1,10 @@
-﻿import {
+import {
   ImageManipulator,
   SaveFormat,
 } from 'expo-image-manipulator';
 import type { ImagePickerAsset } from 'expo-image-picker';
 
+import { invalidateMFStudentThumbnail } from '@/lib/mf-photo-cache';
 import { apiRequest } from '@/lib/api';
 import { getToken } from '@/services/auth';
 
@@ -240,6 +241,8 @@ export async function uploadStudentPhoto(
       }
     );
 
+  invalidateMFStudentThumbnail(uuid);
+
   return response.data;
 }
 
@@ -257,6 +260,8 @@ export async function removeStudentPhoto(
       }
     );
 
+  invalidateMFStudentThumbnail(uuid);
+
   return response.data;
 }
 
@@ -271,6 +276,7 @@ export async function getStudentPhotoDataUrl(
     ),
     {
       method: 'GET',
+      cache: 'no-store',
 
       headers: {
         Accept: 'image/*',
