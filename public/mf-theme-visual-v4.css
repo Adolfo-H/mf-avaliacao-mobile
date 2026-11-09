@@ -1,0 +1,81 @@
+/* MF Saúde & Movimento — temas acessíveis e autofill do iOS Safari.
+   Nenhum conteúdo clínico é armazenado no CSS, cache ou service worker. */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+:root {
+  color-scheme: light;
+  --mf-login-field: #ffffff;
+  --mf-login-ink: #212b43;
+  --mf-focus: #42651b;
+}
+:root[data-mf-theme="dark"] {
+  color-scheme: dark;
+  --mf-login-field: #1a2234;
+  --mf-login-ink: #f4f6fc;
+  --mf-focus: #b7ec66;
+}
+html, body, #root { font-family: 'Manrope', system-ui, -apple-system, sans-serif; }
+button, input, textarea, select { font: inherit; }
+:focus-visible { outline: 3px solid var(--mf-focus); outline-offset: 3px; }
+
+/* Safari/iOS e Chromium impõem amarelo no preenchimento de senha; color-scheme
+   sozinho não anula a regra interna. O inset cobre o fundo nativo e preserva
+   a cor da fonte nos dois temas. Aplicado SOMENTE ao login. */
+#mf-login-email:-webkit-autofill,
+#mf-login-email:-webkit-autofill:hover,
+#mf-login-email:-webkit-autofill:focus,
+#mf-login-password:-webkit-autofill,
+#mf-login-password:-webkit-autofill:hover,
+#mf-login-password:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  -webkit-text-fill-color: var(--mf-login-ink) !important;
+  caret-color: var(--mf-login-ink) !important;
+  color: var(--mf-login-ink) !important;
+  transition: background-color 99999s ease-out 0s;
+}
+#mf-login-email:focus-visible, #mf-login-password:focus-visible {
+  outline: 2px solid var(--mf-focus);
+  outline-offset: 2px;
+}
+/* Em navegadores que suportam o padrão :autofill, manter a mesma correção.
+   Bloco separado para não invalidar :-webkit-autofill em Safari antigo. */
+#mf-login-email:autofill,
+#mf-login-password:autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  box-shadow: 0 0 0 1000px var(--mf-login-field) inset !important;
+  -webkit-text-fill-color: var(--mf-login-ink) !important;
+  caret-color: var(--mf-login-ink) !important;
+  color: var(--mf-login-ink) !important;
+  transition: background-color 99999s ease-out 0s;
+}
+
+/* V4: campos de avaliação CONCLUÍDA devem ser legíveis em modo consulta.
+   Safari/WebKit aplica sua própria cor/opacity ao texto em inputs desativados.
+   Não habilitamos edição, nem mudamos valores, apenas a aparência visual. */
+:root[data-mf-theme="light"] {
+  --mf-field-text: #212b43;
+  --mf-field-muted: #65718a;
+  --mf-page-bg: #f5f7fa;
+}
+:root[data-mf-theme="dark"] {
+  --mf-field-text: #f4f6fc;
+  --mf-field-muted: #a6b2c9;
+  --mf-page-bg: #101522;
+}
+html, body { background-color: var(--mf-page-bg); }
+:root[data-mf-theme] input:disabled,
+:root[data-mf-theme] input[readonly],
+:root[data-mf-theme] textarea:disabled,
+:root[data-mf-theme] textarea[readonly] {
+  opacity: 1 !important;
+  color: var(--mf-field-text) !important;
+  -webkit-text-fill-color: var(--mf-field-text) !important;
+}
+:root[data-mf-theme] input:disabled::placeholder,
+:root[data-mf-theme] input[readonly]::placeholder,
+:root[data-mf-theme] textarea:disabled::placeholder,
+:root[data-mf-theme] textarea[readonly]::placeholder {
+  opacity: 1 !important;
+  color: var(--mf-field-muted) !important;
+  -webkit-text-fill-color: var(--mf-field-muted) !important;
+}

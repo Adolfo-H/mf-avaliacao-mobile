@@ -94,8 +94,8 @@ for (const theme of ['light','dark']) {
   }
 }
 
-const css = read('public/mf-theme-visual-v3.css');
-ensure(read('public/index.html').includes('href="/mf-theme-visual-v3.css"'), 'HTML não referencia CSS de versão exclusiva');
+const css = read('public/mf-theme-visual-v4.css');
+ensure(read('public/index.html').includes('href="/mf-theme-visual-v4.css"'), 'HTML não referencia CSS de versão exclusiva');
 const login = read('app/(auth)/login.tsx');
 for (const field of ['mf-login-email','mf-login-password']) {
   ensure(css.includes('#'+field+':-webkit-autofill'),`autofill WebKit faltando: ${field}`);

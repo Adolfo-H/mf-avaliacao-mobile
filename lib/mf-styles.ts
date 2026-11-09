@@ -153,6 +153,18 @@ function mapStyle(original: Record<string, unknown>, key: string, all: Record<st
   }
   const bg = typeof result.backgroundColor === 'string' && HEX.test(result.backgroundColor) ? result.backgroundColor : relatedBackground(key, all, p);
   if (bg && typeof result.color === 'string' && HEX.test(result.color)) result.color = readable(result.color, bg, key, p);
+  // Avaliações concluídas ficam somente leitura, mas TODOS os seus valores
+  // continuam legíveis. A antiga opacidade 0.4–0.65 tornava textos e linhas
+  // quase invisíveis sobre cartões brancos no Safari e em modo escuro.
+  // Mantemos os handlers/flags "disabled" inalterados; é só apresentação.
+  if (typeof original.opacity === 'number' &&
+      /(?:^disabled$|disabled|readOnly|readonly|inactive)/i.test(key) &&
+      original.opacity < 0.92) {
+    result.opacity = 0.92;
+  }
+  // Esta ponte visual depende do tema no momento em que styles.<key> é lido.
+  // Cada tela legada desativa a memoização automática do React Compiler para
+  // não misturar um texto do tema escuro com cartões do tema claro.
   // TextInput com fundo antigo escuro não pode ter texto ou seleção escuros.
   if (isInput(key) && typeof original.backgroundColor === 'string') {
     result.backgroundColor = p.soft;

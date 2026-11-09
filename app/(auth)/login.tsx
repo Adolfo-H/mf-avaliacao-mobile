@@ -30,7 +30,7 @@ export default function LoginScreen() {
       {desktop ? (
         <View style={{ flex: 1, backgroundColor: '#343D5A', padding: 56, justifyContent: 'space-between' }}>
           <Image source={require('../../assets/images/mf-logo.png')} resizeMode="contain" style={{ width: 340, height: 150, alignSelf: 'flex-start' }} accessibilityLabel="MF Saúde & Movimento" />
-          <View><Text style={{ color: c.lime, fontSize: 10, fontWeight: '800', letterSpacing: 2.5 }}>MF • SAÚDE & MOVIMENTO</Text><Text style={{ color: '#FFFFFF', fontSize: 48, fontFamily: 'Manrope', fontWeight: '800', lineHeight: 57, marginTop: 20 }}>Cada evolução\ncomeça com\num novo olhar.</Text><Text style={{ marginTop: 24, color: '#D4DBE9', fontSize: 14, lineHeight: 23, maxWidth: 410 }}>Acompanhe seus alunos, suas avaliações e resultados em um só espaço.</Text></View>
+          <View><Text style={{ color: c.lime, fontSize: 10, fontWeight: '800', letterSpacing: 2.5 }}>MF • SAÚDE & MOVIMENTO</Text><Text style={{ color: '#FFFFFF', fontSize: 48, fontFamily: 'Manrope', fontWeight: '800', lineHeight: 57, marginTop: 20 }}>{'Cada evolução\ncomeça com\num novo olhar.'}</Text><Text style={{ marginTop: 24, color: '#D4DBE9', fontSize: 14, lineHeight: 23, maxWidth: 410 }}>Acompanhe seus alunos, suas avaliações e resultados em um só espaço.</Text></View>
           <Text style={{ color: '#B3BDD4', fontSize: 11 }}>MF Saúde & Movimento · Acesso restrito à equipe autorizada</Text>
         </View>
       ) : null}

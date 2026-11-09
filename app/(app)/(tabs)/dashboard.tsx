@@ -54,7 +54,7 @@ export default function DashboardScreen() {
         <View style={{ flex: desktop ? 1.7 : undefined, minHeight: desktop ? 252 : 242, borderRadius: 23, backgroundColor: '#343D5A', overflow: 'hidden', padding: desktop ? 30 : 25, justifyContent: 'space-between' }}>
           <View>
             <Text style={{ color: c.lime, fontWeight: '800', fontSize: 10, letterSpacing: 1.7 }}>CADA AVALIAÇÃO CONTA</Text>
-            <Text style={{ color: '#FFFFFF', fontSize: desktop ? 30 : 28, fontWeight: '800', letterSpacing: -0.6, marginTop: 10 }}>Cuidar começa\npor conhecer.</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: desktop ? 30 : 28, fontWeight: '800', letterSpacing: -0.6, marginTop: 10 }}>{'Cuidar começa\npor conhecer.'}</Text>
             <Text style={{ color: '#D9E0F0', fontSize: 12, lineHeight: 19, marginTop: 9, maxWidth: 360 }}>Uma visão completa para acompanhar cada pessoa, do primeiro registro à sua evolução.</Text>
           </View>
           <Pressable disabled={!allowed} onPress={() => router.push('/(app)/assessments/new')} style={{ alignSelf: 'flex-start', borderRadius: 13, paddingHorizontal: 19, minHeight: 46, backgroundColor: c.lime, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', gap: 9, opacity: allowed ? 1 : .6 }}>
