@@ -44,7 +44,27 @@ export default function BillingAutomationScreen() {
     } catch (e) { setError(errorMessage(e)); }
     finally { setLoading(false); }
   }, [isAdmin]);
-  useFocusEffect(useCallback(() => { void load(); }, [load]));
+  // Atualiza somente o estado operacional: nao perde alteracoes nao salvas nos campos.
+  const refreshConnection = useCallback(async () => {
+    if (!isAdmin) return;
+    try {
+      const fresh = await getAutomationSettings();
+      setData(previous => previous ? {
+        ...previous,
+        worker_online: fresh.worker_online,
+        worker_matches_sender: fresh.worker_matches_sender,
+        server_armed: fresh.server_armed,
+        worker_seen_at: fresh.worker_seen_at,
+      } : fresh);
+    } catch {
+      setData(previous => previous ? {...previous,worker_online:false} : previous);
+    }
+  }, [isAdmin]);
+  useFocusEffect(useCallback(() => {
+    void load();
+    const handle = setInterval(() => { void refreshConnection(); }, 30000);
+    return () => clearInterval(handle);
+  }, [load,refreshConnection]));
 
   const patch = (value: Partial<BillingAutomationSettings>) => setData(old => old ? { ...old, ...value } : old);
   const save = async () => {
@@ -90,10 +110,10 @@ export default function BillingAutomationScreen() {
         <BField label="Meu WhatsApp remetente (com DDI)" value={data.sender_phone} onChangeText={sender_phone=>patch({sender_phone})}
           editable={!saving} placeholder="+55 45 99999-0000" keyboardType="phone-pad"/>
         <View style={{padding:12,borderRadius:10,backgroundColor:data.server_armed&&data.worker_online&&data.worker_matches_sender?c.greenSoft:c.warningSoft}}>
-          <Text style={{color:data.worker_online&&data.worker_matches_sender?c.greenText:c.warning,fontWeight:'800'}}>
-            {data.server_armed&&data.worker_online&&data.worker_matches_sender?'● WhatsApp conectado':'● WhatsApp aguardando conexão'}
+          <Text style={{color:data.server_armed&&data.worker_online&&data.worker_matches_sender?c.greenText:c.warning,fontWeight:'800'}}>
+            {data.server_armed&&data.worker_online&&data.worker_matches_sender?'● WhatsApp conectado':'● WhatsApp não conectado'}
           </Text>
-          <Text style={{color:c.muted,fontSize:12,marginTop:6}}>Para iniciar os envios, conecte o número acima pelo QR Code no computador do estúdio.</Text>
+          <Text style={{color:c.muted,fontSize:12,marginTop:6}}>Conexão verificada automaticamente a cada 30 segundos. Se cair, os lembretes ficam indisponíveis até a reconexão.</Text>
         </View>
       </View></BCard>
       <BCard><BText strong size={19}>2 · Prazo e repetição</BText>
