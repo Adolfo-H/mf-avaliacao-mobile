@@ -1,4 +1,5 @@
 "use no memo";
+import { MFBillingStudentLink } from '@/components/MFBillingStudentLink';
 import { useMFTheme } from '@/contexts/MFThemeContext';
 import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
@@ -1401,6 +1402,8 @@ const result =
             </View>
           </View>
         )}
+
+        <MFBillingStudentLink studentUuid={student.uuid} />
 
         <Text style={styles.footer}>
           Cadastro criado em{' '}
