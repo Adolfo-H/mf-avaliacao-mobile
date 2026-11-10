@@ -66,7 +66,7 @@ export default function BillingAutomationScreen() {
       };
       const updated = await updateAutomationSettings(input);
       setData(updated);
-      setNotice('Configuração salva. O envio só ocorre com conector local ativo e número pareado.');
+      setNotice('Preferências salvas. Os avisos começam após a conexão do WhatsApp.');
     } catch (e) { setError(errorMessage(e)); }
     finally { setSaving(false); }
   };
@@ -79,11 +79,9 @@ export default function BillingAutomationScreen() {
     </Pressable>
     <View style={{gap:6}}><Text style={{color:c.greenText,fontSize:11,fontWeight:'800',letterSpacing:1.1}}>FINANCEIRO · CONFIGURAÇÃO</Text>
       <BText strong size={desktop?31:25}>Lembretes automáticos</BText>
-      <BText muted>Seu estúdio define quando lembrar, o que escrever e quantos avisos enviar para mensalidades não confirmadas.</BText>
+      <BText muted>Escolha o número, os horários e as mensagens de cobrança.</BText>
     </View>
-    <BCard><BText strong>Como funciona</BText><BText muted>
-      O sistema consulta a mensalidade cadastrada. Se não houver baixa após o vencimento, prepara uma etapa para o WhatsApp pessoal pareado no computador do estúdio.
-    </BText><BText muted>Sem ligação bancária: quem já pagou mas ainda não recebeu baixa pode receber o aviso. As mensagens incluem orientação para desconsiderar e confirmar o Pix.</BText></BCard>
+    <BCard><BText strong>Como funciona</BText><BText muted>Os avisos seguem os prazos definidos abaixo. Quando o pagamento é registrado, os próximos avisos param.</BText></BCard>
     <BError message={error}/>{notice?<View style={{padding:14,backgroundColor:c.greenSoft,borderRadius:12}}><Text style={{color:c.greenText,fontWeight:'700'}}>{notice}</Text></View>:null}
     {loading?<ActivityIndicator color={c.greenText} size="large"/>:null}
     {data?<>
@@ -91,13 +89,12 @@ export default function BillingAutomationScreen() {
         <BCheck label="Ativar os lembretes automáticos" checked={data.enabled} onChange={enabled=>patch({enabled})} disabled={saving}/>
         <BField label="Meu WhatsApp remetente (com DDI)" value={data.sender_phone} onChangeText={sender_phone=>patch({sender_phone})}
           editable={!saving} placeholder="+55 45 99999-0000" keyboardType="phone-pad"/>
-        <View style={{padding:12,borderRadius:10,backgroundColor:data.worker_online&&data.worker_matches_sender?c.greenSoft:c.warningSoft}}>
+        <View style={{padding:12,borderRadius:10,backgroundColor:data.server_armed&&data.worker_online&&data.worker_matches_sender?c.greenSoft:c.warningSoft}}>
           <Text style={{color:data.worker_online&&data.worker_matches_sender?c.greenText:c.warning,fontWeight:'800'}}>
-            {data.worker_online&&data.worker_matches_sender?'● Conector online · número correto':'● Conector offline ou número diferente'}
+            {data.server_armed&&data.worker_online&&data.worker_matches_sender?'● WhatsApp conectado':'● WhatsApp aguardando conexão'}
           </Text>
-          <Text style={{color:c.muted,fontSize:12,marginTop:6}}>É necessário parear o WhatsApp do remetente uma vez e manter o computador/serviço conectado. O número é definido aqui, mas o pareamento é feito localmente por QR Code.</Text>
+          <Text style={{color:c.muted,fontSize:12,marginTop:6}}>Para iniciar os envios, conecte o número acima pelo QR Code no computador do estúdio.</Text>
         </View>
-        {!data.server_armed?<BText muted>O desenvolvedor ainda precisa habilitar a chave do conector no servidor. Nenhuma mensagem será enviada enquanto essa chave estiver desligada.</BText>:null}
       </View></BCard>
       <BCard><BText strong size={19}>2 · Prazo e repetição</BText>
         <BText strong>Primeiro aviso após quantos dias do vencimento?</BText>
@@ -120,7 +117,7 @@ export default function BillingAutomationScreen() {
         </View>
       </BCard>
       <BCard><BText strong size={19}>3 · Mensagens personalizadas</BText>
-        <BText muted>Fernando pode escrever uma mensagem diferente para cada aviso. Marcadores automáticos: {tags.join(' · ')}</BText>
+        <BText muted>Personalize o texto de cada aviso. Campos disponíveis: {tags.join(' · ')}</BText>
         {data.templates.map((t,index)=><View key={index} style={{gap:8}}>
           <BField label={`${index+1}ª mensagem${index>=data.max_reminders?' (não usada no limite atual)':''}`} value={t}
             multiline numberOfLines={5} maxLength={950} editable={!saving} onChangeText={v=>patch({templates:data.templates.map((old,i)=>i===index?v:old)})}
@@ -129,15 +126,14 @@ export default function BillingAutomationScreen() {
         </View>)}
         <View style={{padding:16,borderRadius:14,backgroundColor:c.greenSoft,gap:8}}><Text style={{color:c.greenText,fontWeight:'800'}}>Prévia da mensagem {activePreview+1}</Text><Text style={{color:c.ink,fontSize:14,lineHeight:23}}>{previewMessage(data.templates[activePreview]||'')}</Text><Text style={{color:c.muted,fontSize:12}}>O aviso final também incluirá opção para deixar de receber lembretes.</Text></View>
       </BCard>
-      <BCard><BText strong size={19}>4 · Segurança e consentimento</BText>
-        <BText muted>Somente alunos com autorização registrada, telefone configurado e cobrança ainda não paga entram no agendamento. Uma etapa com resultado incerto não será repetida automaticamente.</BText>
-        <BText muted>Limite técnico: até {data.daily_cap} reservas por dia. A integração local usa WhatsApp Web não oficial; mesmo poucos envios podem causar bloqueio ou restrição. Use apenas para contatos que concordaram em receber lembretes.</BText>
+      <BCard><BText strong size={19}>4 · Salvar preferências</BText>
+        <BText muted>Os avisos são direcionados apenas a mensalidades pendentes de alunos que autorizaram contato.</BText>
         <BButton label="Salvar configuração" onPress={()=>void save()} busy={saving}/>
       </BCard>
       <BCard><View style={{flexDirection:'row',justifyContent:'space-between',gap:12,alignItems:'center'}}><BText strong size={19}>Histórico recente</BText><BButton secondary label="Atualizar" onPress={()=>void load()}/></View>
         {history.length===0?<BText muted>Ainda não há lembretes automáticos registrados.</BText>:history.slice(0,30).map(item=><View key={item.uuid} style={{paddingVertical:9,borderBottomWidth:1,borderBottomColor:c.border,gap:3}}>
           <BText strong>{item.student_name} · {item.reference_month} · aviso {item.step}</BText>
-          <BText muted>{STATUS[item.status]??item.status} · {item.created_at?new Date(item.created_at).toLocaleString('pt-BR'):'—'}</BText>
+          <BText muted>{STATUS[item.status]??'Registro efetuado'} · {item.created_at?new Date(item.created_at).toLocaleString('pt-BR'):'—'}</BText>
         </View>)}
       </BCard>
     </>:null}
