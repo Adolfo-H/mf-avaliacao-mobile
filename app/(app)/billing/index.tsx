@@ -1,4 +1,4 @@
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { type Href, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,7 +51,7 @@ export default function BillingScreen() {
   if(!allowed)return <View style={{flex:1,padding:24,backgroundColor:c.bg}}><BCard><BText strong>Área financeira restrita</BText><BText muted>Este módulo é exclusivo da administração e recepção.</BText></BCard></View>;
   return <>
     <ScrollView style={{flex:1,backgroundColor:c.bg}} refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh}/>} contentContainerStyle={{padding:desktop?32:18,gap:18,maxWidth:1320,width:'100%',alignSelf:'center',paddingBottom:50}}>
-      <View style={{flexDirection:desktop?'row':'column',gap:16,justifyContent:'space-between',alignItems:desktop?'center':'stretch'}}><View style={{flex:1}}><Text style={{color:c.greenText,fontWeight:'800',letterSpacing:1.4,fontSize:11}}>FINANCEIRO DO ESTÚDIO</Text><BText strong size={30}>Mensalidades</BText><BText muted>Você confere os pagamentos. O sistema organiza as pendências.</BText></View><BButton label="Configurar aluno" onPress={()=>setLookup(true)}/><BButton label="WhatsApp do estúdio" secondary onPress={()=>setShowSettings(true)}/></View>
+      <View style={{flexDirection:desktop?'row':'column',gap:16,justifyContent:'space-between',alignItems:desktop?'center':'stretch'}}><View style={{flex:1}}><Text style={{color:c.greenText,fontWeight:'800',letterSpacing:1.4,fontSize:11}}>FINANCEIRO DO ESTÚDIO</Text><BText strong size={30}>Mensalidades</BText><BText muted>Você confere os pagamentos. O sistema organiza as pendências.</BText></View><BButton label="Configurar aluno" onPress={()=>setLookup(true)}/><BButton label="WhatsApp do estúdio" secondary onPress={()=>setShowSettings(true)}/>{user?.role==='admin'?<BButton label="Lembretes automáticos" secondary onPress={()=>router.push('/(app)/billing/automation' as Href)}/>:null}</View>
       <View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{[
         ['Recebido no mês',result?.summary.received_cents,c.greenText],['Em atraso',result?.summary.overdue_cents,c.error],['Total em aberto',result?.summary.outstanding_cents,c.ink],
       ].map(([label,value,color])=><View key={String(label)} style={{flex:1,minWidth:desktop?220:155,backgroundColor:c.surface,borderWidth:1,borderColor:c.border,borderRadius:18,padding:20,gap:6}}><BText muted size={12}>{String(label)}</BText><Text style={{color:String(color),fontWeight:'800',fontSize:desktop?28:23}}>{typeof value==='number'?billingMoney(value):'—'}</Text></View>)}</View>
