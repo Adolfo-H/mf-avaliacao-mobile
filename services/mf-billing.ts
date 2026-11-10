@@ -16,6 +16,7 @@ export function saveBillingAccount(uuid: string, body: BillingAccountInput) { re
 export function payBilling(uuid: string, revision: number, paid_on: string, method: string) { return request(`/invoices/${uuid}/pay`,'POST',{revision,paid_on,method}); }
 export function reverseBilling(uuid: string, revision: number, reason: string) { return request(`/invoices/${uuid}/reverse`,'POST',{revision,reason}); }
 export function cancelBilling(uuid: string, revision: number, reason: string) { return request(`/invoices/${uuid}/cancel`,'POST',{revision,reason}); }
+export function restoreBilling(uuid: string, revision: number, amount_cents: number, due_date: string, reason: string) { return request(`/invoices/${uuid}/restore`,'POST',{revision,amount_cents,due_date,reason}); }
 export function adjustBilling(uuid: string, revision: number, amount_cents: number, due_date: string, reason: string) { return request(`/invoices/${uuid}/terms`,'PATCH',{revision,amount_cents,due_date,reason}); }
 export async function previewBilling(uuid: string) { return (await request<{data: BillingPreview}>(`/invoices/${uuid}/preview`)).data; }
 export function sendBillingReminder(uuid: string, revision: number, account_revision: number, channel: 'manual' | 'cloud', idempotency_key: string) {
