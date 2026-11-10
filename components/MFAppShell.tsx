@@ -11,12 +11,14 @@ const NAV: NavItem[] = [
   { id: 'dashboard', title: 'Visão geral', icon: 'home-outline', href: '/(app)/(tabs)/dashboard' },
   { id: 'students', title: 'Alunos', icon: 'people-outline', href: '/(app)/(tabs)/alunos' },
   { id: 'assessments', title: 'Avaliações', icon: 'pulse-outline', href: '/(app)/(tabs)/avaliacoes' },
+  { id: 'billing', title: 'Mensalidades', icon: 'wallet-outline', href: '/(app)/billing' },
   { id: 'reports', title: 'Relatórios', icon: 'document-text-outline', href: '/(app)/reports' },
   { id: 'team', title: 'Equipe', icon: 'people-circle-outline', href: '/(app)/evaluators', adminOnly: true },
   { id: 'profile', title: 'Meu perfil', icon: 'person-outline', href: '/(app)/(tabs)/perfil' },
 ];
 
 function navActive(path: string, id: string): boolean {
+  if (id === 'billing') return path.includes('/billing');
   if (id === 'dashboard') return path.includes('dashboard');
   if (id === 'students') return path.includes('alunos') || path.includes('/students/');
   if (id === 'assessments') return path.includes('avaliacoes') || path.includes('/assessments/');
@@ -27,6 +29,7 @@ function navActive(path: string, id: string): boolean {
 }
 function currentTitle(path: string): string {
   const route = path.toLowerCase();
+  if (route.includes('/billing')) return 'Mensalidades';
   if (route.includes('dashboard')) return 'Visão geral';
   if (route.includes('alunos') || route.includes('/students/')) return 'Alunos';
   if (route.includes('/assessments/') || route.includes('avaliacoes')) return 'Avaliações';
@@ -59,6 +62,7 @@ function DesktopSidebar({ path }: { path: string }) {
         <MFBrand style={{ marginBottom: 30, paddingHorizontal: 8 }} />
         {NAV.map(item => {
           if (item.adminOnly && user?.role !== 'admin') return null;
+          if (item.id === 'billing' && !['admin', 'reception'].includes(user?.role ?? '')) return null;
           const active = navActive(path, item.id);
           return (
             <Pressable
@@ -89,7 +93,8 @@ function DesktopSidebar({ path }: { path: string }) {
 
 function MobileBottomNav({ path }: { path: string }) {
   const { colors } = useMFTheme();
-  const items = NAV.filter(item => ['dashboard', 'students', 'assessments', 'profile'].includes(item.id));
+  const { user } = useAuth();
+  const items = NAV.filter(item => ['dashboard', 'students', 'assessments', 'profile'].includes(item.id) || (item.id === 'billing' && ['admin', 'reception'].includes(user?.role ?? '')));
   return (
     <View style={{ backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border, height: 68, paddingBottom: Platform.OS === 'ios' ? 4 : 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
       {items.map(item => {
@@ -103,7 +108,7 @@ function MobileBottomNav({ path }: { path: string }) {
             style={{ minWidth: 70, alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: 6, borderRadius: 13, backgroundColor: active ? colors.greenSoft : 'transparent' }}
           >
             <Ionicons name={item.icon} size={21} color={active ? colors.greenText : colors.muted} />
-            <Text style={{ fontSize: 10, fontWeight: active ? '800' : '600', color: active ? colors.greenText : colors.muted }}>{item.id === 'dashboard' ? 'Início' : item.title === 'Meu perfil' ? 'Perfil' : item.title}</Text>
+            <Text style={{ fontSize: 10, fontWeight: active ? '800' : '600', color: active ? colors.greenText : colors.muted }}>{item.id === 'dashboard' ? 'Início' : item.id === 'billing' ? 'Mensal.' : item.title === 'Meu perfil' ? 'Perfil' : item.title}</Text>
           </Pressable>
         );
       })}
