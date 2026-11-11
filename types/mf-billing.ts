@@ -7,10 +7,10 @@ export type BillingInvoice = {
 };
 export type BillingAccount = {
   student: BillingStudent; configured: boolean; revision: number; amount_cents: number | null;
-  due_day: number; start_month: string; enabled: boolean; whatsapp_phone: string;
+  due_day: number; reminder_grace_day: number | null; start_month: string; enabled: boolean; whatsapp_phone: string;
   whatsapp_consent: boolean; consent_note: string; consented_at: string | null;
 };
-export type BillingAccountInput = Pick<BillingAccount, 'revision' | 'due_day' | 'start_month' | 'enabled' | 'whatsapp_phone' | 'whatsapp_consent' | 'consent_note'> & { amount_cents: number };
+export type BillingAccountInput = Pick<BillingAccount, 'revision' | 'due_day' | 'reminder_grace_day' | 'start_month' | 'enabled' | 'whatsapp_phone' | 'whatsapp_consent' | 'consent_note'> & { amount_cents: number };
 export type BillingEvent = { id: number; action: string; actor_id: number | null; created_at: string; details: Record<string, unknown> };
 export type BillingAccountResponse = { data: BillingAccount; invoices: BillingInvoice[]; events: BillingEvent[] };
 export type BillingReminder = { uuid: string; channel: 'manual' | 'cloud'; status: string; created_at: string; provider_id: string | null; error_code: string | null };
