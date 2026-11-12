@@ -1,3 +1,17 @@
+export type BillingAutomationOperation = {
+  state: 'disabled' | 'waiting' | 'starting' | 'processing' | 'failed' | 'unconfirmed' | 'setup_required';
+  schedule_time: string;
+  next_run_at: string;
+  last_started_at: string | null;
+  last_finished_at: string | null;
+  last_status: 'started' | 'succeeded' | 'failed' | null;
+  last_sent_count: number | null;
+  last_success_at: string | null;
+  last_success_sent_count: number | null;
+  last_error_code: string | null;
+  worker_live: boolean;
+};
+
 export type BillingAutomationSettings = {
   enabled: boolean;
   sender_phone: string;
@@ -12,6 +26,7 @@ export type BillingAutomationSettings = {
   worker_online: boolean;
   worker_matches_sender: boolean;
   worker_seen_at: string | null;
+  operation?: BillingAutomationOperation;
   daily_cap: number;
   note: string;
 };
