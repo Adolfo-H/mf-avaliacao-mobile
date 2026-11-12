@@ -16,5 +16,9 @@ export type BillingAccountResponse = { data: BillingAccount; invoices: BillingIn
 export type BillingReminder = { uuid: string; channel: 'manual' | 'cloud'; status: string; created_at: string; provider_id: string | null; error_code: string | null };
 export type BillingPreview = { invoice: BillingInvoice; account_revision: number; message: string; recipient: string | null; can_send: boolean; blocked_reasons: string[]; cloud_configured: boolean; last_reminder: BillingReminder | null };
 export type BillingSettings = { studio_name: string; studio_phone: string; timezone: string; today: string; current_month: string; cloud_configured: boolean; manual_available: boolean; template: string; cooldown_hours: number; note: string };
-export type BillingList = { data: BillingInvoice[]; meta: { current_page: number; last_page: number; total: number }; summary: { total: number; received_cents: number; outstanding_cents: number; overdue_cents: number; paid_count: number; overdue_count: number }; today: string };
+export type BillingScheduledAccount = {
+  student_uuid: string; student_name: string; start_month: string;
+  due_day: number; amount_cents: number;
+};
+export type BillingList = { data: BillingInvoice[]; scheduled_accounts?: BillingScheduledAccount[]; meta: { current_page: number; last_page: number; total: number }; summary: { total: number; received_cents: number; outstanding_cents: number; overdue_cents: number; paid_count: number; overdue_count: number }; today: string };
 export type BillingSendResult = { data: BillingReminder; whatsapp_url: string | null };
