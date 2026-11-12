@@ -21,6 +21,21 @@ const sample = {
 function previewMessage(text: string) {
   return tags.reduce((s, key) => s.replaceAll(key, sample[key as keyof typeof sample] ?? ''), text);
 }
+const OPERATION_LABELS: Record<string, string> = {
+  disabled: 'Lembretes desativados',
+  waiting: 'Automação ativa — aguardando execução',
+  starting: 'Robô iniciando no GitHub',
+  processing: 'WhatsApp conectado — verificando mensalidades',
+  failed: 'Atenção — falha na última execução',
+  unconfirmed: 'Atenção — execução de hoje não confirmada',
+  setup_required: 'Status aguardando atualização da API',
+};
+function dateTimeBR(iso: string | null | undefined): string {
+  if (!iso) return 'Ainda não há registro';
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return 'Data indisponível';
+  return d.toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
+}
 function errorMessage(value: unknown): string {
   return value instanceof Error ? value.message : 'Não foi possível salvar. Atualize e tente novamente.';
 }
@@ -55,6 +70,7 @@ export default function BillingAutomationScreen() {
         worker_matches_sender: fresh.worker_matches_sender,
         server_armed: fresh.server_armed,
         worker_seen_at: fresh.worker_seen_at,
+        operation: fresh.operation,
       } : fresh);
     } catch {
       setData(previous => previous ? {...previous,worker_online:false} : previous);
@@ -86,7 +102,7 @@ export default function BillingAutomationScreen() {
       };
       const updated = await updateAutomationSettings(input);
       setData(updated);
-      setNotice('Preferências salvas. Os avisos começam após a conexão do WhatsApp.');
+      setNotice('Preferências salvas. A execução é agendada; o WhatsApp não fica conectado o dia inteiro.');
     } catch (e) { setError(errorMessage(e)); }
     finally { setSaving(false); }
   };
@@ -99,9 +115,9 @@ export default function BillingAutomationScreen() {
     </Pressable>
     <View style={{gap:6}}><Text style={{color:c.greenText,fontSize:11,fontWeight:'800',letterSpacing:1.1}}>FINANCEIRO · CONFIGURAÇÃO</Text>
       <BText strong size={desktop?31:25}>Lembretes automáticos</BText>
-      <BText muted>Escolha o número, os horários e as mensagens de cobrança.</BText>
+      <BText muted>Gerencie o número remetente e os três modelos de texto. Os prazos e intervalos são definidos individualmente no cadastro do aluno.</BText>
     </View>
-    <BCard><BText strong>Como funciona</BText><BText muted>Os avisos seguem os prazos definidos abaixo. Quando o pagamento é registrado, os próximos avisos param.</BText></BCard>
+    <BCard><BText strong>Como funciona</BText><BText muted>Vencimento, dia limite, quantidade de avisos e intervalo são definidos na mensalidade de cada aluno. Este painel guarda três modelos de texto para sorteio. O pagamento registrado bloqueia novos avisos.</BText></BCard>
     <BError message={error}/>{notice?<View style={{padding:14,backgroundColor:c.greenSoft,borderRadius:12}}><Text style={{color:c.greenText,fontWeight:'700'}}>{notice}</Text></View>:null}
     {loading?<ActivityIndicator color={c.greenText} size="large"/>:null}
     {data?<>
@@ -109,44 +125,36 @@ export default function BillingAutomationScreen() {
         <BCheck label="Ativar os lembretes automáticos" checked={data.enabled} onChange={enabled=>patch({enabled})} disabled={saving}/>
         <BField label="Meu WhatsApp remetente (com DDI)" value={data.sender_phone} onChangeText={sender_phone=>patch({sender_phone})}
           editable={!saving} placeholder="+55 45 99999-0000" keyboardType="phone-pad"/>
-        <View style={{padding:12,borderRadius:10,backgroundColor:data.server_armed&&data.worker_online&&data.worker_matches_sender?c.greenSoft:c.warningSoft}}>
-          <Text style={{color:data.server_armed&&data.worker_online&&data.worker_matches_sender?c.greenText:c.warning,fontWeight:'800'}}>
-            {data.server_armed&&data.worker_online&&data.worker_matches_sender?'● WhatsApp conectado':'● WhatsApp não conectado'}
+        <View style={{padding:14,borderRadius:12,backgroundColor:(data.operation?.state==='failed'||data.operation?.state==='unconfirmed'||data.operation?.state==='setup_required')?c.warningSoft:(data.operation?.state==='processing'||data.operation?.state==='waiting')?c.greenSoft:c.soft,gap:7}}>
+          <Text style={{color:(data.operation?.state==='failed'||data.operation?.state==='unconfirmed'||data.operation?.state==='setup_required')?c.warning:(data.operation?.state==='processing'||data.operation?.state==='waiting')?c.greenText:c.ink,fontWeight:'800',fontSize:15}}>
+            {OPERATION_LABELS[data.operation?.state??'setup_required']??'Estado da automação indisponível'}
           </Text>
-          <Text style={{color:c.muted,fontSize:12,marginTop:6}}>Conexão verificada automaticamente a cada 30 segundos. Se cair, os lembretes ficam indisponíveis até a reconexão.</Text>
+          {data.operation?.state==='waiting'?<BText muted size={12}>O GitHub inicia a rotina por volta das {data.operation.schedule_time} (horário de Brasília). Entre execuções, o WhatsApp fica offline por economia.</BText>:null}
+          {data.operation?.state==='starting'?<BText muted size={12}>O GitHub começou a execução; aguardando o WhatsApp conectar.</BText>:null}
+          {data.operation?.state==='processing'?<BText muted size={12}>Conexão ativa neste momento. O robô está verificando as mensalidades.</BText>:null}
+          {data.operation?.state==='failed'?<BText muted size={12}>A última execução terminou com falha ou ficou sem confirmação de encerramento. Consulte os detalhes no GitHub Actions.</BText>:null}
+          {data.operation?.state==='unconfirmed'?<BText muted size={12}>Não houve confirmação da rodada de hoje no horário esperado. Ela pode estar atrasada; confira o GitHub.</BText>:null}
+          {data.operation?.state==='disabled'?<BText muted size={12}>Ative os lembretes para permitir execuções programadas. O GitHub também deve estar habilitado.</BText>:null}
+          {data.operation?.state==='setup_required'?<BText muted size={12}>Falta aplicar a migração de status ou atualizar a API.</BText>:null}
+          {data.operation?.state!=='disabled'&&data.operation?.state!=='setup_required'&&data.operation?.next_run_at?<BText muted size={12}>Próxima janela programada: {dateTimeBR(data.operation.next_run_at)} (pode atrasar).</BText>:null}
+          <BText muted size={12}>Última execução concluída: {dateTimeBR(data.operation?.last_success_at)}</BText>
+          {data.operation?.last_success_at?<BText muted size={12}>Avisos confirmados na última execução: {data.operation.last_success_sent_count??'não informado'}</BText>:null}
+          {data.operation?.state==='failed'&&data.operation.last_finished_at?<BText muted size={12}>Falha registrada em: {dateTimeBR(data.operation.last_finished_at)}</BText>:null}
+          <BText muted size={12}>Atualização automática a cada 30 segundos. O status é baseado nas execuções registradas, não na conexão permanente.</BText>
         </View>
       </View></BCard>
-      <BCard><BText strong size={19}>2 · Prazo e repetição</BText>
-        <BText strong>Primeiro aviso após quantos dias do vencimento?</BText>
-        <View style={{flexDirection:'row',gap:10}}>{[3,4,5].map(days=><Pressable key={days} onPress={()=>patch({first_after_days:days})}
-          accessibilityRole="radio" accessibilityState={{checked:data.first_after_days===days}}
-          style={{flex:1,paddingVertical:13,borderWidth:1,borderRadius:12,borderColor:data.first_after_days===days?c.greenText:c.border,backgroundColor:data.first_after_days===days?c.greenSoft:c.surface,alignItems:'center'}}>
-          <Text style={{fontWeight:'800',color:data.first_after_days===days?c.greenText:c.ink}}>{days} dias</Text></Pressable>)}</View>
-        <BField label="Intervalo entre avisos seguintes (dias)" value={String(data.repeat_interval_days)}
-          onChangeText={v=>patch({repeat_interval_days:Math.max(2,Math.min(30,Number(v.replace(/\D/g,''))||2))})}
-          keyboardType="number-pad" maxLength={2} editable={!saving}/>
-        <BText strong>Máximo de lembretes por mensalidade</BText>
-        <View style={{flexDirection:'row',gap:10}}>{[1,2,3].map(count=><Pressable key={count} accessibilityRole="radio" accessibilityState={{checked:data.max_reminders===count}}
-          onPress={()=>patch({max_reminders:count})} style={{flex:1,paddingVertical:13,borderWidth:1,borderRadius:12,borderColor:data.max_reminders===count?c.greenText:c.border,backgroundColor:data.max_reminders===count?c.greenSoft:c.surface,alignItems:'center'}}><Text style={{color:data.max_reminders===count?c.greenText:c.ink,fontWeight:'800'}}>{count}</Text></Pressable>)}</View>
-        <BField label="Horário do estúdio (HH:MM)" value={data.send_time} editable={!saving} onChangeText={send_time=>patch({send_time})} placeholder="09:00" maxLength={5}/>
-        <View style={{backgroundColor:c.soft,borderRadius:12,padding:14,gap:4}}><BText strong>Exemplo: mensalidade vence dia 10</BText>
-          <BText muted>1º aviso: dia {10+data.first_after_days} · {data.send_time}</BText>
-          {data.max_reminders>=2?<BText muted>2º aviso: dia {10+data.first_after_days+data.repeat_interval_days} · {data.send_time}</BText>:null}
-          {data.max_reminders>=3?<BText muted>3º aviso: após mais {data.repeat_interval_days} dias · {data.send_time}</BText>:null}
-          <BText muted size={12}>Se o mês terminar, a contagem continua no mês seguinte.</BText>
-        </View>
-      </BCard>
-      <BCard><BText strong size={19}>3 · Mensagens personalizadas</BText>
-        <BText muted>Personalize o texto de cada aviso. Campos disponíveis: {tags.join(' · ')}</BText>
+
+      <BCard><BText strong size={19}>2 · Três modelos de mensagem</BText>
+        <BText muted>Cadastre três textos diferentes. Em cada aviso, o sistema sorteará um modelo e evitará repetir o mesmo texto na mesma mensalidade. Campos disponíveis: {tags.join(' · ')}</BText>
         {data.templates.map((t,index)=><View key={index} style={{gap:8}}>
-          <BField label={`${index+1}ª mensagem${index>=data.max_reminders?' (não usada no limite atual)':''}`} value={t}
+          <BField label={`Opção de mensagem ${index+1}`}  value={t}
             multiline numberOfLines={5} maxLength={950} editable={!saving} onChangeText={v=>patch({templates:data.templates.map((old,i)=>i===index?v:old)})}
             style={{minHeight:130,textAlignVertical:'top'}}/>
           <Pressable onPress={()=>setActivePreview(index)} style={{paddingVertical:6}}><Text style={{color:c.greenText,fontWeight:'700'}}>Visualizar mensagem {index+1}</Text></Pressable>
         </View>)}
         <View style={{padding:16,borderRadius:14,backgroundColor:c.greenSoft,gap:8}}><Text style={{color:c.greenText,fontWeight:'800'}}>Prévia da mensagem {activePreview+1}</Text><Text style={{color:c.ink,fontSize:14,lineHeight:23}}>{previewMessage(data.templates[activePreview]||'')}</Text><Text style={{color:c.muted,fontSize:12}}>O aviso final também incluirá opção para deixar de receber lembretes.</Text></View>
       </BCard>
-      <BCard><BText strong size={19}>4 · Salvar preferências</BText>
+      <BCard><BText strong size={19}>3 · Salvar mensagens e ativação</BText>
         <BText muted>Os avisos são direcionados apenas a mensalidades pendentes de alunos que autorizaram contato.</BText>
         <BButton label="Salvar configuração" onPress={()=>void save()} busy={saving}/>
       </BCard>
