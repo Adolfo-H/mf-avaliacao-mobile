@@ -2,7 +2,8 @@
 import { useMFTheme } from '@/contexts/MFThemeContext';
 import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
+import { pickMFPhoto } from '@/lib/mf-photo-picker';
+import { photoErrorMessage, type MFPhotoAsset, type MFPhotoSource } from '@/lib/mf-photo-common';
 import {
   router,
   useFocusEffect,
@@ -363,97 +364,35 @@ export default function ProgressPhotosScreen() {
     }
   }
 
-  async function takePhoto(
-    position:
-      ProgressPhotoPosition
-  ) {
-    if (
-      !canManagePhotos() ||
-      busy
-    ) {
-      return;
+  async function selectPhoto(position: ProgressPhotoPosition, source: MFPhotoSource) {
+    if (!canManagePhotos() || busy) return;
+    try {
+      setBusy(true);
+      setError('');
+      setMessage('');
+      // O seletor web abre no gesto do usuário; não pede permissões assíncronas antes do clique.
+      const asset = await pickMFPhoto(source, 'assessment');
+      if (asset) await saveSelectedPhoto(position, asset);
+    } catch (exception) {
+      setError(photoErrorMessage(exception, 'Não foi possível selecionar a fotografia.'));
+    } finally {
+      setBusy(false);
     }
-
-    const permission =
-      await ImagePicker
-        .requestCameraPermissionsAsync();
-
-    if (!permission.granted) {
-      setError(
-        'Permita o acesso à câmera para registrar a fotografia.'
-      );
-      return;
-    }
-
-    const result =
-      await ImagePicker
-        .launchCameraAsync({
-          mediaTypes: ['images'],
-          allowsEditing: true,
-          quality: 0.8,
-        });
-
-    if (
-      result.canceled ||
-      !result.assets[0]
-    ) {
-      return;
-    }
-
-    await saveSelectedPhoto(
-      position,
-      result.assets[0]
-    );
   }
 
-  async function choosePhoto(
-    position:
-      ProgressPhotoPosition
-  ) {
-    if (
-      !canManagePhotos() ||
-      busy
-    ) {
-      return;
-    }
+  async function takePhoto(position: ProgressPhotoPosition) {
+    await selectPhoto(position, 'camera');
+  }
 
-    const permission =
-      await ImagePicker
-        .requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      setError(
-        'Permita o acesso às fotos para selecionar uma imagem.'
-      );
-      return;
-    }
-
-    const result =
-      await ImagePicker
-        .launchImageLibraryAsync({
-          mediaTypes: ['images'],
-          allowsEditing: true,
-          quality: 0.8,
-        });
-
-    if (
-      result.canceled ||
-      !result.assets[0]
-    ) {
-      return;
-    }
-
-    await saveSelectedPhoto(
-      position,
-      result.assets[0]
-    );
+  async function choosePhoto(position: ProgressPhotoPosition) {
+    await selectPhoto(position, 'library');
   }
 
   async function saveSelectedPhoto(
     position:
       ProgressPhotoPosition,
     asset:
-      ImagePicker.ImagePickerAsset
+      MFPhotoAsset
   ) {
     if (!assessmentUuid) {
       return;
@@ -480,9 +419,7 @@ export default function ProgressPhotosScreen() {
       );
     } catch (exception) {
       setError(
-        exception instanceof Error
-          ? exception.message
-          : 'Não foi possível salvar a fotografia.'
+        photoErrorMessage(exception, 'Não foi possível salvar a fotografia.')
       );
     } finally {
       setBusy(false);

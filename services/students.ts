@@ -1,8 +1,5 @@
-import {
-  ImageManipulator,
-  SaveFormat,
-} from 'expo-image-manipulator';
-import type { ImagePickerAsset } from 'expo-image-picker';
+import { prepareMFPhoto } from '@/lib/mf-photo-prepare';
+import type { MFPhotoAsset } from '@/lib/mf-photo-common';
 
 import { invalidateMFStudentThumbnail } from '@/lib/mf-photo-cache';
 import { apiRequest } from '@/lib/api';
@@ -78,36 +75,8 @@ async function getResponseError(
   return fallbackMessage;
 }
 
-async function prepareStudentPhoto(
-  asset: ImagePickerAsset
-): Promise<string> {
-  const context =
-    ImageManipulator.manipulate(asset.uri);
-
-  if (asset.width && asset.width > 1600) {
-    context.resize({
-      width: 1600,
-      height: null,
-    });
-  }
-
-  const rendered =
-    await context.renderAsync();
-
-  const result =
-    await rendered.saveAsync({
-      format: SaveFormat.JPEG,
-      compress: 0.8,
-      base64: true,
-    });
-
-  if (!result.base64) {
-    throw new Error(
-      'Não foi possível preparar a fotografia.'
-    );
-  }
-
-  return result.base64;
+async function prepareStudentPhoto(asset: MFPhotoAsset): Promise<string> {
+  return prepareMFPhoto(asset, 1600, 0.8);
 }
 
 type ListStudentsOptions = {
@@ -222,7 +191,7 @@ export async function updateStudentStatus(
 
 export async function uploadStudentPhoto(
   uuid: string,
-  asset: ImagePickerAsset
+  asset: MFPhotoAsset
 ): Promise<Student> {
   const token = await requireToken();
 

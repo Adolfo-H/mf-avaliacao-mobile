@@ -1,8 +1,5 @@
-import {
-  ImageManipulator,
-  SaveFormat,
-} from 'expo-image-manipulator';
-import type { ImagePickerAsset } from 'expo-image-picker';
+import { prepareMFPhoto } from '@/lib/mf-photo-prepare';
+import type { MFPhotoAsset } from '@/lib/mf-photo-common';
 
 import { apiRequest } from '@/lib/api';
 import { getToken } from '@/services/auth';
@@ -30,28 +27,8 @@ function apiBase(): string {
   return url.replace(/\/+$/, '');
 }
 
-async function imageToBase64(asset: ImagePickerAsset): Promise<string> {
-  const context = ImageManipulator.manipulate(asset.uri);
-
-  if (asset.width && asset.width > 1600) {
-    context.resize({
-      width: 1600,
-      height: null,
-    });
-  }
-
-  const rendered = await context.renderAsync();
-  const result = await rendered.saveAsync({
-    format: SaveFormat.JPEG,
-    compress: 0.8,
-    base64: true,
-  });
-
-  if (!result.base64) {
-    throw new Error('Não foi possível preparar a fotografia.');
-  }
-
-  return result.base64;
+async function imageToBase64(asset: MFPhotoAsset): Promise<string> {
+  return prepareMFPhoto(asset, 1600, 0.8);
 }
 
 export async function getAssessmentProgressPhotos(
@@ -100,7 +77,7 @@ export async function revokePhotoConsent(
 export async function uploadProgressPhoto(
   assessmentUuid: string,
   position: ProgressPhotoPosition,
-  asset: ImagePickerAsset,
+  asset: MFPhotoAsset,
   observation?: string | null
 ): Promise<ProgressPhotoItem> {
   const token = await requireToken();

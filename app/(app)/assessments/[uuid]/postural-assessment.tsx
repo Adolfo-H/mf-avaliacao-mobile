@@ -2,7 +2,8 @@
 import { useMFTheme } from '@/contexts/MFThemeContext';
 import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
+import { pickMFPhoto } from '@/lib/mf-photo-picker';
+import { photoErrorMessage, type MFPhotoAsset, type MFPhotoSource } from '@/lib/mf-photo-common';
 import {
   router,
   useFocusEffect,
@@ -248,53 +249,33 @@ export default function PosturalAssessmentScreen() {
     );
   }
 
-  async function takePhoto(position: PosturalPhotoPosition) {
+  async function selectPhoto(position: PosturalPhotoPosition, source: MFPhotoSource) {
     if (!canManagePhotos() || busy) return;
-
-    const permission =
-      await ImagePicker.requestCameraPermissionsAsync();
-
-    if (!permission.granted) {
-      setError('Permita o acesso à câmera para registrar a fotografia.');
-      return;
+    try {
+      setBusy(true);
+      setError('');
+      setMessage('');
+      // O seletor web abre no gesto do usuário; não pede permissões assíncronas antes do clique.
+      const asset = await pickMFPhoto(source, 'assessment');
+      if (asset) await saveSelectedPhoto(position, asset);
+    } catch (exception) {
+      setError(photoErrorMessage(exception, 'Não foi possível selecionar a fotografia.'));
+    } finally {
+      setBusy(false);
     }
+  }
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 0.8,
-    });
-
-    if (result.canceled || !result.assets[0]) return;
-
-    await saveSelectedPhoto(position, result.assets[0]);
+  async function takePhoto(position: PosturalPhotoPosition) {
+    await selectPhoto(position, 'camera');
   }
 
   async function choosePhoto(position: PosturalPhotoPosition) {
-    if (!canManagePhotos() || busy) return;
-
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      setError('Permita o acesso às fotos para selecionar uma imagem.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 0.8,
-    });
-
-    if (result.canceled || !result.assets[0]) return;
-
-    await saveSelectedPhoto(position, result.assets[0]);
+    await selectPhoto(position, 'library');
   }
 
   async function saveSelectedPhoto(
     position: PosturalPhotoPosition,
-    asset: ImagePicker.ImagePickerAsset
+    asset: MFPhotoAsset
   ) {
     if (!assessmentUuid || !data) return;
 
@@ -342,9 +323,7 @@ export default function PosturalAssessmentScreen() {
       );
     } catch (exception) {
       setError(
-        exception instanceof Error
-          ? exception.message
-          : 'Não foi possível salvar a fotografia postural.'
+        photoErrorMessage(exception, 'Não foi possível salvar a fotografia postural.')
       );
     } finally {
       setBusy(false);

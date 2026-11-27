@@ -3,7 +3,8 @@ import { MFBillingStudentLink } from '@/components/MFBillingStudentLink';
 import { useMFTheme } from '@/contexts/MFThemeContext';
 import { MFStyleSheet as StyleSheet, mfLegacyColor } from '@/lib/mf-styles';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
+import { pickMFPhoto } from '@/lib/mf-photo-picker';
+import { photoErrorMessage, type MFPhotoAsset, type MFPhotoSource } from '@/lib/mf-photo-common';
 import {
   router,
   useFocusEffect,
@@ -188,115 +189,30 @@ export default function StudentDetailsScreen() {
     await loadStudent(false);
   }
 
-  async function handleTakePhoto() {
-    if (
-      !student ||
-      uploadingPhoto
-    ) {
-      return;
-    }
-
+  async function handleSelectPhoto(source: MFPhotoSource) {
+    if (!student || uploadingPhoto) return;
     try {
+      setUploadingPhoto(true);
       setPhotoError('');
-
-      const permission =
-        await ImagePicker
-          .requestCameraPermissionsAsync();
-
-      if (!permission.granted) {
-        setPhotoError(
-          'Permita o acesso à câmera para fotografar o aluno.'
-        );
-
-        return;
-      }
-
-const result =
-  await ImagePicker
-    .launchCameraAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-
-      preferredAssetRepresentationMode:
-        ImagePicker
-          .UIImagePickerPreferredAssetRepresentationMode
-          .Compatible,
-    });
-
-      if (
-        result.canceled ||
-        !result.assets[0]
-      ) {
-        return;
-      }
-
-      await handlePhotoSelected(
-        result.assets[0]
-      );
+      const asset = await pickMFPhoto(source, 'student');
+      if (asset) await handlePhotoSelected(asset);
     } catch (exception) {
-      setPhotoError(
-        exception instanceof Error
-          ? exception.message
-          : 'Não foi possível utilizar a câmera.'
-      );
+      setPhotoError(photoErrorMessage(exception, 'Não foi possível selecionar a fotografia.'));
+    } finally {
+      setUploadingPhoto(false);
     }
+  }
+
+  async function handleTakePhoto() {
+    await handleSelectPhoto('camera');
   }
 
   async function handleChoosePhoto() {
-    if (
-      !student ||
-      uploadingPhoto
-    ) {
-      return;
-    }
-
-    try {
-      setPhotoError('');
-
-      const permission =
-        await ImagePicker
-          .requestMediaLibraryPermissionsAsync();
-
-      if (!permission.granted) {
-        setPhotoError(
-          'Permita o acesso às fotos para selecionar uma imagem.'
-        );
-
-        return;
-      }
-
-      const result =
-        await ImagePicker
-          .launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          });
-
-      if (
-        result.canceled ||
-        !result.assets[0]
-      ) {
-        return;
-      }
-
-      await handlePhotoSelected(
-        result.assets[0]
-      );
-    } catch (exception) {
-      setPhotoError(
-        exception instanceof Error
-          ? exception.message
-          : 'Não foi possível selecionar a fotografia.'
-      );
-    }
+    await handleSelectPhoto('library');
   }
 
   async function handlePhotoSelected(
-    asset: ImagePicker.ImagePickerAsset
+    asset: MFPhotoAsset
   ) {
     if (!student) {
       return;
@@ -325,9 +241,7 @@ const result =
       );
     } catch (exception) {
       setPhotoError(
-        exception instanceof Error
-          ? exception.message
-          : 'Não foi possível enviar a fotografia.'
+        photoErrorMessage(exception, 'Não foi possível enviar a fotografia.')
       );
     } finally {
       setUploadingPhoto(false);

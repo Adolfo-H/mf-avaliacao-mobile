@@ -1,5 +1,5 @@
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import type { ImagePickerAsset } from 'expo-image-picker';
+import { prepareMFPhoto } from '@/lib/mf-photo-prepare';
+import type { MFPhotoAsset } from '@/lib/mf-photo-common';
 
 import { apiRequest } from '@/lib/api';
 import { getToken } from '@/services/auth';
@@ -25,24 +25,8 @@ function getApiBaseUrl(): string {
   return apiUrl.replace(/\/+$/, '');
 }
 
-async function preparePhoto(asset: ImagePickerAsset): Promise<string> {
-  const context = ImageManipulator.manipulate(asset.uri);
-  if (asset.width && asset.width > 1800) {
-    context.resize({ width: 1800, height: null });
-  }
-
-  const rendered = await context.renderAsync();
-  const result = await rendered.saveAsync({
-    format: SaveFormat.JPEG,
-    compress: 0.82,
-    base64: true,
-  });
-
-  if (!result.base64) {
-    throw new Error('Não foi possível preparar a fotografia.');
-  }
-
-  return result.base64;
+async function preparePhoto(asset: MFPhotoAsset): Promise<string> {
+  return prepareMFPhoto(asset, 1800, 0.82);
 }
 
 export async function getAssessmentPostural(
@@ -77,7 +61,7 @@ export async function updateAssessmentPostural(
 export async function uploadPosturalPhoto(
   assessmentUuid: string,
   position: PosturalPhotoPosition,
-  asset: ImagePickerAsset,
+  asset: MFPhotoAsset,
   options: UpdatePosturalPhotoPayload = {}
 ): Promise<PosturalPhoto> {
   const token = await requireToken();
