@@ -33,6 +33,18 @@ jobs:
       - name: TypeScript
         run: npx tsc --noEmit
 
+      - name: Regressao de idioma e fotografias
+        run: node scripts/mf-qa/VERIFICAR_IDIOMA_FOTOS.cjs
+
+      - name: Exportar web e conferir HTML publicado
+        env:
+          EXPO_NO_DOTENV: '1'
+          EXPO_PUBLIC_API_URL: https://example.invalid/api/v1
+        run: |
+          npx expo export --platform web
+          node scripts/mf-qa/VERIFICAR_IDIOMA_FOTOS.cjs --dist
+          node scripts/mf-pwa/VERIFICAR_PWA.cjs --dist
+
       - name: Expo Doctor SDK 58
         run: npx expo-doctor
 
